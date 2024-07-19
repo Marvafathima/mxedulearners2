@@ -1,49 +1,29 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../Features/userSlice';
-import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../store/authSlice';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [phone_number, setPhoneNumber] = useState('');
-  const [password, setPassword] = useState('');
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.user);
+  const { loading, error } = useSelector((state) => state.auth);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
 
-  const handleLogin = async (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const result = await dispatch(loginUser({ email, phone_number, password }));
-    if (result.type === 'user/loginUser/fulfilled') {
-      localStorage.setItem('token', result.payload.access);
-      navigate('/dashboard');
-    }
+    dispatch(loginUser(formData));
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <h2>Login</h2>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Phone Number"
-        value={phone_number}
-        onChange={(e) => setPhoneNumber(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit" disabled={loading}>
-        {loading ? 'Loading...' : 'Login'}
-      </button>
+    <form onSubmit={handleSubmit}>
+      <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required />
+      <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" required />
+      <button type="submit" disabled={loading}>Login</button>
       {error && <p>{error}</p>}
     </form>
   );
