@@ -22,7 +22,7 @@ export default {
           blueberry:'#192231',
           apricot:'#494E6B' ,
           citrus: '#985E6D',
-          applecore: '#A7B3A5' ,
+          applecore: '#ffffff' ,
         },
       },
     },
