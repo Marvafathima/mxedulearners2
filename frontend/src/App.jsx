@@ -8,6 +8,9 @@ import OTPVerification from './components/OTPVerification';
 import LandingPage from './components/Landing';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Home } from './components/Home';
+import ProtectedAdminRoute from './components/routes/ProtectedAdminRoute';
+import AdminDashboard from './components/admin/AdminDashboard';
+import AdminLoginPage from './components/admin/AdminLoginPage';
 function App() {
   return (
     <Provider store={store}>
@@ -21,9 +24,16 @@ function App() {
             <Route path="/verify-otp" element={<OTPVerification/>} />
             <Route path="/landing-page" element={<LandingPage/>} />
             <Route path="/home" element={<Home/>} />
+            <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route path="/admin/dashboard"  
+            element={
+                <ProtectedAdminRoute>
+                  <AdminDashboard />
+                </ProtectedAdminRoute>
+              } 
+            />
 
-
-            {/* Add other routes as needed */}
+           
           </Routes>
         </div>
       </Router>

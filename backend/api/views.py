@@ -11,20 +11,17 @@ from .utils import generate_otp, send_otp_email
 from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.cache import cache
-
+from django.contrib.auth import authenticate
 class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
-# class RegisterView(generics.CreateAPIView):
-#     queryset = CustomUser.objects.all()
-#     serializer_class = UserSerializer
 
 class RegisterView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         print(serializer,"****************************")
         if serializer.is_valid():
-            # Instead of saving the user, we'll store the data in cache
+           
             otp = generate_otp()
             if 'registration_data' in request.session:
                 del request.session['registration_data']
@@ -34,10 +31,7 @@ class RegisterView(APIView):
             }
             print("Session Data Stored:", request.session['registration_data'])
             request.session.save()
-            # cache_key = f"registration_{serializer.validated_data['email']}"
-            # cache.set(cache_key, {'data': serializer.validated_data, 'otp': otp}, timeout=300)  # 5 minutes expiry
-            # cached_data = cache.get(cache_key)
-            # print("Cached OTP:", cached_data.get('otp'))
+          
             print(f"OTP for {serializer.validated_data['email']}: {otp}")  # For development
             send_otp_email(serializer.validated_data['email'], otp)
             print("All session data:", dict(request.session))
@@ -62,23 +56,13 @@ class VerifyOTPView(APIView):
             
             user_data = session_data['data']
            
-            # cache_key = f"registration_{email}"
-            # cached_data = cache.get(cache_key)
-            # print(cached_data.get('otp'))
-            # if not cached_data or cached_data['otp'] != otp:
-            #     return Response({"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
-            
-            # user_data = cached_data['data']
             user_data.pop('confirm_password', None)
             user = CustomUser.objects.create_user(**user_data)
             user.is_verified = True
             print("user saved sucess")
             user.save()
             del request.session['registration_data'] 
-            # Clear cache
-            # cache.delete(cache_key)
-            
-            # Generate tokens
+          
             refresh = RefreshToken.for_user(user)
             
             return Response({
@@ -106,3 +90,21 @@ class LoginView(generics.GenericAPIView):
             })
         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
+
+class AdminLoginView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        # Authenticate user
+        user = authenticate(request, email=email, password=password)
+
+        if user and user.is_superuser:
+            # Generate tokens
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'isAdmin': user.is_superuser,
+                'access': str(refresh.access_token),  # You may or may not need this based on your setup
+            }, status=status.HTTP_200_OK)
+        
+        return Response({'detail': 'Invalid credentials or not an admin'}, status=status.HTTP_401_UNAUTHORIZED)

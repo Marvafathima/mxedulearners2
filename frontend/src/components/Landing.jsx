@@ -60,7 +60,7 @@ const Navbar = () => {
             <NavItem darkMode={darkMode} href="/">Home</NavItem>
             <button onClick={() => setIsRegisterOpen(true)} className={`${darkMode ? 'text-dark-white hover:text-dark-gray-100' : 'text-white hover:text-light-applecore'}`}>Sign Up</button>
             <button onClick={() => setIsLoginOpen(true)} className={`${darkMode ? 'text-dark-white hover:text-dark-gray-100' : 'text-white hover:text-light-applecore'}`}>Login</button>
-            <NavItem darkMode={darkMode} href="/admin">Admin</NavItem>
+            <NavItem darkMode={darkMode} href="/admin/login">Admin</NavItem>
             <button 
               onClick={toggleTheme}
               className={`${darkMode ? 'bg-dark-gray-200 text-dark-white hover:bg-dark-gray-100' : 'bg-light-apricot text-white hover:bg-light-citrus'} px-3 py-1 rounded transition-colors`}

@@ -9,6 +9,9 @@ export default {
   theme: {
     extend: {
       colors: {
+        'admin-bg': '#f0f4f8',
+        'admin-primary': '#2c7be5',
+        'admin-secondary': '#1e3a8a',
         dark: {
           white: '#FFFFFF',
           gray: {
