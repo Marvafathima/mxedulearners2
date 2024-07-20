@@ -28,7 +28,7 @@ import Login from './Login';
 // };
 
 const Navbar = () => {
-    const { darkMode, toggleTheme } = useContext(ThemeContext);
+  const { darkMode, toggleTheme } = useContext(ThemeContext);
     
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
     const [isOTPVerificationOpen, setIsOTPVerificationOpen] = useState(false);
@@ -92,17 +92,19 @@ const NavItem = ({ darkMode, href, children }) => (
 );
 
 const LandingPage = () => {
-  const [darkMode, setDarkMode] = useState(true);
+  const { darkMode, toggleTheme } = useContext(ThemeContext);
+  // const [darkMode, setDarkMode] = useState(true);
 
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
+  // useEffect(() => {
+  //   if (darkMode) {
+  //     document.documentElement.classList.add('dark');
+  //   } else {
+  //     document.documentElement.classList.remove('dark');
+  //   }
+  // }, [darkMode]);
 
-  const toggleTheme = () => setDarkMode(!darkMode);
+  // const toggleTheme = () => setDarkMode(!darkMode);
+
 
   return (
     <div className={`${darkMode ? 'bg-dark-gray-300' : 'bg-light-applecore'} min-h-screen`}>

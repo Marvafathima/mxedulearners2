@@ -10,17 +10,20 @@ import { ThemeProvider } from './contexts/ThemeContext';
 function App() {
   return (
     <Provider store={store}>
+       <ThemeProvider>
       <Router>
         <div className="App">
           <Routes>
+
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/verify-otp" element={<OTPVerification/>} />
-            <Route path="/landing-page" element={ <ThemeProvider><LandingPage/> </ThemeProvider>} />
+            <Route path="/landing-page" element={<LandingPage/>} />
             {/* Add other routes as needed */}
           </Routes>
         </div>
       </Router>
+      </ThemeProvider>
     </Provider>
   );
 }
