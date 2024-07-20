@@ -83,8 +83,11 @@ class VerifyOTPView(APIView):
             
             return Response({
                 "message": "Email verified successfully. User registered.",
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                   
+                }
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class LoginView(generics.GenericAPIView):
@@ -92,14 +95,14 @@ class LoginView(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         email = request.data.get('email')
-        phone_number = request.data.get('phone_number')
         password = request.data.get('password')
-        user = CustomUser.objects.filter(email=email).first() or CustomUser.objects.filter(phone_number=phone_number).first()
+        user = CustomUser.objects.filter(email=email).first()
         if user and user.check_password(password):
             refresh = RefreshToken.for_user(user)
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
+                 'user': UserSerializer(user).data
             })
         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 

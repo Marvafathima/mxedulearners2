@@ -35,9 +35,11 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../store/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Login = ({ onSuccess }) => {
   const dispatch = useDispatch();
+  const navigate=useNavigate();
   const { loading, error } = useSelector((state) => state.auth);
   const [formData, setFormData] = useState({
     email: '',
@@ -48,13 +50,17 @@ const Login = ({ onSuccess }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(loginUser(formData)).then(() => {
-      onSuccess();
-    });
-  };
-
+    try {
+        await dispatch(loginUser(formData)).unwrap();
+        onSuccess();
+        navigate('/home');
+    } catch (err) {
+       alert("invalid Credentials")
+    }
+};
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <input 

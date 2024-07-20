@@ -1,31 +1,8 @@
-// import { createSlice } from '@reduxjs/toolkit';
-
-// const initialState = {
-//   user: null,
-//   isAuthenticated: false,
-// };
-
-// const authSlice = createSlice({
-//   name: 'auth',
-//   initialState,
-//   reducers: {
-//     setUser: (state, action) => {
-//       state.user = action.payload;
-//       state.isAuthenticated = true;
-//     },
-//     clearUser: (state) => {
-//       state.user = null;
-//       state.isAuthenticated = false;
-//     },
-//   },
-// });
-
-// export const { setUser, clearUser } = authSlice.actions;
-// export default authSlice.reducer;
-
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from '../api/axios';
+import { instance as axios } from '../api/axios'
 axios.defaults.withCredentials = true;
+
+
 const initialState = {
   user: null,
   isAuthenticated: false,
@@ -57,11 +34,12 @@ export const verifyOTP = createAsyncThunk(
   }
 );
 
+
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/token', credentials);
+      const response = await axios.post('/login', credentials);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -98,14 +76,10 @@ const authSlice = createSlice({
       })
       .addCase(verifyOTP.fulfilled, (state, action) => {
         state.loading = false;
-        state.isAuthenticated = true;
         state.user = action.payload.user;
-        localStorage.setItem('token', action.payload.access);
+       
       })
-    //   .addCase(verifyOTP.rejected, (state, action) => {
-    //     state.loading = false;
-    //     state.error = action.payload;
-    //   })
+    
       .addCase(verifyOTP.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.non_field_errors?.[0] || action.payload || 'An error occurred';
@@ -113,17 +87,18 @@ const authSlice = createSlice({
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
-      })
-      .addCase(loginUser.fulfilled, (state, action) => {
+    })
+    .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
         state.user = action.payload.user;
         localStorage.setItem('token', action.payload.access);
-      })
-      .addCase(loginUser.rejected, (state, action) => {
+        localStorage.setItem('refreshToken', action.payload.refresh);
+    })
+    .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
-      });
+        state.error = action.payload.detail || 'Login failed';
+    });
   },
 });
 

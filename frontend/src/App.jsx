@@ -7,6 +7,7 @@ import Login from './components/Login';
 import OTPVerification from './components/OTPVerification';
 import LandingPage from './components/Landing';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { Home } from './components/Home';
 function App() {
   return (
     <Provider store={store}>
@@ -19,6 +20,9 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/verify-otp" element={<OTPVerification/>} />
             <Route path="/landing-page" element={<LandingPage/>} />
+            <Route path="/home" element={<Home/>} />
+
+
             {/* Add other routes as needed */}
           </Routes>
         </div>
