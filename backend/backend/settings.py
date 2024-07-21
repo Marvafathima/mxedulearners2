@@ -206,11 +206,5 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS') == 'True'
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT'))
 
 
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-#     }
-# }
-
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'

@@ -32,12 +32,22 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_verified = models.BooleanField(default=False)
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_created_at = models.DateTimeField(null=True, blank=True)
-
+    is_approved = models.BooleanField(default=False)
     objects = CustomUserManager()
+
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['phone_number','username']
 
     def __str__(self):
         return self.email if self.email else self.phone_number
+class TutorApplication(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    education_qualification = models.TextField()
+    certificate = models.FileField(upload_to='tutor_certificates/')
+    job_experience = models.TextField(blank=True, null=True)
+    experience_proof = models.FileField(upload_to='tutor_experience_proofs/', blank=True, null=True)
+    is_approved = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"Application for {self.user.email}"
