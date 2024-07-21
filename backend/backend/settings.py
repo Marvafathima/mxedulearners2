@@ -9,6 +9,8 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+import dotenv
+dotenv.load_dotenv()
 
 from pathlib import Path
 import os
@@ -83,11 +85,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mxedulearners',
-        'HOST':'localhost',
-        'PORT':'5433',
-        'USER':'postgres',
-        'PASSWORD':'botanist62'
+        'NAME': os.environ.get('DB_NAME'),
+        'HOST':os.environ.get('DB_HOST'),
+        'PORT':os.environ.get('DB_PORT'),
+        'USER':os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
     }
 }
 
@@ -194,12 +196,15 @@ CORS_ALLOWED_ORIGINS = [
 APPEND_SLASH=False
 
 
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Or your email provider's SMTP server
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'marvafathima62@gmail.com'
-EMAIL_HOST_PASSWORD = 'pvwr hnwb yzph hqms'
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS') == 'True'
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT'))
+
 
 # CACHES = {
 #     'default': {
