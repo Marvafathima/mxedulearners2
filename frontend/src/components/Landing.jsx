@@ -5,31 +5,12 @@ import Modal from './Modal';
 import Register from './Register';
 import OTPVerification from './OTPVerification';
 import Login from './Login';
-// const Navbar = ({ darkMode, toggleTheme }) => {
-//   return (
-//     <nav className={`${darkMode ? 'bg-dark-gray-300' : 'bg-light-blueberry'} p-4`}>
-//       <div className="container mx-auto flex justify-between items-center">
-//         <div className={`${darkMode ? 'text-dark-white' : 'text-white'} text-xl font-bold`}>MXEduLearners</div>
-//         <div className="flex items-center space-x-4">
-//           <NavItem darkMode={darkMode} href="/">Home</NavItem>
-//           <NavItem darkMode={darkMode} href="/register">Sign Up</NavItem>
-//           <NavItem darkMode={darkMode} href="/login">Login</NavItem>
-//           <NavItem darkMode={darkMode} href="/admin">Admin</NavItem>
-//           <button 
-//             onClick={toggleTheme}
-//             className={`${darkMode ? 'bg-dark-gray-200 text-dark-white hover:bg-dark-gray-100' : 'bg-light-apricot text-white hover:bg-light-citrus'} px-3 py-1 rounded transition-colors`}
-//           >
-//             Toggle Theme
-//           </button>
-//         </div>
-//       </div>
-//     </nav>
-//   );
-// };
-
+import TutorApplication from './tutor/TutorApplication';
+import { useDispatch, useSelector } from 'react-redux';
 const Navbar = () => {
-  const { darkMode, toggleTheme } = useContext(ThemeContext);
-    
+    const { darkMode, toggleTheme } = useContext(ThemeContext);
+    const [isTutorApplicationOpen, setIsTutorApplicationOpen] = useState(false);
+    const { role } = useSelector((state) => state.auth);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
     const [isOTPVerificationOpen, setIsOTPVerificationOpen] = useState(false);
     const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -43,14 +24,23 @@ const Navbar = () => {
       setIsOTPVerificationOpen(true);
     };
   
-    const handleOTPVerificationSuccess = () => {
+    const handleOTPVerificationSuccess = (userRole) => {
       setIsOTPVerificationOpen(false);
-      setIsLoginOpen(true);
+      if (userRole === 'tutor') {
+        setIsTutorApplicationOpen(true);
+      } else {
+        setIsLoginOpen(true);
+      }
     };
   
     const handleLoginSuccess = () => {
       setIsLoginOpen(false);
       // Navigate to home page or update state as needed
+    };
+    const handleTutorApplicationSuccess = () => {
+      setIsTutorApplicationOpen(false);
+      setIsLoginOpen(true);
+      // You can show a message here that the application is under review
     };
     return (
       <nav className={`${darkMode ? 'bg-dark-gray-300' : 'bg-light-blueberry'} p-4`}>
@@ -60,6 +50,7 @@ const Navbar = () => {
             <NavItem darkMode={darkMode} href="/">Home</NavItem>
             <button onClick={() => setIsRegisterOpen(true)} className={`${darkMode ? 'text-dark-white hover:text-dark-gray-100' : 'text-white hover:text-light-applecore'}`}>Sign Up</button>
             <button onClick={() => setIsLoginOpen(true)} className={`${darkMode ? 'text-dark-white hover:text-dark-gray-100' : 'text-white hover:text-light-applecore'}`}>Login</button>
+            <button onClick={() => setIsTutorApplicationOpen(true)} className={`${darkMode ? 'text-dark-white hover:text-dark-gray-100' : 'text-white hover:text-light-applecore'}`}>Tutor Application</button>
             <NavItem darkMode={darkMode} href="/admin/login">Admin</NavItem>
             <button 
               onClick={toggleTheme}
@@ -69,7 +60,6 @@ const Navbar = () => {
             </button>
           </div>
         </div>
-        
         <Modal isOpen={isRegisterOpen} onClose={() => setIsRegisterOpen(false)}>
         <Register onSuccess={handleRegisterSuccess} />
       </Modal>
@@ -79,6 +69,23 @@ const Navbar = () => {
       <Modal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)}>
         <Login onSuccess={handleLoginSuccess} />
       </Modal>
+      <Modal isOpen={isTutorApplicationOpen} onClose={() => setIsTutorApplicationOpen(false)}>
+        <TutorApplication onSuccess={handleTutorApplicationSuccess} />
+      </Modal>
+      
+        
+        {/* <Modal isOpen={isRegisterOpen} onClose={() => setIsRegisterOpen(false)}>
+        <Register onSuccess={handleRegisterSuccess} />
+      </Modal>
+      <Modal isOpen={isOTPVerificationOpen} onClose={() => setIsOTPVerificationOpen(false)}>
+        <OTPVerification email={registeredEmail} onSuccess={handleOTPVerificationSuccess} />
+      </Modal>
+      <Modal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)}>
+        <Login onSuccess={handleLoginSuccess} />
+      </Modal>
+      <Modal isOpen={isTutorApplicationOpen} onClose={() => setIsTutorApplicationOpen(false)}>
+        <TutorApplication userId={registeredUserId} onSuccess={handleTutorApplicationSuccess} />
+      </Modal> */}
       </nav>
     );
   };
@@ -93,17 +100,6 @@ const NavItem = ({ darkMode, href, children }) => (
 
 const LandingPage = () => {
   const { darkMode, toggleTheme } = useContext(ThemeContext);
-  // const [darkMode, setDarkMode] = useState(true);
-
-  // useEffect(() => {
-  //   if (darkMode) {
-  //     document.documentElement.classList.add('dark');
-  //   } else {
-  //     document.documentElement.classList.remove('dark');
-  //   }
-  // }, [darkMode]);
-
-  // const toggleTheme = () => setDarkMode(!darkMode);
 
 
   return (

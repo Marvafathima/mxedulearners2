@@ -46,7 +46,21 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
-
+export const submitTutorApplication = createAsyncThunk(
+  'auth/submitTutorApplication',
+  async (applicationData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post('/tutor_application', applicationData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -73,13 +87,26 @@ const authSlice = createSlice({
       .addCase(verifyOTP.pending, (state) => {
         state.loading = true;
         state.error = null;
-      })
-      .addCase(verifyOTP.fulfilled, (state, action) => {
+      }).addCase(verifyOTP.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-       
+        state.role = action.payload.user.role;
       })
-    
+      // .addCase(verifyOTP.fulfilled, (state, action) => {
+      //   state.loading = false;
+      
+      //   state.user = {
+      //     id: action.payload.user_id,
+      //     email: action.payload.email,
+      //   };
+      //   state.role = action.payload.role;
+       
+      // })
+      // .addCase(verifyOTP.fulfilled, (state, action) => {
+      //   state.loading = false;
+      //   state.user = action.payload.user;
+      //   state.role = action.payload.user.role;
+      // })
       .addCase(verifyOTP.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.non_field_errors?.[0] || action.payload || 'An error occurred';
@@ -98,7 +125,23 @@ const authSlice = createSlice({
     .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload.detail || 'Login failed';
+    })
+    .addCase(submitTutorApplication.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(submitTutorApplication.fulfilled, (state, action) => {
+      state.loading = false;
+      // You can update the user state here if needed
+    })
+    .addCase(submitTutorApplication.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || 'Failed to submit tutor application';
     });
+
+
+
+
   },
 });
 

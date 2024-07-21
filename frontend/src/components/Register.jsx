@@ -79,17 +79,24 @@ const Register = ({ onSuccess }) => {
     return errors;
   };
 
+
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const errors = validateForm();
     if (Object.keys(errors).length === 0) {
-      dispatch(registerUser(formData)).then(() => {
-        onSuccess(formData.email);
+      dispatch(registerUser(formData)).then((result) => {
+        if (result.payload) {
+          onSuccess(result.payload.email, result.payload.user_id);
+        }
       });
     } else {
       setFormErrors(errors);
     }
   };
+
+
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

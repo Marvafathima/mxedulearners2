@@ -19,9 +19,9 @@ function App() {
         <div className="App">
           <Routes>
 
-            <Route path="/register" element={<Register />} />
+            {/* <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/verify-otp" element={<OTPVerification/>} />
+            <Route path="/verify-otp" element={<OTPVerification/>} /> */}
             <Route path="/landing-page" element={<LandingPage/>} />
             <Route path="/home" element={<Home/>} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
