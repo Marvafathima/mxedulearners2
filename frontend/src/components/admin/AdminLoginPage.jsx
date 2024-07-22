@@ -1,19 +1,25 @@
 // src/components/AdminLoginPage.jsx
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { adminLogin } from '../../store/adminAuthSlice';
+// import { adminLogin } from '../../store/adminAuthSlice';
+import { loginAdmin } from '../../store/adminAuthSlice';
 const AdminLoginPage = () => {
+  useEffect(() => {
+    console.log("AdminLoginPage component mounted");
+  }, []);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.adminAuth);
+ 
   const [formData, setFormData] = useState({ email: '', password: '' });
+  
   const [formErrors, setFormErrors] = useState({});
-
+  
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+  console.log("upto handlechange")
   const validateForm = () => {
     const errors = {};
     if (!formData.email) errors.email = 'Email is required';
@@ -21,21 +27,60 @@ const AdminLoginPage = () => {
     if (!formData.password) errors.password = 'Password is required';
     return errors;
   };
+  console.log(formData.email,formData.password,"hereee")
+  console.log("validation")
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validateForm();
     if (Object.keys(errors).length === 0) {
       try {
-        await dispatch(adminLogin(formData)).unwrap();
-        navigate('/admin/dashboard');
+        console.log(formData.email,formData.password,"tttttthereee")
+        const resultAction =await dispatch(loginAdmin({ email: formData.email, password: formData.password }));
+        console.log('Login action result:', resultAction);
+        if (loginAdmin.fulfilled.match(resultAction)) {
+          console.log('Login successful, navigating to dashboard');
+          navigate('/admin/dashboard');
+        } else if (loginAdmin.rejected.match(resultAction)) {
+          console.error('Login failed:', resultAction.error);
+          setFormErrors({ general: resultAction.error.message });
+        }
       } catch (err) {
-        // Error is handled by the redux slice
+        console.error('Error during login:', err);
+        setFormErrors({ general: 'An unexpected error occurred. Please try again.' });
       }
     } else {
       setFormErrors(errors);
     }
   };
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+   
+  //   console.log(formData.email,formData.password)
+  //   const errors = validateForm();
+  //   if (Object.keys(errors).length === 0) {
+  //     try {
+  //       console.log(formData.email,formData.password)
+  //       const resultAction =dispatch(loginAdmin({ email: formData.email, password: formData.password }));
+  //       // const resultAction = await dispatch(adminLogin(formData));
+  //       console.log('Login action result:', resultAction);
+  //       if (loginAdmin.fulfilled.match(resultAction)) {
+  //         console.log('Login successful, navigating to dashboard');
+          
+  //         navigate('/admin/dashboard');
+  //       } else if (loginAdmin.rejected.match(resultAction)) {
+  //         console.error('Login failed:', resultAction.error);
+  //         setFormErrors({ general: resultAction.error.message });
+  //       }
+  //     } catch (err) {
+  //       console.error('Error during login:', err);
+  //       setFormErrors({ general: 'An unexpected error occurred. Please try again.' });
+  //     }
+  //   } else {
+  //     setFormErrors(errors);
+  //   }
+  // };
+  
 
   return (
     <div className="min-h-screen bg-admin-bg flex items-center justify-center">
@@ -86,6 +131,8 @@ const AdminLoginPage = () => {
             <button
               type="submit"
               disabled={loading}
+             
+              
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-admin-primary hover:bg-admin-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-admin-primary"
             >
               {loading ? 'Logging in...' : 'Log in'}

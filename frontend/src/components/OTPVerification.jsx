@@ -10,15 +10,7 @@ const OTPVerification = ({ email,onSuccess }) => {
   const [otp, setOtp] = useState('');
  
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   dispatch(verifyOTP({ email, otp })).then((result) => {
-  //     if (result.payload) {
-  //       onSuccess();
-  //     }
-  //   });
-  // };
-
+ 
 
   const handleSubmit = (e) => {
     e.preventDefault();

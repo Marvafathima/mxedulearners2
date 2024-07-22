@@ -10,7 +10,9 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { Home } from './components/Home';
 import ProtectedAdminRoute from './components/routes/ProtectedAdminRoute';
 import AdminDashboard from './components/admin/AdminDashboard';
+
 import AdminLoginPage from './components/admin/AdminLoginPage';
+import RequestTutorPage from './components/admin/tutors/RequestTutorPage';
 function App() {
   return (
     <Provider store={store}>
@@ -32,7 +34,13 @@ function App() {
                 </ProtectedAdminRoute>
               } 
             />
-
+ <Route path="/admin/tutors/requests"  
+            element={
+                <ProtectedAdminRoute>
+                  <RequestTutorPage/>
+                </ProtectedAdminRoute>
+              } 
+            />
            
           </Routes>
         </div>

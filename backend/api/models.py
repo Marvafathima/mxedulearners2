@@ -33,6 +33,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_created_at = models.DateTimeField(null=True, blank=True)
     is_approved = models.BooleanField(default=False)
+    is_rejected=models.BooleanField(default=False)
     objects = CustomUserManager()
 
 
@@ -41,6 +42,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email if self.email else self.phone_number
+
 class TutorApplication(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     education_qualification = models.TextField()

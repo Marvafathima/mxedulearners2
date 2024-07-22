@@ -25,7 +25,11 @@ class UserSerializer(serializers.ModelSerializer):
 class OTPVerificationSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)
-
+class AdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'email', 'is_superuser', 'is_staff')
+        read_only_fields = ('is_superuser', 'is_staff')
 
 
 

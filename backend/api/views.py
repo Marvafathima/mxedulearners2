@@ -2,7 +2,7 @@ from rest_framework import generics, status,viewsets
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import CustomUser
-from .serializer import UserSerializer,OTPVerificationSerializer,TutorApplicationSerializer
+from .serializer import UserSerializer,OTPVerificationSerializer,TutorApplicationSerializer,AdminSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,8 +12,9 @@ from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.cache import cache
 from django.contrib.auth import authenticate
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from .models import TutorApplication
+from rest_framework_simplejwt.views import TokenRefreshView
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
@@ -72,7 +73,7 @@ class VerifyOTPView(APIView):
                 } 
                 }, status=status.HTTP_201_CREATED)
             refresh = RefreshToken.for_user(user)
-            del request.session['registration_data'] 
+           
             return Response({
                 "message": "Email verified successfully. User registered.",
                 "user": {
@@ -100,6 +101,10 @@ class LoginView(generics.GenericAPIView):
             return Response({
                 'detail':"Admin Approval pending"
             },status=status.HTTP_401_UNAUTHORIZED)
+        elif user and user.check_password(password) and user.is_rejected==False:
+            return Response({
+                'detail':"Sorry,Admin rejected your application"
+            },status=status.HTTP_401_UNAUTHORIZED)
         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -107,19 +112,42 @@ class AdminLoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
-
+        print(password,"admin password recieved")
         # Authenticate user
         user = authenticate(request, email=email, password=password)
-
+        
         if user and user.is_superuser:
             # Generate tokens
+            print("tokenis generated")
             refresh = RefreshToken.for_user(user)
             return Response({
                 'isAdmin': user.is_superuser,
-                'access': str(refresh.access_token),  # You may or may not need this based on your setup
+                'access': str(refresh.access_token), 
+                'refresh': str(refresh),
+                 'user': UserSerializer(user).data # You may or may not need this based on your setup
             }, status=status.HTTP_200_OK)
         
         return Response({'detail': 'Invalid credentials or not an admin'}, status=status.HTTP_401_UNAUTHORIZED)
+
+# class AdminTokenRefreshView(TokenRefreshView):
+#     def post(self, request, *args, **kwargs):
+#         response = super().post(request, *args, **kwargs)
+#         if response.status_code == 200:
+#             user = request.user
+#             if user.is_superuser:
+#                 return response
+#         return Response({'detail': 'Not an admin'}, status=status.HTTP_401_UNAUTHORIZED)
+
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+
+class AdminTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        try:
+            response = super().post(request, *args, **kwargs)
+            return response
+        except (InvalidToken, TokenError):
+            return Response({'detail': 'Invalid token or not an admin'}, status=status.HTTP_401_UNAUTHORIZED)
 class TutorApplicationView(APIView):
   
     def post(self, request):
@@ -150,4 +178,37 @@ class TutorApplicationView(APIView):
                 "user_id": user.id
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+class AdminMeView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        user = request.user
+        if user.is_superuser:
+            serializer = AdminSerializer(user)
+            return Response(serializer.data)
+        else:
+            return Response({"detail": "You do not have permission to access this resource."},
+                            status=status.HTTP_403_FORBIDDEN)
+# views.py
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework.response import Response
+from rest_framework import status
+
+class AdminTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        print(request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+     
+        if not serializer.user.is_staff:
+            return Response({"detail": "You do not have permission to perform this action."},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
+
+
