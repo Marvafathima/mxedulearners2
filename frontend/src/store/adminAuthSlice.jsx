@@ -39,7 +39,18 @@ export const refreshAdminToken = createAsyncThunk(
     }
   }
 );
-
+export const logoutAdmin = createAsyncThunk(
+  'adminAuth/logout',
+  async (_, { rejectWithValue }) => {
+    try {
+      const refreshToken = localStorage.getItem('adminRefreshToken');
+      await adminAxiosInstance.post('/logout/', { refresh_token: refreshToken });
+      return;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.detail || 'Logout failed');
+    }
+  }
+);
 export const fetchAdminMe = createAsyncThunk(
   'adminAuth/fetchAdminMe',
   async (_, { rejectWithValue }) => {
@@ -108,6 +119,14 @@ const adminAuthSlice = createSlice({
       .addCase(fetchAdminMe.rejected, (state) => {
         state.isAuthenticated = false;
         state.admin = null;
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminRefreshToken');
+        localStorage.removeItem('adminUser');
+      })
+      
+      .addCase(logoutAdmin.fulfilled, (state) => {
+        state.admin = null;
+        state.isAuthenticated = false;
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminRefreshToken');
         localStorage.removeItem('adminUser');

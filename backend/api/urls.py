@@ -1,5 +1,5 @@
 from django.urls import path,include
-from .views import RegisterView, LoginView,UserViewSet,VerifyOTPView,AdminLoginView,AdminTokenObtainPairView, AdminTokenRefreshView,AdminTokenRefreshView,TutorApplicationView,AdminMeView
+from .views import RegisterView, LoginView, AdminLogoutView,UserViewSet,VerifyOTPView,AdminLoginView,AdminTokenObtainPairView, AdminTokenRefreshView,AdminTokenRefreshView,TutorApplicationView,AdminMeView
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -18,7 +18,8 @@ urlpatterns = [
     path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('tutor_application', TutorApplicationView.as_view(), name='tutor_application'),
     path('admin/me', AdminMeView.as_view(), name='admin-me'),
-     path('admin/token', AdminTokenObtainPairView.as_view(), name='admin-token-obtain-pair'),
+    path('admin/token', AdminTokenObtainPairView.as_view(), name='admin-token-obtain-pair'),
+    path('admin/logout/', AdminLogoutView.as_view(), name='admin_logout'),
    
     
 ]

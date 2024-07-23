@@ -109,13 +109,22 @@
 // src/components/admin/AdminSidebar.jsx
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { logoutAdmin } from '../../store/adminAuthSlice';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import {  useDispatch, } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const AdminSidebar = () => {
   const location = useLocation();
   const [revenueOpen, setRevenueOpen] = useState(false);
   const [tutorsOpen, setTutorsOpen] = useState(false);
-
+  const navigate=useNavigate();
+  const dispatch=useDispatch();
+  const handleLogout = () => {
+    dispatch(logoutAdmin()).then(() => {
+      navigate('/admin/login');
+    });
+  };
   const menuItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: 'dashboard' },
     { name: 'My Profile', path: '/admin/profile', icon: 'user' },
@@ -207,7 +216,7 @@ const AdminSidebar = () => {
       </div>
       <div className="mt-auto pt-4">
         <button
-          onClick={() => {/* Add logout logic here */}}
+          onClick={handleLogout}
           className="flex items-center w-full p-2 rounded hover:bg-admin-primary"
         >
           <i className="fas fa-sign-out-alt mr-2"></i>

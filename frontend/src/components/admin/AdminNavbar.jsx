@@ -10,11 +10,15 @@ const AdminNavbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { username } = useSelector((state) => state.adminAuth);
 
+  // const handleLogout = () => {
+  //   dispatch(adminLogout());
+  //   navigate('/admin/login');
+  // };
   const handleLogout = () => {
-    dispatch(adminLogout());
-    navigate('/admin/login');
+    dispatch(logoutAdmin()).then(() => {
+      navigate('/admin/login');
+    });
   };
-
   return (
     <nav className="bg-admin-primary p-4">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
