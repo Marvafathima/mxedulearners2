@@ -2,16 +2,17 @@ import React from 'react';
 import AdminNavbar from './AdminNavbar';
 import AdminSidebar from './AdminSidebar';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useEffect,useState } from 'react';
 import { useDispatch,useSelector } from 'react-redux';
 
 import { refreshAdminToken } from '../../store/adminAuthSlice';
 const AdminDashboard = () => {
  console.log("refreshing")
-  const { isAuthenticated, isAdmin } = useSelector((state) => state.adminAuth);
+  const { isAuthenticated, isAdmin,loading } = useSelector((state) => state.adminAuth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [isChecking, setIsChecking] = useState(true);
   useEffect(() => {
     const checkAuth = async () => {
       if (!isAuthenticated || !isAdmin) {
@@ -31,10 +32,19 @@ const AdminDashboard = () => {
           }
         }
       }
+      setIsChecking(false);
     };
 
     checkAuth();
   }, [isAuthenticated,isAdmin, navigate, dispatch]);
+  // if (isChecking || loading) {
+  //   return <div>Loading...</div>;
+  // }
+
+  // if (!isAuthenticated || !isAdmin) {
+  //   return <Navigate to="/admin/login" />;
+  
+  // }
 
   // useEffect(() => {
   //   const checkAuth = async () => {
