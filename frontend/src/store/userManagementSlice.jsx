@@ -81,7 +81,16 @@ const userManagementSlice = createSlice({
       })
       .addCase(fetchTutorDetail.fulfilled, (state, action) => {
         state.selectedTutor = action.payload;
+      })
+      .addCase(fetchTutorDetail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTutorDetail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
+
   },
 });
 

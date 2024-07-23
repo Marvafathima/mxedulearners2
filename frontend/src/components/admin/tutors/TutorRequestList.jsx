@@ -107,13 +107,19 @@ const TutorRequestList = () => {
     dispatch(rejectTutor(userId));
   };
 
+  // const handleView = (userId) => {
+  //   dispatch(fetchTutorDetail(userId));
+  //   setIsModalOpen(true);
+  // };
+
   const handleView = (userId) => {
-    dispatch(fetchTutorDetail(userId));
-    setIsModalOpen(true);
+    dispatch(fetchTutorDetail(userId)).then(() => {
+      setIsModalOpen(true);
+    });
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  // if (loading) return <div>Loading...</div>;
+  // if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="bg-admin-bg p-6">
@@ -152,12 +158,12 @@ const TutorRequestList = () => {
         <TutorDetailModal
           tutor={selectedTutor}
           onClose={() => setIsModalOpen(false)}
-          onApprove={() => {
-            handleApprove(selectedTutor.id);
+          onApprove={(userId) => {
+            handleApprove(userId);
             setIsModalOpen(false);
           }}
-          onReject={() => {
-            handleReject(selectedTutor.id);
+          onReject={(userId) => {
+            handleReject(userId);
             setIsModalOpen(false);
           }}
         />
@@ -170,14 +176,14 @@ const TutorDetailModal = ({ tutor, onClose, onApprove, onReject }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white p-6 rounded-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4">{tutor.username}</h2>
-        <p><strong>Email:</strong> {tutor.email}</p>
-        <p><strong>Phone:</strong> {tutor.phone_number}</p>
+        <h2 className="text-2xl font-bold mb-4">{tutor.user.username}</h2>
+        <p><strong>Email:</strong> {tutor.user.email}</p>
+        <p><strong>Phone:</strong> {tutor.user.phone_number}</p>
         <p><strong>Education:</strong> {tutor.education_qualification}</p>
         <p><strong>Experience:</strong> {tutor.job_experience}</p>
         <div className="mt-6 flex justify-end space-x-2">
-          <button onClick={onReject} className="bg-red-500 text-white px-4 py-2 rounded">Reject</button>
-          <button onClick={onApprove} className="bg-green-500 text-white px-4 py-2 rounded">Approve</button>
+          <button onClick={() => onReject(tutor.user.id)} className="bg-red-500 text-white px-4 py-2 rounded">Reject</button>
+          <button onClick={() => onApprove(tutor.user.id)} className="bg-green-500 text-white px-4 py-2 rounded">Approve</button>
           <button onClick={onClose} className="bg-gray-300 text-black px-4 py-2 rounded">Close</button>
         </div>
       </div>

@@ -9,9 +9,7 @@ from .serializers import TutorRequestSerializer, TutorDetailSerializer
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def tutor_requests(request):
-    print(request.user)
-    print(request.user.is_authenticated)
-    print(request.user.is_staff)
+   
     tutors = CustomUser.objects.filter(role='tutor', is_approved=False, is_rejected=False)
     serializer = TutorRequestSerializer(tutors, many=True)
     return Response(serializer.data)
@@ -43,8 +41,16 @@ def reject_tutor(request, user_id):
 def tutor_detail(request, user_id):
     try:
         tutor = CustomUser.objects.get(id=user_id, role='tutor')
+        print(tutor.username)
+        print("try is working..tutor detailis fetched")
+        tutors=TutorApplication.objects.all()
+        for t in tutors:
+            print(t.id,"tutorsssss",t.user.username)
         tutor_application = TutorApplication.objects.get(user=tutor)
+        print(tutor_application.job_experience,"this is the experience")
+       
         serializer = TutorDetailSerializer(tutor_application)
+        print(serializer.data)
         return Response(serializer.data)
     except (CustomUser.DoesNotExist, TutorApplication.DoesNotExist):
         return Response({'error': 'Tutor or application not found'}, status=status.HTTP_404_NOT_FOUND)
