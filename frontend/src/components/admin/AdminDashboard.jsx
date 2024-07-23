@@ -18,6 +18,8 @@ const AdminDashboard = () => {
         console.log("not authenticated")
         const token = localStorage.getItem('access_token');
         const isAdmin = localStorage.getItem('isAdmin') === 'true';
+        try{console.log(isAdmin)} 
+        catch{console.log("cannot print")}
         if (!token) {
           navigate('/admin/login');
         } else {

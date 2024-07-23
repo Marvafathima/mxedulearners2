@@ -1,10 +1,10 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import  approve_tutor, reject_tutor, TutorListView
+# usermanagement/urls.py
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    path('admin/tutors', TutorListView.as_view(), name='tutor-list'),
-    path('admin/tutors/<int:tutor_id>/approve/', approve_tutor, name='approve-tutor'),
-    path('admin/tutors/<int:tutor_id>/reject/', reject_tutor, name='reject-tutor'),
-    
+    path('tutor-requests/', views.tutor_requests, name='tutor_requests'),
+    path('approve-tutor/<int:user_id>/', views.approve_tutor, name='approve_tutor'),
+    path('reject-tutor/<int:user_id>/', views.reject_tutor, name='reject_tutor'),
+    path('tutor-detail/<int:user_id>/', views.tutor_detail, name='tutor_detail'),
 ]
