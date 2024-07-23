@@ -17,7 +17,7 @@ const AdminDashboard = () => {
     const checkAuth = async () => {
       if (!isAuthenticated || !isAdmin) {
         console.log("not authenticated")
-        const token = localStorage.getItem('access_token');
+        const token = localStorage.getItem('adminToken');
         const isAdmin = localStorage.getItem('isAdmin') === 'true';
         try{console.log(isAdmin)} 
         catch{console.log("cannot print")}

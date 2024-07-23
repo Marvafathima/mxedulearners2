@@ -74,18 +74,7 @@ const Navbar = () => {
       </Modal>
       
         
-        {/* <Modal isOpen={isRegisterOpen} onClose={() => setIsRegisterOpen(false)}>
-        <Register onSuccess={handleRegisterSuccess} />
-      </Modal>
-      <Modal isOpen={isOTPVerificationOpen} onClose={() => setIsOTPVerificationOpen(false)}>
-        <OTPVerification email={registeredEmail} onSuccess={handleOTPVerificationSuccess} />
-      </Modal>
-      <Modal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)}>
-        <Login onSuccess={handleLoginSuccess} />
-      </Modal>
-      <Modal isOpen={isTutorApplicationOpen} onClose={() => setIsTutorApplicationOpen(false)}>
-        <TutorApplication userId={registeredUserId} onSuccess={handleTutorApplicationSuccess} />
-      </Modal> */}
+        
       </nav>
     );
   };

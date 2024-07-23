@@ -7,7 +7,7 @@ import Login from './components/Login';
 import OTPVerification from './components/OTPVerification';
 import LandingPage from './components/Landing';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { Home } from './components/Home';
+import Home  from './components/Home';
 import ProtectedAdminRoute from './components/routes/ProtectedAdminRoute';
 import AdminDashboard from './components/admin/AdminDashboard';
 

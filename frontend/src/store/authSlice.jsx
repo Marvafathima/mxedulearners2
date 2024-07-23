@@ -61,6 +61,32 @@ export const submitTutorApplication = createAsyncThunk(
     }
   }
 );
+export const fetchTutorDetails = createAsyncThunk(
+  'auth/fetchTutorDetails',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`/tutor-details/${userId}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const updateProfilePic = createAsyncThunk(
+  'auth/updateProfilePic',
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post('/update-profile-pic', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 
 
@@ -95,21 +121,8 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.role = action.payload.user.role;
       })
-      // .addCase(verifyOTP.fulfilled, (state, action) => {
-      //   state.loading = false;
-      
-      //   state.user = {
-      //     id: action.payload.user_id,
-      //     email: action.payload.email,
-      //   };
-      //   state.role = action.payload.role;
-       
-      // })
-      // .addCase(verifyOTP.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.user = action.payload.user;
-      //   state.role = action.payload.user.role;
-      // })
+   
+    
       .addCase(verifyOTP.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.non_field_errors?.[0] || action.payload || 'An error occurred';
@@ -140,6 +153,30 @@ const authSlice = createSlice({
     .addCase(submitTutorApplication.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload || 'Failed to submit tutor application';
+    })
+    .addCase(fetchTutorDetails.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(fetchTutorDetails.fulfilled, (state, action) => {
+      state.loading = false;
+      state.tutorDetails = action.payload;
+    })
+    .addCase(fetchTutorDetails.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || 'Failed to fetch tutor details';
+    })
+    .addCase(updateProfilePic.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(updateProfilePic.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = { ...state.user, profile_pic: action.payload.profile_pic };
+    })
+    .addCase(updateProfilePic.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || 'Failed to update profile picture';
     });
 
 

@@ -22,7 +22,7 @@ const OTPVerification = ({ email,onSuccess }) => {
   };
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-    <p>Enter the OTP sent to {email}</p>
+    <p className="text-grey-200">Enter the OTP sent to {email}</p>
     <input
       type="text"
       value={otp}

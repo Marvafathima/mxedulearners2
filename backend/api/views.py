@@ -225,8 +225,11 @@ class AdminLogoutView(APIView):
         try:
             refresh_token = request.data["refresh_token"]
             token = RefreshToken(refresh_token)
-            token.blacklist()
+            print("successfully logged out")
+            # token.blacklist()
+            print("logged outttt")
             return Response({"message": "Successfully logged out."}, status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
+            print("exception is working here")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
