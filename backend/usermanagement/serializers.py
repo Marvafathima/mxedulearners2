@@ -36,3 +36,17 @@ class TutorDetailSerializer(serializers.ModelSerializer):
             'is_approved': obj.user.is_approved,
             'is_rejected': obj.user.is_rejected
         }
+    
+
+
+class TutorApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TutorApplication
+        fields = ['education_qualification', 'job_experience']
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    tutor_application = TutorApplicationSerializer(source='tutorapplication', read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'email', 'phone_number', 'username', 'profile_pic', 'role', 'is_approved', 'is_rejected', 'tutor_application']

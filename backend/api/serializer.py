@@ -33,17 +33,6 @@ class AdminSerializer(serializers.ModelSerializer):
 
 
 
-# class TutorApplicationSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = TutorApplication
-#         fields = ['id', 'user', 'education_qualification', 'certificate', 'job_experience', 'experience_proof', 'is_approved']
-#         read_only_fields = ['id', 'user', 'is_approved']
-
-#     def create(self, validated_data):
-#         user = self.context['request'].user
-#         return TutorApplication.objects.create(user=user, **validated_data)
-
-
 class TutorApplicationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(write_only=True)
 

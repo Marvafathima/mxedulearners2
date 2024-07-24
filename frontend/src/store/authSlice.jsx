@@ -61,22 +61,25 @@ export const submitTutorApplication = createAsyncThunk(
     }
   }
 );
+
+
 export const fetchTutorDetails = createAsyncThunk(
   'auth/fetchTutorDetails',
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`/tutor-details/${userId}`);
+      const response = await axios.get(`/admin/usermanagement/tutor-details/${userId}/`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
   }
 );
+
 export const updateProfilePic = createAsyncThunk(
   'auth/updateProfilePic',
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/update-profile-pic', formData, {
+      const response = await axios.post('/admin/usermanagement/update-profile-pic/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -87,8 +90,6 @@ export const updateProfilePic = createAsyncThunk(
     }
   }
 );
-
-
 
 const authSlice = createSlice({
   name: 'auth',
@@ -160,7 +161,7 @@ const authSlice = createSlice({
     })
     .addCase(fetchTutorDetails.fulfilled, (state, action) => {
       state.loading = false;
-      state.tutorDetails = action.payload;
+      state.user = action.payload;
     })
     .addCase(fetchTutorDetails.rejected, (state, action) => {
       state.loading = false;
@@ -172,13 +173,13 @@ const authSlice = createSlice({
     })
     .addCase(updateProfilePic.fulfilled, (state, action) => {
       state.loading = false;
-      state.user = { ...state.user, profile_pic: action.payload.profile_pic };
+      state.user = action.payload;
     })
     .addCase(updateProfilePic.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload || 'Failed to update profile picture';
     });
-
+   
 
 
 
