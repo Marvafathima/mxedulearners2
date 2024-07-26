@@ -65,6 +65,7 @@ class TutorDetailsView(APIView):
             user = CustomUser.objects.get(id=user_id, role='tutor')
             print(user.email)
             serializer =CustomUserSerializer(user)
+            print("issue with serializer")
           
             return Response(serializer.data)
         except CustomUser.DoesNotExist:

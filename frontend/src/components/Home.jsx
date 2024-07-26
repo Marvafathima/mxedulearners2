@@ -145,11 +145,7 @@ const Home = () => {
     }
   };
  
-//  if ( isprofilepic){
-//   const profilePicUrl = user.profile_pic
-//   ? `${process.env.REACT_APP_API_URL}${user.profile_pic}`
-//    : defaultProfilePic;
-   
+
   
 if (loading) return <div>Loading...</div>;
 if (error) return <div>Error: {error}</div>;

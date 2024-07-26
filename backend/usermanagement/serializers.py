@@ -7,16 +7,6 @@ class TutorRequestSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id', 'email', 'username']
 
-# class TutorDetailSerializer(serializers.ModelSerializer):
-#     email = serializers.EmailField(source='user.email')
-#     username = serializers.CharField(source='user.username')
-#     phone_number = serializers.CharField(source='user.phone_number')
-
-#     class Meta:
-#         model = TutorApplication
-#         fields = ['email', 'username', 'phone_number', 'education_qualification', 'job_experience']
-
-# usermanagement/serializers.py
 
 
 class TutorDetailSerializer(serializers.ModelSerializer):
@@ -43,10 +33,22 @@ class TutorApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = TutorApplication
         fields = ['education_qualification', 'job_experience']
-
 class CustomUserSerializer(serializers.ModelSerializer):
-    tutor_application = TutorApplicationSerializer(source='tutorapplication', read_only=True)
+    tutor_application = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
         fields = ['id', 'email', 'phone_number', 'username', 'profile_pic', 'role', 'is_approved', 'is_rejected', 'tutor_application']
+
+    def get_tutor_application(self, obj):
+        try:
+            tutor_application = obj.tutorapplication
+            return TutorApplicationSerializer(tutor_application).data
+        except TutorApplication.DoesNotExist:
+            return None
+# class CustomUserSerializer(serializers.ModelSerializer):
+#     tutor_application = TutorApplicationSerializer(source='tutorapplication', read_only=True)
+
+#     class Meta:
+#         model = CustomUser
+#         fields = ['id', 'email', 'phone_number', 'username', 'profile_pic', 'role', 'is_approved', 'is_rejected', 'tutor_application']

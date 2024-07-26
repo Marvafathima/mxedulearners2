@@ -10,9 +10,11 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import Home  from './components/Home';
 import ProtectedAdminRoute from './components/routes/ProtectedAdminRoute';
 import AdminDashboard from './components/admin/AdminDashboard';
-
 import AdminLoginPage from './components/admin/AdminLoginPage';
 import RequestTutorPage from './components/admin/tutors/RequestTutorPage';
+import TutorHome from './components/tutor/TutorHome';
+import StudentHome from './components/students/StudentHome';
+import ProtectedUserRoute from './components/routes/ProtectedUserRoute';
 function App() {
   return (
     <Provider store={store}>
@@ -25,8 +27,17 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/verify-otp" element={<OTPVerification/>} /> */}
             <Route path="/landing-page" element={<LandingPage/>} />
-            <Route path="/home" element={<Home/>} />
+            {/* <Route path="/home" element={<Home/>} /> */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
+
+
+            <Route element={<ProtectedUserRoute allowedRoles={['tutor']} />}>
+          <Route path="/tutor-home" element={<TutorHome />} />
+        </Route>
+
+        {/* <Route element={<ProtectedRoute allowedRoles={['student']} />}>
+          <Route path="/student-home" element={<StudentHome />} />
+        </Route> */}
             <Route path="/admin/dashboard"  
             element={
                 <ProtectedAdminRoute>

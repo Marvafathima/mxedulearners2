@@ -1,45 +1,10 @@
-// import axios from 'axios';
-
-// const instance = axios.create({
-//   baseURL: 'http://localhost:8000/api/users',
-// });
-// const authInstance = axios.create({
-//   baseURL: 'http://localhost:8000/api/users',
-// });
-// const userManagementInstance = axios.create({
-//   baseURL: 'http://localhost:8000/user_management',
-// });
-// const authUserManagementInstance = axios.create({
-//   baseURL: 'http://localhost:8000/user_management',
-// });
-
-// authUserManagementInstance.interceptors.request.use(
-//   (config) => {
-//     const token = localStorage.getItem('token');
-//     if (token) {
-//       config.headers['Authorization'] = `Bearer ${token}`;
-//     }
-//     return config;
-//   },
-//   (error) => {
-//     return Promise.reject(error);
-//   }
-// );
-// authInstance.interceptors.request.use(
-//   (config) => {
-//       const token = localStorage.getItem('token');
-//       if (token) {
-//           config.headers['Authorization'] = `Bearer ${token}`;
-//       }
-//       return config;
-//   },
-//   (error) => {
-//       return Promise.reject(error);
-//   }
-// );
-
-// export { userManagementInstance,instance, authInstance,authUserManagementInstance };
 import axios from 'axios';
+import { getCurrentUserTokens } from '../utils/auth';
+
+
+
+
+
 export const adminAxiosInstance = axios.create({
   baseURL:'http://localhost:8000/api/users/admin',
   withCredentials: true,
@@ -131,6 +96,27 @@ const createAxiosInstance = (baseURL) => {
 
   return instance;
 };
+
+
+
+
+const userInstance = axios.create({
+  baseURL: 'http://localhost:8000/api/users',
+});
+
+userInstance.interceptors.request.use((config) => {
+  const tokens = getCurrentUserTokens();
+  if (tokens && tokens.accessToken) {
+    config.headers['Authorization'] = `Bearer ${tokens.accessToken}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
+// Implement refresh token logic here
+
+export { userInstance };
 
 export const instance = createAxiosInstance('http://localhost:8000/api/users');
 export const authInstance = createAxiosInstance('http://localhost:8000/api/users');
