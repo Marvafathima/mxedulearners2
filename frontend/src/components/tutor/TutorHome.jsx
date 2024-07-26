@@ -4,6 +4,9 @@ import React, { useEffect,useRef,useContext,useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchTutorDetails,updateProfilePicture } from '../../store/authSlice';
 import { ThemeContext } from '../../contexts/ThemeContext';
+import { getFullImageUrl } from '../../utils/auth';
+
+
 const TutorHome = () => {
   const { darkMode } = useContext(ThemeContext);
   const dispatch = useDispatch();
@@ -75,7 +78,7 @@ const TutorHome = () => {
           <div className="relative mb-6">
             <div className={`h-32 ${darkMode ? 'bg-dark-gray-100' : 'bg-light-citrus'} rounded-t-lg`}></div>
             <div className="absolute bottom-0 left-6 transform translate-y-1/2">
-            <div className="relative">
+            {/* <div className="relative">
                 {user.profile_pic ? (
                   <img
                     src={user.profile_pic}
@@ -91,7 +94,40 @@ const TutorHome = () => {
                   onClick={() => setShowProfileOptions(!showProfileOptions)}
                   className={`absolute bottom-0 right-0 ${darkMode ? 'bg-dark-gray-100' : 'bg-light-apricot'} text-white rounded-full w-8 h-8 flex items-center justify-center`}
                 >
-                  <i className="fas fa-plus"></i>
+                
+                  <i className="fas fa-plus"></i> */}
+                  <div className="relative">
+  {user.profile_pic ? (
+    // <div className="w-24 h-24 rounded-full border-4 border-white overflow-hidden ">
+    //   <img
+    //     src={user.profile_pic}
+    //     alt=""
+    //     className="w-full h-full object-cover"
+    //   />
+    // </div>
+    <div className="w-24 h-24 rounded-full border-4 border-white overflow-hidden">
+    <img
+      src={getFullImageUrl(user.profile_pic)}
+      alt="Profile"
+      className="w-full h-full object-cover"
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.src = 'path/to/fallback/image.png'; // Replace with a path to a default image
+      }}
+    />
+  </div>
+  ) : (
+    <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center">
+      <i className="fas fa-user text-4xl text-gray-400"></i>
+    </div>
+  )}
+  <button
+    onClick={() => setShowProfileOptions(!showProfileOptions)}
+    className={`absolute bottom-0 right-0 ${
+      darkMode ? 'bg-dark-gray-100' : 'bg-light-apricot'
+    } text-white rounded-full w-8 h-8 flex items-center justify-center`}
+  >
+    <i className="fas fa-plus"></i>
                 </button>
                 {showProfileOptions && (
                   <div className={`absolute right-0 mt-2 w-48 ${darkMode ? 'bg-dark-gray-100' : 'bg-white'} rounded-md shadow-lg py-1 z-10`}>

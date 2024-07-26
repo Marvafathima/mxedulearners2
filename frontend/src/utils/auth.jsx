@@ -13,3 +13,10 @@ export const getCurrentUserTokens = () => {
       role: role
     };
   };
+
+export const BASE_URL = 'http://127.0.0.1:8000/'; // Replace with your actual backend URL
+
+ export function getFullImageUrl(relativePath) {
+  if (!relativePath) return null;
+  return `${BASE_URL}${relativePath}`;
+}
