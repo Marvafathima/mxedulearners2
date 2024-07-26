@@ -85,18 +85,26 @@ export const fetchTutorDetails = createAsyncThunk(
   }
 );
 
-export const updateProfilePic = createAsyncThunk(
-  'auth/updateProfilePic',
-  async (formData, { rejectWithValue }) => {
+
+export const updateProfilePicture = createAsyncThunk(
+  'auth/updateProfilePicture',
+  async (formData, { getState, rejectWithValue }) => {
     try {
-      const response = await userInstance.post('/admin/usermanagement/update-profile-pic/', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const { user } = getState().auth;
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      console.log("accesst oken in the update profile picture*****",accessToken)
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      const response = await userInstance.patch(`/admin/usermanagement/update-profile-picture/${user.id}/`, formData, {
+        headers: { 
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'multipart/form-data'
+        }
       });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -176,19 +184,16 @@ const authSlice = createSlice({
         state.loading = false;
         state.isAuthenticated = true;
         state.user = action.payload
-        console.log(state.user,"these are in the payload while login")
+        
         state.role = action.payload.user.role;
         const username = action.payload.user.email;
         localStorage.setItem('user', JSON.stringify(action.payload.user));
-        console.log(username,"this is the username after login which is email")
+      
         const rolePrefix = action.payload.user.role === 'tutor' ? 'tutor_' : 'student_';
         localStorage.setItem(`${username}_access_token`, action.payload.access);
         localStorage.setItem(`${username}_refresh_token`, action.payload.refresh);
         localStorage.setItem(`${username}_role`, action.payload.user.role);
         localStorage.setItem('current_user', username);
-
-     
-
 
     })
     .addCase(loginUser.rejected, (state, action) => {
@@ -206,6 +211,19 @@ const authSlice = createSlice({
     .addCase(submitTutorApplication.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload || 'Failed to submit tutor application';
+    })
+    .addCase(updateProfilePicture.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(updateProfilePicture.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = { ...state.user, ...action.payload };
+      localStorage.setItem('user', JSON.stringify(state.user));
+    })
+    .addCase(updateProfilePicture.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || 'Failed to update profile picture';
     })
     // .addCase(fetchTutorDetails.pending, (state) => {
     //   state.loading = true;
@@ -232,18 +250,18 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = action.payload || 'Failed to fetch tutor details';
     })
-    .addCase(updateProfilePic.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    })
-    .addCase(updateProfilePic.fulfilled, (state, action) => {
-      state.loading = false;
-      state.user = action.payload;
-    })
-    .addCase(updateProfilePic.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload || 'Failed to update profile picture';
-    })
+    // .addCase(updateProfilePic.pending, (state) => {
+    //   state.loading = true;
+    //   state.error = null;
+    // })
+    // .addCase(updateProfilePic.fulfilled, (state, action) => {
+    //   state.loading = false;
+    //   state.user = action.payload;
+    // })
+    // .addCase(updateProfilePic.rejected, (state, action) => {
+    //   state.loading = false;
+    //   state.error = action.payload || 'Failed to update profile picture';
+    // })
 
    
 

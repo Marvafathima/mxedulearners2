@@ -106,6 +106,7 @@ const userInstance = axios.create({
 
 userInstance.interceptors.request.use((config) => {
   const tokens = getCurrentUserTokens();
+  console.log("token in the axios fetvching check for authorization**********",tokens)
   if (tokens && tokens.accessToken) {
     config.headers['Authorization'] = `Bearer ${tokens.accessToken}`;
   }

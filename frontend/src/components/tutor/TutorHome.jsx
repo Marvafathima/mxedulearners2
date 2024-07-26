@@ -2,13 +2,14 @@
 
 import React, { useEffect,useRef,useContext,useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchTutorDetails } from '../../store/authSlice';
+import { fetchTutorDetails,updateProfilePicture } from '../../store/authSlice';
 import { ThemeContext } from '../../contexts/ThemeContext';
 const TutorHome = () => {
   const { darkMode } = useContext(ThemeContext);
   const dispatch = useDispatch();
   const { user, loading, error } = useSelector((state) => state.auth);
   const effectRan = useRef(false);
+  const [showProfileOptions, setShowProfileOptions] = useState(false);
 
   useEffect(() => {
     if (effectRan.current === false) {
@@ -20,6 +21,22 @@ const TutorHome = () => {
       };
     }
   }, [dispatch, user]);
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('profile_pic', file);
+      await dispatch(updateProfilePicture(formData));
+      setShowProfileOptions(false);
+    }
+  };
+  const handleRemoveProfilePic = async () => {
+    await dispatch(updateProfilePicture(null));
+    setShowProfileOptions(false);
+  };
+
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!user) return <div>No user data available</div>;
@@ -58,11 +75,18 @@ const TutorHome = () => {
           <div className="relative mb-6">
             <div className={`h-32 ${darkMode ? 'bg-dark-gray-100' : 'bg-light-citrus'} rounded-t-lg`}></div>
             <div className="absolute bottom-0 left-6 transform translate-y-1/2">
-              {/* <div className="relative">
-                <img
-                src={profilePicUrl} alt="Profile"
-                  className="w-24 h-24 rounded-full border-4 border-white object-cover"
-                />
+            <div className="relative">
+                {user.profile_pic ? (
+                  <img
+                    src={user.profile_pic}
+                    alt="Profile"
+                    className="w-24 h-24 rounded-full border-4 border-white object-cover"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center">
+                    <i className="fas fa-user text-4xl text-gray-400"></i>
+                  </div>
+                )}
                 <button
                   onClick={() => setShowProfileOptions(!showProfileOptions)}
                   className={`absolute bottom-0 right-0 ${darkMode ? 'bg-dark-gray-100' : 'bg-light-apricot'} text-white rounded-full w-8 h-8 flex items-center justify-center`}
@@ -72,16 +96,27 @@ const TutorHome = () => {
                 {showProfileOptions && (
                   <div className={`absolute right-0 mt-2 w-48 ${darkMode ? 'bg-dark-gray-100' : 'bg-white'} rounded-md shadow-lg py-1 z-10`}>
                     <label className={`block px-4 py-2 text-sm ${darkMode ? 'text-dark-white hover:bg-dark-gray-200' : 'text-gray-700 hover:bg-gray-100'} cursor-pointer`}>
-                      Change Profile Pic
+                      {user.profile_pic ? 'Change Profile Pic' : 'Add Profile Pic'}
                       <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
                     </label>
+                    {user.profile_pic && (
+                      <button
+                        onClick={handleRemoveProfilePic}
+                        className={`block w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-dark-white hover:bg-dark-gray-200' : 'text-gray-700 hover:bg-gray-100'}`}
+                      >
+                        Remove Profile Pic
+                      </button>
+                    )}
                   </div>
                 )}
-              </div> */}
+                  </div>
             </div>
           </div>
-
-          {/* Tutor Details */}
+              
+              
+              
+              
+            
           <div className="mt-16 grid grid-cols-2 gap-4">
             <div>
               <h2 className={`text-2xl font-bold ${darkMode ? 'text-dark-white' : 'text-light-blueberry'}`}>
@@ -114,24 +149,6 @@ const TutorHome = () => {
       </div>
     </div>
 
-
-
-    // <div className="p-8">
-    //   <h1 className="text-2xl font-bold mb-4">Welcome, {user.username}!</h1>
-    //   <div className="mb-4">
-    //     <p><strong>Email:</strong> {user.email}</p>
-    //     <p><strong>Phone:</strong> {user.phone_number}</p>
-    //     <p><strong>Role:</strong> {user.role}</p>
-    //     <p><strong>Status:</strong> {user.is_approved ? 'Approved' : user.is_rejected ? 'Rejected' : 'Pending'}</p>
-    //   </div>
-    //   {user.tutor_application && (
-    //     <div>
-    //       <h2 className="text-xl font-bold mb-2">Tutor Details</h2>
-    //       <p><strong>Education:</strong> {user.tutor_application.education_qualification}</p>
-    //       <p><strong>Experience:</strong> {user.tutor_application.job_experience}</p>
-    //     </div>
-    //   )}
-    // </div>
   );
 };
 

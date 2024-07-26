@@ -71,43 +71,40 @@ class TutorDetailsView(APIView):
         except CustomUser.DoesNotExist:
             return Response({'error': 'Tutor not found'}, status=status.HTTP_404_NOT_FOUND)
 
-class UpdateProfilePicView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+# class UpdateProfilePicView(APIView):
+#     parser_classes = (MultiPartParser, FormParser)
 
-    def post(self, request):
-        user = request.user
-        if 'profile_pic' in request.FILES:
-            user.profile_pic = request.FILES['profile_pic']
-            user.save()
-            serializer =CustomUserSerializer(user)
-            return Response(serializer.data)
-        return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+#     def post(self, request):
+#         user = request.user
+#         if 'profile_pic' in request.FILES:
+#             user.profile_pic = request.FILES['profile_pic']
+#             user.save()
+#             serializer =CustomUserSerializer(user)
+#             return Response(serializer.data)
+#         return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_profile_picture(request, user_id):
+    try:
+        user = CustomUser.objects.get(id=user_id)
+    except CustomUser.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.user != user:
+        return Response({'error': 'You do not have permission to update this profile'}, status=status.HTTP_403_FORBIDDEN)
+
+    if 'profile_pic' in request.FILES:
+        user.profile_pic = request.FILES['profile_pic']
+    elif request.data.get('profile_pic') is None:
+        user.profile_pic = None
+    else:
+        return Response({'error': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.save()
+    serializer = UserSerializer(user)
+    print(serializer.data)
+    return Response(serializer.data)
 
 
 
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def get_tutor_details(request, user_id):
-#     try:
-#         tutor_application = TutorApplication.objects.get(user_id=user_id)
-#         serializer = TutorDetailSerializer(tutor_application)
-#         return Response(serializer.data)
-#     except TutorApplication.DoesNotExist:
-#         return Response({"error": "Tutor details not found"}, status=404)
-
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def update_profile_pic(request):
-#     user = request.user
-#     profile_pic = request.FILES.get('profile_pic')
-    
-#     if profile_pic:
-#         user.profile_pic = profile_pic
-#         user.save()
-#         return Response({
-#             "message": "Profile picture updated successfully",
-#             "profile_pic": user.profile_pic.url if user.profile_pic else None
-#         })
-#     else:
-#         return Response({"error": "No profile picture provided"}, status=400)

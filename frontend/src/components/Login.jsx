@@ -64,7 +64,7 @@ const Login = () => {
       const result = await dispatch(loginUser(formData)).unwrap();
       dispatch(setUser(result.user));
       if (result.user.role === 'tutor') {
-        console.log("it is a tutor");
+      
         navigate('/tutor-home');
       } else if (result.user.role === 'student') {
         navigate('/student-home');

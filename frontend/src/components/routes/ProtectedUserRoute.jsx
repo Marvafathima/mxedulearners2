@@ -5,7 +5,7 @@ import { getCurrentUserTokens } from '../../utils/auth';
 
     const ProtectedUserRoute= ({ allowedRoles }) => {
         const tokens = getCurrentUserTokens();
-        console.log(tokens)
+        
       
         if (!tokens || !tokens.accessToken) {
           return <Navigate to="/landing-page" replace />;

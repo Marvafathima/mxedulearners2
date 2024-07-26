@@ -120,7 +120,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchTutorDetails, updateProfilePic } from '../store/authSlice'; // You'll need to create these thunks
+import { fetchTutorDetails } from '../store/authSlice'; // You'll need to create these thunks
 import defaultProfilePic from '../assets/default-profile.png';
 
 
