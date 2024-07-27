@@ -108,6 +108,63 @@ export const updateProfilePicture = createAsyncThunk(
     }
   }
 );
+// export const updateProfile = createAsyncThunk(
+//   'auth/updateProfile',
+//   async (profileData, { getState, rejectWithValue }) => {
+//     try {
+//       const { user } = getState().auth;
+//       const accessToken = localStorage.getItem(`${user.email}_access_token`);
+//       if (!accessToken) {
+//         throw new Error('No access token found');
+//       }
+//       const response = await userInstance.patch(`/admin/usermanagement/update-profile/${user.id}/`, profileData, {
+//         headers: { Authorization: `Bearer ${accessToken}` }
+//       });
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
+export const updateProfile = createAsyncThunk(
+  'auth/updateProfile',
+  async (profileData, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState().auth;
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      const response = await userInstance.patch(`/admin/usermanagement/update-profile/${user.id}/`, profileData, {
+        headers: { 
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+)
+export const updatePassword = createAsyncThunk(
+  'auth/updatePassword',
+  async (passwordData, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState().auth;
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      const response = await userInstance.post(`/admin/usermanagement/update-password/${user.id}/`, passwordData, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
 export const logoutUser = createAsyncThunk(
   'auth/logout',
@@ -225,18 +282,7 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = action.payload || 'Failed to update profile picture';
     })
-    // .addCase(fetchTutorDetails.pending, (state) => {
-    //   state.loading = true;
-    //   state.error = null;
-    // })
-    // .addCase(fetchTutorDetails.fulfilled, (state, action) => {
-    //   state.loading = false;
-    //   state.user = action.payload;
-    // })
-    // .addCase(fetchTutorDetails.rejected, (state, action) => {
-    //   state.loading = false;
-    //   state.error = action.payload || 'Failed to fetch tutor details';
-    // })
+   
     .addCase(fetchTutorDetails.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -250,21 +296,30 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = action.payload || 'Failed to fetch tutor details';
     })
-    // .addCase(updateProfilePic.pending, (state) => {
-    //   state.loading = true;
-    //   state.error = null;
-    // })
-    // .addCase(updateProfilePic.fulfilled, (state, action) => {
-    //   state.loading = false;
-    //   state.user = action.payload;
-    // })
-    // .addCase(updateProfilePic.rejected, (state, action) => {
-    //   state.loading = false;
-    //   state.error = action.payload || 'Failed to update profile picture';
-    // })
-
-   
-
+    .addCase(updateProfile.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(updateProfile.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = { ...state.user, ...action.payload };
+      localStorage.setItem('user', JSON.stringify(state.user));
+    })
+    .addCase(updateProfile.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || 'Failed to update profile';
+    })
+    .addCase(updatePassword.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(updatePassword.fulfilled, (state) => {
+      state.loading = false;
+    })
+    .addCase(updatePassword.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || 'Failed to update password';
+    })
 
 
   },

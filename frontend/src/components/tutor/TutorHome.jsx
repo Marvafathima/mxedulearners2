@@ -2,7 +2,7 @@
 
 import React, { useEffect,useRef,useContext,useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchTutorDetails,updateProfilePicture } from '../../store/authSlice';
+import { fetchTutorDetails,updateProfilePicture, updateProfile, updatePassword} from '../../store/authSlice';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { getFullImageUrl } from '../../utils/auth';
 
@@ -13,7 +13,18 @@ const TutorHome = () => {
   const { user, loading, error } = useSelector((state) => state.auth);
   const effectRan = useRef(false);
   const [showProfileOptions, setShowProfileOptions] = useState(false);
-
+  const [activeForm, setActiveForm] = useState('profile'); // 'profile' or 'password'
+  const [editMode, setEditMode] = useState(false);
+  const [profileData, setProfileData] = useState({
+    username: '',
+    email: '',
+    phone_number: ''
+  });
+  const [passwordData, setPasswordData] = useState({
+    old_password: '',
+    new_password: '',
+    confirm_new_password: ''
+  });
   useEffect(() => {
     if (effectRan.current === false) {
       if (user && user.role === 'tutor') {
@@ -24,6 +35,17 @@ const TutorHome = () => {
       };
     }
   }, [dispatch, user]);
+
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        username: user.username,
+        email: user.email,
+        phone_number: user.phone_number
+      });
+    }
+  }, [user]);
+
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -39,6 +61,103 @@ const TutorHome = () => {
     setShowProfileOptions(false);
   };
 
+
+
+
+  const handleProfileChange = (e) => {
+    setProfileData({ ...profileData, [e.target.name]: e.target.value });
+  };
+
+  const handlePasswordChange = (e) => {
+    setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
+  };
+
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const resultAction = await dispatch(updateProfile(profileData));
+      if (updateProfile.fulfilled.match(resultAction)) {
+        setEditMode(false);
+        // Optionally, show a success message
+      } else if (updateProfile.rejected.match(resultAction)) {
+        console.error('Update failed:', resultAction.error);
+        // Optionally, show an error message
+      }
+    } catch (err) {
+      console.error('Failed to update profile:', err);
+    }
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const resultAction = await dispatch(updatePassword(passwordData));
+      if (updatePassword.fulfilled.match(resultAction)) {
+        // Reset password fields and show success message
+        setPasswordData({ old_password: '', new_password: '', confirm_new_password: '' });
+        // Optionally, show a success message
+      } else if (updatePassword.rejected.match(resultAction)) {
+        console.error('Password update failed:', resultAction.error);
+        // Optionally, show an error message
+      }
+    } catch (err) {
+      console.error('Failed to update password:', err);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setProfileData({
+      username: user.username,
+      email: user.email,
+      phone_number: user.phone_number
+    });
+    setEditMode(false);
+  };
+  // const handleProfileChange = (e) => {
+  //   setProfileData({ ...profileData, [e.target.name]: e.target.value });
+  // };
+
+  // const handleProfileSubmit = async (e) => {
+  //   e.preventDefault();
+  //   await dispatch(updateProfile(profileData));
+  //   setEditMode(false);
+  // };
+  // const handleProfileSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const resultAction = await dispatch(updateProfile(profileData));
+  //     if (updateProfile.fulfilled.match(resultAction)) {
+  //       setEditMode(false);
+  //       // Optionally, you can show a success message here
+  //     } else if (updateProfile.rejected.match(resultAction)) {
+  //       // Handle the error, maybe set it in state to display to the user
+  //       console.error('Update failed:', resultAction.error);
+  //     }
+  //   } catch (err) {
+  //     console.error('Failed to update profile:', err);
+  //   }
+  // };
+  // const handleCancelEdit = () => {
+  //   setProfileData({
+  //     username: user.username,
+  //     email: user.email,
+  //     phone_number: user.phone_number
+  //   });
+  //   setEditMode(false);
+  // };
+// For updating profile
+// dispatch(updateProfile({
+//   username: profileData.username,
+//   email: profileData.email,
+//   phone_number: profileData.phone_number
+// }));
+// console.log("this has been dispatched")
+// // For updating password
+// dispatch(updatePassword({
+//   old_password: currentPassword,
+//   new_password: newPassword,
+//   confirm_new_password: confirmNewPassword
+// }));
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -78,33 +197,10 @@ const TutorHome = () => {
           <div className="relative mb-6">
             <div className={`h-32 ${darkMode ? 'bg-dark-gray-100' : 'bg-light-citrus'} rounded-t-lg`}></div>
             <div className="absolute bottom-0 left-6 transform translate-y-1/2">
-            {/* <div className="relative">
-                {user.profile_pic ? (
-                  <img
-                    src={user.profile_pic}
-                    alt="Profile"
-                    className="w-24 h-24 rounded-full border-4 border-white object-cover"
-                  />
-                ) : (
-                  <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center">
-                    <i className="fas fa-user text-4xl text-gray-400"></i>
-                  </div>
-                )}
-                <button
-                  onClick={() => setShowProfileOptions(!showProfileOptions)}
-                  className={`absolute bottom-0 right-0 ${darkMode ? 'bg-dark-gray-100' : 'bg-light-apricot'} text-white rounded-full w-8 h-8 flex items-center justify-center`}
-                >
-                
-                  <i className="fas fa-plus"></i> */}
+           
                   <div className="relative">
   {user.profile_pic ? (
-    // <div className="w-24 h-24 rounded-full border-4 border-white overflow-hidden ">
-    //   <img
-    //     src={user.profile_pic}
-    //     alt=""
-    //     className="w-full h-full object-cover"
-    //   />
-    // </div>
+   
     <div className="w-24 h-24 rounded-full border-4 border-white overflow-hidden">
     <img
       src={getFullImageUrl(user.profile_pic)}
@@ -168,11 +264,18 @@ const TutorHome = () => {
               
               <h3 className={`text-xl font-semibold mb-2 mt-4 ${darkMode ? 'text-dark-white' : 'text-light-blueberry'}`}>Experience</h3>
               <p className={`${darkMode ? 'text-dark-gray-100' : 'text-light-apricot'}`}>{user.tutor_application?.job_experience}</p>
+              <button
+                onClick={() => setEditMode(true)}
+                className={`mt-4 ${darkMode ? 'bg-dark-gray-100 text-dark-white hover:bg-dark-gray-200' : 'bg-light-citrus text-white hover:bg-light-apricot'} px-4 py-2 rounded transition-colors`}
+              >
+                Edit Education/Experience
+              </button>
+            
             </div>
           </div>
 
           {/* Change Password Section */}
-          <div className="mt-8">
+          {/* <div className="mt-8">
             <h3 className={`text-xl font-semibold mb-4 ${darkMode ? 'text-dark-white' : 'text-light-blueberry'}`}>Change Password</h3>
             <form className="space-y-4">
               <input type="password" placeholder="Current Password" className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
@@ -180,7 +283,114 @@ const TutorHome = () => {
               <input type="password" placeholder="Confirm New Password" className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
               <button type="submit" className={`${darkMode ? 'bg-dark-gray-100 text-dark-white hover:bg-dark-gray-200' : 'bg-light-citrus text-white hover:bg-light-apricot'} px-4 py-2 rounded transition-colors`}>Change Password</button>
             </form>
+          </div> */}
+
+ {/* Form Selection Buttons */}
+ <div className="mt-8 flex justify-center space-x-4">
+            <button
+              onClick={() => setActiveForm('profile')}
+              className={`px-4 py-2 rounded transition-colors ${
+                activeForm === 'profile'
+                  ? darkMode
+                    ? 'bg-dark-gray-100 text-dark-white'
+                    : 'bg-light-citrus text-white'
+                  : darkMode
+                  ? 'bg-dark-gray-200 text-dark-white'
+                  : 'bg-light-apricot text-white'
+              }`}
+            >
+              Edit Profile
+            </button>
+            <button
+              onClick={() => setActiveForm('password')}
+              className={`px-4 py-2 rounded transition-colors ${
+                activeForm === 'password'
+                  ? darkMode
+                    ? 'bg-dark-gray-100 text-dark-white'
+                    : 'bg-light-citrus text-white'
+                  : darkMode
+                  ? 'bg-dark-gray-200 text-dark-white'
+                  : 'bg-light-apricot text-white'
+              }`}
+            >
+              Change Password
+            </button>
           </div>
+
+          {/* Edit Profile Form */}
+          {activeForm === 'profile' && (
+            <div className="mt-8">
+              <h3 className={`text-xl font-semibold mb-4 ${darkMode ? 'text-dark-white' : 'text-light-blueberry'}`}>Edit Profile</h3>
+              <form onSubmit={handleProfileSubmit} className="space-y-4">
+                <input
+                  type="text"
+                  name="username"
+                  value={profileData.username}
+                  onChange={handleProfileChange}
+                  placeholder="Username"
+                  className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`}
+                />
+                <input
+                  type="email"
+                  name="email"
+                  value={profileData.email}
+                  onChange={handleProfileChange}
+                  placeholder="Email"
+                  className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`}
+                />
+                <input
+                  type="tel"
+                  name="phone_number"
+                  value={profileData.phone_number}
+                  onChange={handleProfileChange}
+                  placeholder="Phone Number"
+                  className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`}
+                />
+                <div className="flex justify-end space-x-4">
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className={`${darkMode ? 'bg-dark-gray-200 text-dark-white hover:bg-dark-gray-300' : 'bg-light-apricot text-white hover:bg-light-citrus'} px-4 py-2 rounded transition-colors`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className={`${darkMode ? 'bg-dark-gray-100 text-dark-white hover:bg-dark-gray-200' : 'bg-light-citrus text-white hover:bg-light-apricot'} px-4 py-2 rounded transition-colors`}
+                  >
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Change Password Form */}
+          {activeForm === 'password' && (
+            <div className="mt-8">
+              <h3 className={`text-xl font-semibold mb-4 ${darkMode ? 'text-dark-white' : 'text-light-blueberry'}`}>Change Password</h3>
+              <form className="space-y-4">
+                <input type="password" placeholder="Current Password" className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
+                <input type="password" placeholder="New Password" className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
+                <input type="password" placeholder="Confirm New Password" className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
+                <div className="flex justify-end space-x-4">
+                  <button
+                    type="button"
+                    className={`${darkMode ? 'bg-dark-gray-200 text-dark-white hover:bg-dark-gray-300' : 'bg-light-apricot text-white hover:bg-light-citrus'} px-4 py-2 rounded transition-colors`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className={`${darkMode ? 'bg-dark-gray-100 text-dark-white hover:bg-dark-gray-200' : 'bg-light-citrus text-white hover:bg-light-apricot'} px-4 py-2 rounded transition-colors`}
+                  >
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
@@ -189,3 +399,5 @@ const TutorHome = () => {
 };
 
 export default TutorHome;
+
+

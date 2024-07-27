@@ -4,11 +4,13 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from api.models import CustomUser, TutorApplication
-from .serializers import TutorRequestSerializer, TutorDetailSerializer,CustomUserSerializer
+from .serializers import TutorRequestSerializer, TutorDetailSerializer,CustomUserSerializer,UserUpdateSerializer, PasswordUpdateSerializer
 from api.serializer import UserSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
+from django.contrib.auth import update_session_auth_hash
+
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def tutor_requests(request):
@@ -106,5 +108,40 @@ def update_profile_picture(request, user_id):
     print(serializer.data)
     return Response(serializer.data)
 
+# class UserProfileUpdateView(APIView):
+#     permission_classes = [IsAuthenticated]
 
+#     def patch(self, request, *args, **kwargs):
+#         serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class UserProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        print("patch called",request.user,request.data)
+        serializer = UserUpdateSerializer(request.user, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            print("serialixer cvalid")
+            serializer.save()
+            return Response(serializer.data)
+        print("serializer not valid at alllll")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserPasswordUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = PasswordUpdateSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            if user.check_password(serializer.validated_data['old_password']):
+                user.set_password(serializer.validated_data['new_password'])
+                user.save()
+                update_session_auth_hash(request, user)  # To update session after password change
+                return Response({"message": "Password updated successfully"}, status=status.HTTP_200_OK)
+            return Response({"error": "Incorrect old password"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -46,9 +46,38 @@ class CustomUserSerializer(serializers.ModelSerializer):
             return TutorApplicationSerializer(tutor_application).data
         except TutorApplication.DoesNotExist:
             return None
-# class CustomUserSerializer(serializers.ModelSerializer):
-#     tutor_application = TutorApplicationSerializer(source='tutorapplication', read_only=True)
 
+# class UserUpdateSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = CustomUser
-#         fields = ['id', 'email', 'phone_number', 'username', 'profile_pic', 'role', 'is_approved', 'is_rejected', 'tutor_application']
+#         fields = ('username', 'email', 'phone_number')
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email', 'phone_number')
+        extra_kwargs = {
+            'email': {'required': False},
+            'phone_number': {'required': False}
+        }
+
+    def validate_email(self, value):
+        user = self.context['request'].user
+        if CustomUser.objects.exclude(pk=user.pk).filter(email=value).exists():
+            raise serializers.ValidationError("This email is already in use.")
+        return value
+
+    def validate_phone_number(self, value):
+        user = self.context['request'].user
+        if CustomUser.objects.exclude(pk=user.pk).filter(phone_number=value).exists():
+            raise serializers.ValidationError("This phone number is already in use.")
+        return value
+
+class PasswordUpdateSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    confirm_new_password = serializers.CharField(required=True)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_new_password']:
+            raise serializers.ValidationError("New passwords do not match")
+        return data
