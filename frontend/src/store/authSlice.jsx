@@ -108,24 +108,7 @@ export const updateProfilePicture = createAsyncThunk(
     }
   }
 );
-// export const updateProfile = createAsyncThunk(
-//   'auth/updateProfile',
-//   async (profileData, { getState, rejectWithValue }) => {
-//     try {
-//       const { user } = getState().auth;
-//       const accessToken = localStorage.getItem(`${user.email}_access_token`);
-//       if (!accessToken) {
-//         throw new Error('No access token found');
-//       }
-//       const response = await userInstance.patch(`/admin/usermanagement/update-profile/${user.id}/`, profileData, {
-//         headers: { Authorization: `Bearer ${accessToken}` }
-//       });
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
+
 export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
   async (profileData, { getState, rejectWithValue }) => {

@@ -15,24 +15,27 @@ import RequestTutorPage from './components/admin/tutors/RequestTutorPage';
 import TutorHome from './components/tutor/TutorHome';
 import StudentHome from './components/students/StudentHome';
 import ProtectedUserRoute from './components/routes/ProtectedUserRoute';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import CourseForm from './components/tutor/CourseForm';
+// import CoursePreview from './components/tutor/CoursePreview';
 function App() {
   return (
     <Provider store={store}>
        <ThemeProvider>
+       
       <Router>
         <div className="App">
           <Routes>
-
-            {/* <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/verify-otp" element={<OTPVerification/>} /> */}
             <Route path="/landing-page" element={<LandingPage/>} />
-            {/* <Route path="/home" element={<Home/>} /> */}
+          
             <Route path="/admin/login" element={<AdminLoginPage />} />
 
 
             <Route element={<ProtectedUserRoute allowedRoles={['tutor']} />}>
           <Route path="/tutor-home" element={<TutorHome />} />
+           <Route path="/tutor/create-course" element={<CourseForm/>} />
+         {/* <Route path="/tutor/course-preview" element={<CoursePreview />} /> */}
         </Route>
 
         {/* <Route element={<ProtectedRoute allowedRoles={['student']} />}>
@@ -56,6 +59,7 @@ function App() {
           </Routes>
         </div>
       </Router>
+   
       </ThemeProvider>
     </Provider>
   );

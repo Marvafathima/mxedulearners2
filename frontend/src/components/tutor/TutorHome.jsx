@@ -5,7 +5,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchTutorDetails,updateProfilePicture, updateProfile, updatePassword} from '../../store/authSlice';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { getFullImageUrl } from '../../utils/auth';
-
+import TutorSidebar from './TutorSidebar';
+import TutorNavbar from './TutorNavbar';
 
 const TutorHome = () => {
   const { darkMode } = useContext(ThemeContext);
@@ -81,7 +82,7 @@ const TutorHome = () => {
         // Optionally, show a success message
       } else if (updateProfile.rejected.match(resultAction)) {
         console.error('Update failed:', resultAction.error);
-        // Optionally, show an error message
+       
       }
     } catch (err) {
       console.error('Failed to update profile:', err);
@@ -113,52 +114,7 @@ const TutorHome = () => {
     });
     setEditMode(false);
   };
-  // const handleProfileChange = (e) => {
-  //   setProfileData({ ...profileData, [e.target.name]: e.target.value });
-  // };
-
-  // const handleProfileSubmit = async (e) => {
-  //   e.preventDefault();
-  //   await dispatch(updateProfile(profileData));
-  //   setEditMode(false);
-  // };
-  // const handleProfileSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const resultAction = await dispatch(updateProfile(profileData));
-  //     if (updateProfile.fulfilled.match(resultAction)) {
-  //       setEditMode(false);
-  //       // Optionally, you can show a success message here
-  //     } else if (updateProfile.rejected.match(resultAction)) {
-  //       // Handle the error, maybe set it in state to display to the user
-  //       console.error('Update failed:', resultAction.error);
-  //     }
-  //   } catch (err) {
-  //     console.error('Failed to update profile:', err);
-  //   }
-  // };
-  // const handleCancelEdit = () => {
-  //   setProfileData({
-  //     username: user.username,
-  //     email: user.email,
-  //     phone_number: user.phone_number
-  //   });
-  //   setEditMode(false);
-  // };
-// For updating profile
-// dispatch(updateProfile({
-//   username: profileData.username,
-//   email: profileData.email,
-//   phone_number: profileData.phone_number
-// }));
-// console.log("this has been dispatched")
-// // For updating password
-// dispatch(updatePassword({
-//   old_password: currentPassword,
-//   new_password: newPassword,
-//   confirm_new_password: confirmNewPassword
-// }));
-
+  
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!user) return <div>No user data available</div>;
@@ -180,7 +136,7 @@ const TutorHome = () => {
 
 <div className={`flex h-screen ${darkMode ? 'bg-dark-gray-300' : 'bg-light-applecore'}`}>
       {/* Sidebar */}
-      <div className={`w-64 ${darkMode ? 'bg-dark-gray-200' : 'bg-light-blueberry'} text-white p-4`}>
+      {/* <div className={`w-64 ${darkMode ? 'bg-dark-gray-200' : 'bg-light-blueberry'} text-white p-4`}>
         <div className="text-2xl font-bold mb-8">MXEduLearners</div>
         {sidebarItems.map((item, index) => (
           <div key={index} className={`flex items-center mb-4 cursor-pointer ${darkMode ? 'hover:bg-dark-gray-100' : 'hover:bg-light-apricot'} p-2 rounded`}>
@@ -188,7 +144,9 @@ const TutorHome = () => {
             <span>{item.name}</span>
           </div>
         ))}
-      </div>
+      </div> */}
+      
+      <TutorSidebar user={user}></TutorSidebar>
 
       {/* Main Content */}
       <div className="flex-1 p-8 overflow-y-auto">
@@ -274,17 +232,7 @@ const TutorHome = () => {
             </div>
           </div>
 
-          {/* Change Password Section */}
-          {/* <div className="mt-8">
-            <h3 className={`text-xl font-semibold mb-4 ${darkMode ? 'text-dark-white' : 'text-light-blueberry'}`}>Change Password</h3>
-            <form className="space-y-4">
-              <input type="password" placeholder="Current Password" className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
-              <input type="password" placeholder="New Password" className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
-              <input type="password" placeholder="Confirm New Password" className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
-              <button type="submit" className={`${darkMode ? 'bg-dark-gray-100 text-dark-white hover:bg-dark-gray-200' : 'bg-light-citrus text-white hover:bg-light-apricot'} px-4 py-2 rounded transition-colors`}>Change Password</button>
-            </form>
-          </div> */}
-
+         
  {/* Form Selection Buttons */}
  <div className="mt-8 flex justify-center space-x-4">
             <button
@@ -394,6 +342,7 @@ const TutorHome = () => {
         </div>
       </div>
     </div>
+   
 
   );
 };
