@@ -39,6 +39,7 @@ class RegisterView(APIView):
             return Response({"message": "Please verify your email with the OTP sent.",
                 "email": serializer.validated_data['email'],
                 "role": serializer.validated_data['role']}, status=status.HTTP_200_OK)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class VerifyOTPView(APIView):

@@ -14,18 +14,42 @@ const initialState = {
   error: null,
 };
 
+// export const registerUser = createAsyncThunk(
+//   'auth/registerUser',
+//   async (userData, { rejectWithValue }) => {
+//     try {
+//       const response = await axios.post('/register', userData);
+//       return response.data;
+//     // } catch (error) {
+//     //   return rejectWithValue(error.response.data);
+//     // }
+//     }catch (error) {
+//       if (error.response && error.response.data) {
+//         console.log("hey, until here no problem");
+//         console.log(error.response.data);
+//         return rejectWithValue(error.response.data);
+//       } else {
+//         return rejectWithValue({ message: 'An error occurred during registration.' });
+//       }
+//     }
+//   }
+// );
+
 export const registerUser = createAsyncThunk(
   'auth/registerUser',
-  async (userData, { rejectWithValue }) => {
+  async (formData, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/register', userData);
+      const response = await axios.post('/register', formData);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      if (error.response && error.response.data) {
+        return rejectWithValue(error.response.data);
+      } else {
+        return rejectWithValue({ error: 'An unexpected error occurred' });
+      }
     }
   }
 );
-
 export const verifyOTP = createAsyncThunk(
   'auth/verifyOTP',
   async (otpData, { rejectWithValue }) => {
