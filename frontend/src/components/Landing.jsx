@@ -23,7 +23,9 @@ const Navbar = () => {
       setRegisteredEmail(email);
       setIsOTPVerificationOpen(true);
     };
-  
+    const handleRegisterError = () => { 
+      setIsRegisterOpen(false);
+    };
     const handleOTPVerificationSuccess = (userRole) => {
       setIsOTPVerificationOpen(false);
       if (userRole === 'tutor') {
@@ -61,7 +63,9 @@ const Navbar = () => {
           </div>
         </div>
         <Modal isOpen={isRegisterOpen} onClose={() => setIsRegisterOpen(false)}>
-        <Register onSuccess={handleRegisterSuccess} />
+        <Register onSuccess={handleRegisterSuccess} 
+        onError={handleRegisterError}
+         />
       </Modal>
       <Modal isOpen={isOTPVerificationOpen} onClose={() => setIsOTPVerificationOpen(false)}>
         <OTPVerification email={registeredEmail} onSuccess={handleOTPVerificationSuccess} />
@@ -72,9 +76,6 @@ const Navbar = () => {
       <Modal isOpen={isTutorApplicationOpen} onClose={() => setIsTutorApplicationOpen(false)}>
         <TutorApplication onSuccess={handleTutorApplicationSuccess} />
       </Modal>
-      
-        
-        
       </nav>
     );
   };

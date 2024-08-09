@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../store/authSlice';
-
-const Register = ({ onSuccess }) => {
+import { useNavigate } from 'react-router';
+const Register = ({ onSuccess,onError }) => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
   const [formData, setFormData] = useState({
@@ -14,7 +14,7 @@ const Register = ({ onSuccess }) => {
     role: 'student',
   });
   const [formErrors, setFormErrors] = useState({});
-
+  const navigate=useNavigate();
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -40,15 +40,35 @@ const Register = ({ onSuccess }) => {
           onSuccess(result.payload.email, result.payload.user_id);
         } else if (registerUser.rejected.match(result)) {
           const { email, phone_number } = result.payload;
+        //   const newFormErrors = {};
+        // if (email) {
+        //   newFormErrors.email = email;
+       
+        // }
+        // if (phone_number) {
+        //   newFormErrors.phone_number = phone_number;
+        
+        // }
+        // alert(email,phone_number)
+        // setFormErrors(newFormErrors);
+        // onError();
           const errorMessage = [];
           if (email) {
+            console.log(email,"this is the error")
             errorMessage.push(...email);
           }
           if (phone_number) {
+            console.log(phone_number,"this si phonenumber")
             errorMessage.push(...phone_number);
           }
           alert(errorMessage.join('\n'));
-          setFormErrors({ email, phone_number });
+          onError();
+         
+          setFormErrors({ email, phone_number })
+          navigate('/landing-page')
+         console.log("we setted the form state")
+        //  onError();
+
         }
       } catch (err) {
         console.error('Unexpected error:', err);

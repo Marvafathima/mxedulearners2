@@ -2,9 +2,6 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { store } from './store/store';
-import Register from './components/Register';
-import Login from './components/Login';
-import OTPVerification from './components/OTPVerification';
 import LandingPage from './components/Landing';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Home  from './components/Home';
@@ -13,11 +10,11 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import AdminLoginPage from './components/admin/AdminLoginPage';
 import RequestTutorPage from './components/admin/tutors/RequestTutorPage';
 import TutorHome from './components/tutor/TutorHome';
-import StudentHome from './components/students/StudentHome';
 import ProtectedUserRoute from './components/routes/ProtectedUserRoute';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CourseForm from './components/tutor/CourseForm';
+import StudentHomepage from './components/students/studentpages/StudentHomepage';
 // import CoursePreview from './components/tutor/CoursePreview';
 function App() {
   return (
@@ -38,9 +35,9 @@ function App() {
          {/* <Route path="/tutor/course-preview" element={<CoursePreview />} /> */}
         </Route>
 
-        {/* <Route element={<ProtectedRoute allowedRoles={['student']} />}>
-          <Route path="/student-home" element={<StudentHome />} />
-        </Route> */}
+        <Route element={<ProtectedUserRoute allowedRoles={['student']} />}>
+          <Route path="/student-home" element={<StudentHomepage />} />
+        </Route>
             <Route path="/admin/dashboard"  
             element={
                 <ProtectedAdminRoute>

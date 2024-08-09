@@ -13,6 +13,7 @@ export default {
         'admin-primary': '#2c7be5',
         'admin-secondary': '#1e3a8a',
         dark: {
+          lightblue: '#d2deeb',
           white: '#FFFFFF',
           gray: {
             100: '#5C7C89',
@@ -20,6 +21,7 @@ export default {
             300: '#011425',
           },
           black: '#242424',
+         
         },
         light: {
           blueberry:'#192231',
