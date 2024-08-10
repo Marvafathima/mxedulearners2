@@ -13,7 +13,7 @@ const Register = ({ onSuccess,onError }) => {
     confirm_password: '',
     role: 'student',
   });
-  const [formErrors, setFormErrors] = useState({});
+  const [formErrors, setFormErrors] = useState({email:"",phone_number:""});
   const navigate=useNavigate();
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,6 +29,8 @@ const Register = ({ onSuccess,onError }) => {
     if (formData.password !== formData.confirm_password) errors.confirm_password = 'Passwords do not match';
     return errors;
   };
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,17 +57,20 @@ const Register = ({ onSuccess,onError }) => {
           const errorMessage = [];
           if (email) {
             console.log(email,"this is the error")
-            errorMessage.push(...email);
+            // errorMessage.push(...email);
           }
           if (phone_number) {
             console.log(phone_number,"this si phonenumber")
-            errorMessage.push(...phone_number);
-          }
+          //   errorMessage.push(...phone_number);
+           }
           alert(errorMessage.join('\n'));
-          onError();
-         
-          setFormErrors({ email, phone_number })
-          navigate('/landing-page')
+          // onError();
+          setFormErrors(prevErrors => ({
+            ...prevErrors,
+            email:"email error" ,
+            phone_number:"phone number error"
+          }));  
+          
          console.log("we setted the form state")
         //  onError();
 
@@ -73,8 +78,9 @@ const Register = ({ onSuccess,onError }) => {
       } catch (err) {
         console.error('Unexpected error:', err);
       }
-    } else {
-      setFormErrors(errors);
+    }
+     else {
+      // setFormErrors(errors);
     }
   };
 
@@ -172,8 +178,13 @@ const Register = ({ onSuccess,onError }) => {
       >
         Register
       </button>
-      {error && <p className="text-red-500">{error}</p>}
+      {error && error.email && <p className="text-red-500">{error.email}</p>}
+      {error && error.phone_number && <p className="text-red-500">{error.phone_number}</p>}
+   
     </form>
+
+
+
   );
 };
 
