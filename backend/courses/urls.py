@@ -13,9 +13,9 @@
 #     path('admin/login', AdminLoginView.as_view(), name='admin_login'),
 # ]
 from django.urls import path
-from .views import CourseCreateView
+from .views import CourseCreateView,AllCoursesView
 
 urlpatterns = [
     path('courses/',CourseCreateView.as_view(), name='create_course'),
-    # path('courses/<int:course_id>/lessons/', LessonView.as_view(), name='create_lesson'),
+    path('courses_fetchall/', AllCoursesView.as_view(), name='all_courses'),
 ]

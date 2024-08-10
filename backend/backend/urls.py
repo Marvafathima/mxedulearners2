@@ -10,4 +10,9 @@ urlpatterns = [
     # other paths
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+
+
+# http://localhost:8000/media/course_thumbnail/png-clipart-computer-icons-user-profile-info-miscellaneous-face_pxFGyDi.png

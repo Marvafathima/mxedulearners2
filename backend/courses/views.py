@@ -152,29 +152,14 @@ class CourseCreateView(APIView):
                     course.delete()
                     return Response(lesson_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
-            # for lesson_data in lessons_data:
-            #     lesson_data['course'] = course.id
-                 
-            #     if 'thumbnail_file' in request.FILES:
-            #         print("lesson thumbnail got")
-            #         lesson_file_key = f"lessons[{lessons_data.index(lesson_data)}][thumbnail_file]"
-            #         if lesson_file_key in request.FILES:
-            #             print("lesson file key reached")
-            #             lesson_data['thumbnail'] = request.FILES[lesson_file_key]
-            #     elif 'thumbnail' in lesson_data:
-            #         # If no file is uploaded, use the name that was sent
-            #         lesson_data['thumbnail'] = lesson_data['thumbnail']
-            #         print("lesson thumbnail noooot got")
-            #     lesson_serializer = LessonSerializer(data=lesson_data)
-            #     if lesson_serializer.is_valid():
-            #         print("lesson not valid")
-            #         lesson_serializer.save()
-            #     else:
-            #         logger.error(f"Lesson serializer errors: {lesson_serializer.errors}")
-            #         course.delete()
-            #         return Response(lesson_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
+          
             return Response(course_serializer.data, status=status.HTTP_201_CREATED)
         
         logger.error(f"Course serializer errors: {course_serializer.errors}")
         return Response(course_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class AllCoursesView(APIView):
+    def get(self, request):
+        courses = Courses.objects.all()
+        serializer = CourseSerializer(courses, many=True)
+        return Response(serializer.data)

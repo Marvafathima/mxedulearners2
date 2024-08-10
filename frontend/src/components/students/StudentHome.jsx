@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 // import { fetchStudentDetails } from '../../store/authSlice'; // You'll need to create this thunk
 import { getCurrentUserTokens } from '../../utils/auth';
-
+import CourseCards from './studentcomponent/CourseCards';
 const StudentHome = () => {
   const dispatch = useDispatch();
   const { user, loading, error } = useSelector((state) => state.auth);

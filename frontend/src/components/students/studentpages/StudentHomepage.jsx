@@ -1,11 +1,12 @@
 import React, { useContext,useEffect } from 'react';
 import { ThemeContext } from '../../../contexts/ThemeContext';
-import CourseCards from '../studentcomponent/CourseCard';
+import CourseCards from '../studentcomponent/CourseCards';
 import Footer from '../studentcomponent/Footer';
 import Subnavbar from '../studentcomponent/SubNavbar';
 import Navbar from '../studentcomponent/Navbar';
 import { useSelector,useDispatch} from 'react-redux';
 import { fetchStudentDetails } from '../../../store/authSlice'
+
 const StudentHomepage = () => {
   const { darkMode } = useContext(ThemeContext);
   const dispatch = useDispatch();

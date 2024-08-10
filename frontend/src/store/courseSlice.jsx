@@ -104,6 +104,19 @@ export const addCourse = createAsyncThunk(
     }
   }
 );
+export const fetchAllCourses = createAsyncThunk(
+  'courses/fetchAllCourses',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await userInstance.get('/coursemanagement/courses_fetchall/');
+     console.log("fetched dataas:",response.data)
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response ? error.response.data : { message: error.message });
+    }
+  }
+);
+
 const courseSlice = createSlice({
   name: 'courses',
   initialState: {
@@ -122,6 +135,17 @@ const courseSlice = createSlice({
         state.courses.push(action.payload);
       })
       .addCase(addCourse.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(fetchAllCourses.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchAllCourses.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.courses = action.payload;
+      })
+      .addCase(fetchAllCourses.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       });
