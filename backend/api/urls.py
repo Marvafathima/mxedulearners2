@@ -1,10 +1,13 @@
 from django.urls import path,include
-from .views import RegisterView, LoginView, AdminLogoutView,UserViewSet,VerifyOTPView,AdminLoginView,AdminTokenObtainPairView, AdminTokenRefreshView,AdminTokenRefreshView,TutorApplicationView,AdminMeView
+from .views import RegisterView, LoginView, AdminLogoutView,UserViewSet,VerifyOTPView,\
+    AdminLoginView,AdminTokenObtainPairView, AdminTokenRefreshView,AdminTokenRefreshView,\
+        TutorApplicationView,AdminMeView,StudentDetailsView
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
 urlpatterns = [
@@ -20,6 +23,6 @@ urlpatterns = [
     path('admin/me', AdminMeView.as_view(), name='admin-me'),
     path('admin/token', AdminTokenObtainPairView.as_view(), name='admin-token-obtain-pair'),
     path('admin/logout/', AdminLogoutView.as_view(), name='admin_logout'),
-   
+    path('student/details/', StudentDetailsView.as_view(), name='student_details'),
     
 ]

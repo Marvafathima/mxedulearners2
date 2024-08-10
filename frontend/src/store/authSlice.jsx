@@ -14,26 +14,7 @@ const initialState = {
   error: null,
 };
 
-// export const registerUser = createAsyncThunk(
-//   'auth/registerUser',
-//   async (userData, { rejectWithValue }) => {
-//     try {
-//       const response = await axios.post('/register', userData);
-//       return response.data;
-//     // } catch (error) {
-//     //   return rejectWithValue(error.response.data);
-//     // }
-//     }catch (error) {
-//       if (error.response && error.response.data) {
-//         console.log("hey, until here no problem");
-//         console.log(error.response.data);
-//         return rejectWithValue(error.response.data);
-//       } else {
-//         return rejectWithValue({ message: 'An error occurred during registration.' });
-//       }
-//     }
-//   }
-// );
+
 
 export const registerUser = createAsyncThunk(
   'auth/registerUser',
@@ -172,6 +153,24 @@ export const updatePassword = createAsyncThunk(
     }
   }
 );
+export const fetchStudentDetails = createAsyncThunk(
+  'auth/fetchStudentDetails',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState().auth;
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      const response = await userInstance.get('/student/details/', {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
 export const logoutUser = createAsyncThunk(
   'auth/logout',
@@ -234,7 +233,19 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.role = action.payload.user.role;
       })
-   
+      .addCase(fetchStudentDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStudentDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = { ...state.user, ...action.payload };
+        localStorage.setItem('user', JSON.stringify(state.user));
+      })
+      .addCase(fetchStudentDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to fetch student details';
+      })
     
       .addCase(verifyOTP.rejected, (state, action) => {
         state.loading = false;

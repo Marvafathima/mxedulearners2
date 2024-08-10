@@ -15,7 +15,7 @@ const categories = [
   'Mobile App Development'
 ];
 
-const Navbar = () => {
+const Navbar = ({user}) => {
   const { darkMode } = useContext(ThemeContext);
 
   return (
@@ -79,13 +79,13 @@ const Navbar = () => {
           <Link to="/discussion" className={darkMode ? 'text-dark-white' : 'text-white'}>Discussion</Link>
           <Link to="/my-learning" className={darkMode ? 'text-dark-white' : 'text-white'}>My Learning</Link>
           {/* Add wishlist and cart icons */}
-          {/* <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
             {user.profile_pic ? (
               <img src={user.profile_pic} alt={user.username} className="w-full h-full rounded-full" />
             ) : (
               <span>{user.username[0].toUpperCase()}</span>
             )}
-          </div> */}
+          </div>
         </div>
       </div>
     </nav>

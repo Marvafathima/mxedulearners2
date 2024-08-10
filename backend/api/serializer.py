@@ -45,5 +45,8 @@ class TutorApplicationSerializer(serializers.ModelSerializer):
         email = validated_data.pop('email', None)
         return TutorApplication.objects.create(user=user, **validated_data)
 
-
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'email', 'phone_number', 'username', 'profile_pic', 'role', 'is_verified', 'is_approved']
 

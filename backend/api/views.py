@@ -15,7 +15,7 @@ from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from .models import TutorApplication
 from rest_framework_simplejwt.views import TokenRefreshView
-
+from .serializer import StudentSerializer
 class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
@@ -236,3 +236,13 @@ class AdminLogoutView(APIView):
             print("exception is working here")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+class StudentDetailsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if user.role != 'student':
+            return Response({"error": "User is not a student"}, status=status.HTTP_403_FORBIDDEN)
+        
+        serializer = StudentSerializer(user)
+        return Response(serializer.data)
