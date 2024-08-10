@@ -86,7 +86,7 @@ const createAxiosInstance = (baseURL) => {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('isAdmin');
-          window.location.href = 'admin/login'; // Redirect to login page
+          // window.location.href = 'admin/login'; // Redirect to login page
           return Promise.reject(refreshError);
         }
       }

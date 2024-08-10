@@ -68,6 +68,7 @@ const ProtectedAdminRoute = ({ children }) => {
   }, [dispatch, admin]);
 
   if (!isAuthenticated && !localStorage.getItem('adminToken')) {
+    console.log("currently this is working when redregtpklngkkj")
     return <Navigate to="/admin/login" replace />;
   }
 

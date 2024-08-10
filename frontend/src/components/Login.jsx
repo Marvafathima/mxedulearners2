@@ -5,7 +5,7 @@ import { loginUser, setUser } from '../store/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-const Login = () => {
+const Login = (onError) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.auth);
@@ -18,26 +18,58 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const result = await dispatch(loginUser(formData)).unwrap();
+  //     dispatch(setUser(result.user));
+  //     if (result.user.role === 'tutor') {
+      
+  //       navigate('/tutor-home');
+  //     } else if (result.user.role === 'student') {
+  //       navigate('/student-home');
+  //       toast.success('Logged in successfully as student!');
+  //     }
+  //   } 
+    
+    
+  //   catch (err) {
+  //     console.error("Login failed:", err);
+  //     toast.error('Login failed. Please check your credentials and try again.');
+  //   }
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await dispatch(loginUser(formData)).unwrap();
-      dispatch(setUser(result.user));
-      if (result.user.role === 'tutor') {
+      const result = await dispatch(loginUser(formData));
+      if (loginUser.fulfilled.match(result)) {
+        dispatch(setUser(result.payload.user));
+        if (result.payload.user.role === 'tutor') {
+          navigate('/tutor-home');
+          toast.success('Logged in successfully as tutor!');
+        } else if (result.payload.user.role === 'student') {
+          navigate('/student-home');
+          toast.success('Logged in successfully as student!');
+        }
       
-        navigate('/tutor-home');
-      } else if (result.user.role === 'student') {
-        navigate('/student-home');
-        toast.success('Logged in successfully as student!');
+      } else if (loginUser.rejected.match(result)) {
+        if (result.payload && result.payload) {
+          
+          toast.error("Login failed. Please check your credentials and try again.");
+          console.log("error")
+        } else {
+          toast.error('Login failed. Please check your credentials and try again.');
+        }
       }
-    } 
-    
-    
-    catch (err) {
-      console.error("Login failed:", err);
-      navigate('/landing-page');
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      toast.error('An unexpected error occurred. Please try again later.');
     }
   };
+
+
+
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <input
@@ -65,7 +97,7 @@ const Login = () => {
       >
         {loading ? 'Logging in...' : 'Login'}
       </button>
-      {error && <p className="text-red-500">{error}</p>}
+     
     </form>
   );
 };

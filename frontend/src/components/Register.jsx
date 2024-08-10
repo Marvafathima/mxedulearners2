@@ -43,33 +43,8 @@ const Register = ({ onSuccess,onError }) => {
           onSuccess(result.payload.email, result.payload.user_id);
         } else if (registerUser.rejected.match(result)) {
           const { email, phone_number } = result.payload;
-        //   const newFormErrors = {};
-        // if (email) {
-        //   newFormErrors.email = email;
-       
-        // }
-        // if (phone_number) {
-        //   newFormErrors.phone_number = phone_number;
         
-        // }
-        // alert(email,phone_number)
-        // setFormErrors(newFormErrors);
-        // onError();
           const errorMessage = [];
-          // if (email) {
-          //   console.log(email,"this is the error")
-           
-          //   errorMessage.push(...email);
-          //   console.log(errorMessage[0])
-          //  toast.error(errorMessage[0])
-          // }
-          // if (phone_number) {
-          //   console.log(phone_number,"this si phonenumber")
-        
-          //   errorMessage.push(...phone_number);
-          //   console.log(errorMessage[1])
-          //   toast.error(errorMessage[1])
-          //  }
 
            if (email && phone_number){
             errorMessage.push(...email);

@@ -15,8 +15,11 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CourseForm from './components/tutor/CourseForm';
 import StudentHomepage from './components/students/studentpages/StudentHomepage';
-// import CoursePreview from './components/tutor/CoursePreview';
+import { useContext } from 'react';
+import { ThemeContext } from './contexts/ThemeContext';
+import ToastWrapper from './components/ToastWrapper';
 function App() {
+  // const { darkMode } = useContext(ThemeContext);
   return (
     <Provider store={store}>
        <ThemeProvider>
@@ -56,9 +59,10 @@ function App() {
           </Routes>
         </div>
       </Router>
-   
+      <ToastWrapper />
+      {/* <ToastContainer theme={darkMode ? 'light' : 'dark'} /> */}
       </ThemeProvider>
-      <ToastContainer />
+    
     </Provider>
   );
 }

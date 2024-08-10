@@ -263,6 +263,7 @@ const authSlice = createSlice({
     .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload.detail || 'Login failed';
+        console.log("rejected",state.error)
     })
     .addCase(submitTutorApplication.pending, (state) => {
       state.loading = true;
