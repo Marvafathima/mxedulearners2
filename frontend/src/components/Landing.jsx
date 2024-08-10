@@ -7,6 +7,7 @@ import OTPVerification from './OTPVerification';
 import Login from './Login';
 import TutorApplication from './tutor/TutorApplication';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 const Navbar = () => {
     const { darkMode, toggleTheme } = useContext(ThemeContext);
     const [isTutorApplicationOpen, setIsTutorApplicationOpen] = useState(false);
@@ -22,6 +23,7 @@ const Navbar = () => {
       setIsRegisterOpen(false);
       setRegisteredEmail(email);
       setIsOTPVerificationOpen(true);
+      toast.info(`Please enter the OTP sent to ${email}`)
     };
     const handleRegisterError = () => { 
       setIsRegisterOpen(false);
@@ -34,6 +36,7 @@ const Navbar = () => {
         setIsLoginOpen(true);
       }
     };
+   
   
     const handleLoginSuccess = () => {
       setIsLoginOpen(false);

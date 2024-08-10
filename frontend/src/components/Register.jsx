@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../store/authSlice';
 import { useNavigate } from 'react-router';
+import { toast } from 'react-toastify';
 const Register = ({ onSuccess,onError }) => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
@@ -55,24 +56,37 @@ const Register = ({ onSuccess,onError }) => {
         // setFormErrors(newFormErrors);
         // onError();
           const errorMessage = [];
-          if (email) {
-            console.log(email,"this is the error")
-            // errorMessage.push(...email);
-          }
-          if (phone_number) {
-            console.log(phone_number,"this si phonenumber")
+          // if (email) {
+          //   console.log(email,"this is the error")
+           
+          //   errorMessage.push(...email);
+          //   console.log(errorMessage[0])
+          //  toast.error(errorMessage[0])
+          // }
+          // if (phone_number) {
+          //   console.log(phone_number,"this si phonenumber")
+        
           //   errorMessage.push(...phone_number);
+          //   console.log(errorMessage[1])
+          //   toast.error(errorMessage[1])
+          //  }
+
+           if (email && phone_number){
+            errorMessage.push(...email);
+            errorMessage.push(...phone_number);
+            toast.error(errorMessage[0])
+            toast.error(errorMessage[1])
            }
-          alert(errorMessage.join('\n'));
-          // onError();
-          setFormErrors(prevErrors => ({
-            ...prevErrors,
-            email:"email error" ,
-            phone_number:"phone number error"
-          }));  
-          
-         console.log("we setted the form state")
-        //  onError();
+           else if(email){
+            errorMessage.push(...email);
+            toast.error(errorMessage[0])
+           }
+           else if(phone_number){
+            errorMessage.push(...phone_number);
+            toast.error(errorMessage[0])
+           }
+
+         
 
         }
       } catch (err) {
@@ -178,9 +192,9 @@ const Register = ({ onSuccess,onError }) => {
       >
         Register
       </button>
-      {error && error.email && <p className="text-red-500">{error.email}</p>}
+      {/* {error && error.email && <p className="text-red-500">{error.email}</p>}
       {error && error.phone_number && <p className="text-red-500">{error.phone_number}</p>}
-   
+    */}
     </form>
 
 

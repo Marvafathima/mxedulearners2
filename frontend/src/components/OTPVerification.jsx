@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { verifyOTP } from '../store/authSlice';
-
+import { toast } from 'react-toastify';
 const OTPVerification = ({ email,onSuccess }) => {
   const dispatch = useDispatch();
   const { loading, error,role } = useSelector((state) => state.auth);
@@ -16,8 +16,14 @@ const OTPVerification = ({ email,onSuccess }) => {
     e.preventDefault();
     dispatch(verifyOTP({ email, otp })).then((result) => {
       if (!result.error) {
+        toast.success("Account created successfully")
         onSuccess(result.payload.user.role);
+      
       }
+      else{
+        toast.error("Invalid OTP")
+      }
+    
     });
   };
   return (
