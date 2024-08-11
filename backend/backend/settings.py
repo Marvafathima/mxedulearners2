@@ -211,3 +211,4 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT'))
 
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+AUTH_USER_MODEL = 'api.CustomUser'

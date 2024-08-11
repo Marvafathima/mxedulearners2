@@ -45,20 +45,19 @@ const CourseCard = ({ course }) => {
 
   const thumbnailURL = useMemo(() => {
     const backendURL = import.meta.env.VITE_API_URL || '';
-    const thumbnailPath = course.thumbnail.startsWith('=') ? course.thumbnail.slice(1) : course.thumbnail;
+    const thumbnailPath = course.thumbnail;
+    
     return `${backendURL}${thumbnailPath}`;
   }, [course.thumbnail]);
-  console.log(thumbnailURL)
-  console.log(course.thumbnai)
+  console.log(course.user.username,"this is the user")
+  
+
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden relative group">
       <img   src={thumbnailURL} 
-      //  alt={course.name} 
+       alt={course.name} 
       className="w-full h-48 object-cover" 
-      // onError={(e) => {
-      //   console.error(`Error loading image: ${e.target.src}`);
-      //   e.target.src = '/path/to/fallback/image.jpg';
-      // }}
+      
       />
       <div className="p-4">
         <h3 className="font-bold text-lg mb-2">{course.name}</h3>
