@@ -49,10 +49,12 @@ const CourseCard = ({ course }) => {
     return `${backendURL}${thumbnailPath}`;
   }, [course.thumbnail]);
   console.log(thumbnailURL)
-  console.log(course.thumbnail)
+  console.log(course.thumbnai)
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden relative group">
-      <img   src={thumbnailURL}  alt={course.name} className="w-full h-48 object-cover" 
+      <img   src={thumbnailURL} 
+      //  alt={course.name} 
+      className="w-full h-48 object-cover" 
       // onError={(e) => {
       //   console.error(`Error loading image: ${e.target.src}`);
       //   e.target.src = '/path/to/fallback/image.jpg';
