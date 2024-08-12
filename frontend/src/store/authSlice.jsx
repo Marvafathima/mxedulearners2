@@ -196,11 +196,13 @@ export const logoutUser = createAsyncThunk(
     const { user, role } = getState().auth;
     const rolePrefix = role === 'tutor' ? 'tutor_' : 'student_';
 
-    localStorage.removeItem(`${user.username}_access_token`);
-    localStorage.removeItem(`${user.username}_refresh_token`);
-    localStorage.removeItem(`${user.username}_role`);
+    localStorage.removeItem(`${user.email}_access_token`);
+    localStorage.removeItem(`${user.email}_refresh_token`);
+    localStorage.removeItem(`${user.email}_role`);
+    localStorage.removeItem('user');
     localStorage.removeItem('current_user');
-
+    
+    return true;
     // You might want to call an API endpoint to invalidate the token on the server
     // await axios.post('/api/logout');
   }
@@ -373,7 +375,7 @@ const authSlice = createSlice({
       state.error = action.payload || 'Failed to update password';
     })
 
-
+    
   },
 });
 
