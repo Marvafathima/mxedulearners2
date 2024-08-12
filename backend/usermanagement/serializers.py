@@ -81,3 +81,7 @@ class PasswordUpdateSerializer(serializers.Serializer):
         if data['new_password'] != data['confirm_new_password']:
             raise serializers.ValidationError("New passwords do not match")
         return data
+class StudentProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'email','phone_number', 'profile_pic',]

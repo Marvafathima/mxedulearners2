@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth import update_session_auth_hash
-
+from .serializers import StudentProfileSerializer
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def tutor_requests(request):
@@ -145,3 +145,9 @@ class UserPasswordUpdateView(APIView):
             return Response({"error": "Incorrect old password"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class StudentProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = StudentProfileSerializer(request.user)
+        return Response(serializer.data)

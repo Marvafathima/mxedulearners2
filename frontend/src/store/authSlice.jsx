@@ -90,6 +90,24 @@ export const fetchTutorDetails = createAsyncThunk(
   }
 );
 
+export const fetchStudentProfile = createAsyncThunk(
+  'auth/fetchStudentDetails',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState().auth;
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      const response = await userInstance.get(`admin/usermanagement/student_details/${user.id}/`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
 export const updateProfilePicture = createAsyncThunk(
   'auth/updateProfilePicture',
@@ -246,7 +264,22 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload || 'Failed to fetch student details';
       })
-    
+      // .addCase(fetchStudentProfile.pending, (state) => {
+      //   state.loading = true;
+      // })
+      // .addCase(fetchStudentProfile.fulfilled, (state, action) => {
+      //   state.loading = false;
+      //   state.user = { ...state.user, ...action.payload };
+      // })
+      // .addCase(fetchStudentProfile.rejected, (state, action) => {
+      //   state.loading = false;
+      //   state.error = action.payload;
+      // })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.isAuthenticated = false;
+        state.role = null;
+      })
       .addCase(verifyOTP.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.non_field_errors?.[0] || action.payload || 'An error occurred';

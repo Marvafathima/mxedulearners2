@@ -18,6 +18,7 @@ import StudentHomepage from './components/students/studentpages/StudentHomepage'
 import { useContext } from 'react';
 import { ThemeContext } from './contexts/ThemeContext';
 import ToastWrapper from './components/ToastWrapper';
+import StudentProfile from './components/students/studentcomponent/StudentProfile';
 function App() {
   // const { darkMode } = useContext(ThemeContext);
   return (
@@ -40,6 +41,7 @@ function App() {
 
         <Route element={<ProtectedUserRoute allowedRoles={['student']} />}>
           <Route path="/student-home" element={<StudentHomepage />} />
+          <Route path="/student/profile" element={<StudentProfile />} />
         </Route>
             <Route path="/admin/dashboard"  
             element={

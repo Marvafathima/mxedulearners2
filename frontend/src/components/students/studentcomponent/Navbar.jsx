@@ -4,6 +4,7 @@ import { ThemeContext } from '../../../contexts/ThemeContext';
 import { Link } from 'react-router-dom';
 import { Menu } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import ProfileDropdown from './ProfileDropdown';
 
 const categories = [
   'Full Stack Development',
@@ -22,7 +23,7 @@ const Navbar = ({user}) => {
     <nav className={`${darkMode ? 'bg-dark-gray-200' : 'bg-light-blueberry'} p-4`}>
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-4">
-          <Link to="/" className="text-xl font-bold">MXEduLearners</Link>
+          <Link to="/" className="text-xl font-bold text-white">MXEduLearners</Link>
           
           <Menu as="div" className="relative inline-block text-left">
             <div>
@@ -79,13 +80,14 @@ const Navbar = ({user}) => {
           <Link to="/discussion" className={darkMode ? 'text-dark-white' : 'text-white'}>Discussion</Link>
           <Link to="/my-learning" className={darkMode ? 'text-dark-white' : 'text-white'}>My Learning</Link>
           {/* Add wishlist and cart icons */}
-          <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+          {/* <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
             {user.profile_pic ? (
               <img src={user.profile_pic} alt={user.username} className="w-full h-full rounded-full" />
             ) : (
               <span>{user.username[0].toUpperCase()}</span>
             )}
-          </div>
+          </div> */}
+          <ProfileDropdown user={user} />
         </div>
       </div>
     </nav>
@@ -93,56 +95,3 @@ const Navbar = ({user}) => {
 };
 
 export default Navbar;
-// import {useSelector } from 'react-redux';
-// const categories = [
-//   'Full Stack Development',
-//   'Frontend',
-//   'Backend',
-//   'Data Science',
-//   'Machine Learning',
-//   'Cybersecurity',
-//   'Mobile App Development'
-// ];
-
-// const Navbar = () => {
-//   const { darkMode } = useContext(ThemeContext);
-  
-//   return (
-//     <nav className={`${darkMode ? 'bg-dark-gray-200' : 'bg-light-blueberry'} p-4`}>
-//       <div className="container mx-auto flex justify-between items-center">
-//         <div className="flex items-center space-x-4">
-//           <Link to="/" className="text-xl font-bold">MXEduLearners</Link>
-//           <select>
-//             <option className={`bg-transparent ${darkMode ? 'text-dark-lightblue' : 'text-dark-lightblue'}`}>Categories</option>
-//             {categories.map((category, index) => (
-//               <option key={index} value={category.toLowerCase().replace(/\s+/g, '-')}
-//               className={`bg-transparent ${darkMode ? 'text-dark-white' : 'text-dark-gray-100'}`}
-              
-//               >
-//                 {category}
-//               </option>
-//             ))}
-//           </select>
-//           <input type="search" placeholder="Search for anything" className="p-2 rounded" />
-//         </div>
-//         <div className="flex items-center space-x-4">
-//           <Link to="/courses" className={darkMode ? 'text-dark-white' : 'text-white'}>Courses</Link>
-//           <Link to="/chats" className={darkMode ? 'text-dark-white' : 'text-white'}>Chats</Link>
-//           <Link to="/video-call" className={darkMode ? 'text-dark-white' : 'text-white'}>Video Call</Link>
-//           <Link to="/discussion" className={darkMode ? 'text-dark-white' : 'text-white'}>Discussion</Link>
-//           <Link to="/my-learning" className={darkMode ? 'text-dark-white' : 'text-white'}>My Learning</Link>
-//           {/* Add wishlist and cart icons */}
-//           {/* <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-//             {user.profile_pic ? (
-//               <img src={user.profile_pic} alt={user.username} className="w-full h-full rounded-full" />
-//             ) : (
-//               <span>{user.username[0].toUpperCase()}</span>
-//             )}
-//           </div> */}
-//         </div>
-//       </div>
-//     </nav>
-//   );
-// };
-
-// export default Navbar;
