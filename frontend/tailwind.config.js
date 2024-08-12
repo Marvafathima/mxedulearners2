@@ -28,6 +28,9 @@ export default {
           apricot:'#494E6B' ,
           citrus: '#985E6D',
           applecore: '#ffffff' ,
+          peach:'#F9DBBA',
+          cyan:'#ADC4CE',
+          darkcyan:'#96B6C5'
         },
       },
     },
