@@ -1,11 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Avatar, Button } from '@mui/material';
+import { Avatar, Button,Chip } from '@mui/material';
 import { adminAxiosInstance as axios } from '../../../api/axios';
 import AdminSidebar from '../AdminSidebar';
 import AdminNavbar from '../AdminNavbar';
-
+import Swal from 'sweetalert2'; 
 const TutorList = () => {
   const [tutors, setTutors] = useState([]);
 
@@ -21,15 +21,72 @@ const TutorList = () => {
       console.error('Error fetching tutors:', error);
     }
   };
-
   const handleBlockUnblock = async (id, currentStatus) => {
-    try {
-      await axios.patch(`/admintutor/tutors/${id}/`, { is_active: !currentStatus });
-      fetchTutors();
-    } catch (error) {
-      console.error('Error updating tutor status:', error);
+    const action = currentStatus ? 'block' : 'unblock';
+    const result = await Swal.fire({
+      title: `Are you sure you want to ${action} this tutor?`,
+      text: `This will ${action} the tutor's account.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: currentStatus ? '#d33' : '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: `Yes, ${action} it!`
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await axios.patch(`/admintutor/tutors/${id}/toggle-active/`);
+        setTutors(tutors.map(tutor => 
+          tutor.id === id ? { ...tutor, is_active: response.data.is_active } : tutor
+        ));
+        Swal.fire(
+          `Tutor ${action}ed!`,
+          `The tutor has been ${action}ed successfully.`,
+          'success'
+        );
+      } catch (error) {
+        console.error(`Error ${action}ing tutor:`, error);
+        Swal.fire(
+          'Error',
+          `Failed to ${action} the tutor. Please try again.`,
+          'error'
+        );
+      }
     }
   };
+
+//   const handleBlockUnblock = async (id, currentStatus) => {
+//     const action = currentStatus ? 'block' : 'unblock';
+//     const result = await Swal.fire({
+//       title: `Are you sure you want to ${action} this tutor?`,
+//       text: `This will ${action} the tutor's account.`,
+//       icon: 'warning',
+//       showCancelButton: true,
+//       confirmButtonColor: currentStatus ? '#d33' : '#3085d6',
+//       cancelButtonColor: '#d33',
+//       confirmButtonText: `Yes, ${action}!`
+//     });
+
+//     if (result.isConfirmed) {
+//       try {
+//         await axios.patch(`/admintutor/tutors/${id}/toggle-active/`);
+//         Swal.fire(
+//           `Tutor ${action}ed!`,
+//           `The tutor has been ${action}ed successfully.`,
+//           'success'
+//         );
+//         // fetchTutors(); // Refresh the tutor list
+//       } catch (error) {
+//         console.error(`Error ${action}ing tutor:`, error);
+//         Swal.fire(
+//           'Error',
+//           `Failed to ${action} the tutor. Please try again.`,
+//           'error'
+//         );
+//       }
+//     }
+//   };
+
 
   const columns = [
     { field: 'id', headerName: 'Serial No.', width: 100 },
@@ -49,6 +106,17 @@ const TutorList = () => {
       valueGetter: (params) => new Date(params.value).toLocaleString(),
     },
     {
+        field: 'is_active',
+        headerName: 'Status',
+        width: 120,
+        renderCell: (params) => (
+          <Chip
+            label={params.value ? 'Active' : 'Blocked'}
+            color={params.value ? 'success' : 'error'}
+          />
+        ),
+      },
+    {
       field: 'actions',
       headerName: 'Actions',
       width: 250,
@@ -57,7 +125,7 @@ const TutorList = () => {
           <Button
             variant="contained"
             size="small"
-            color={params.row.is_active ? 'secondary' : 'primary'}
+            color={params.row.is_active ? 'error' : 'primary'}
             onClick={() => handleBlockUnblock(params.row.id, params.row.is_active)}
           >
             {params.row.is_active ? 'Block' : 'Unblock'}
@@ -65,7 +133,7 @@ const TutorList = () => {
           <Button
             variant="contained"
             size="small"
-            color="primary"
+            color="secondary"
             onClick={() => {/* Implement view details logic */}}
           >
             View Details

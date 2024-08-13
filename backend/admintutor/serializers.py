@@ -6,3 +6,8 @@ class TutorListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'email', 'profile_pic', 'joined_at', 'is_active']
+class TutorToggleActiveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'is_active']
+        read_only_fields = ['id']
