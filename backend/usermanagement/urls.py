@@ -1,7 +1,8 @@
 # usermanagement/urls.py
 from django.urls import path
 from . import views
-from .views import TutorDetailsView,UserProfileUpdateView, UserPasswordUpdateView,StudentProfileView
+from .views import TutorDetailsView,UserProfileUpdateView, UserPasswordUpdateView,StudentProfileView , \
+    SendOTPView,UserProfilePreUpdateView,VerifyOTPView
 
 urlpatterns = [
     path('tutor-requests/', views.tutor_requests, name='tutor_requests'),
@@ -12,5 +13,11 @@ urlpatterns = [
     path('student_details/<int:user_id>/', StudentProfileView.as_view(), name='student-details'),
     path('update-profile-picture/<int:user_id>/', views.update_profile_picture, name='update_profile_picture'),
     path('update-profile/<int:pk>/', UserProfileUpdateView.as_view(), name='update-profile'),
+    path('preupdate/<int:pk>/', UserProfilePreUpdateView.as_view(), name='profile-preupdate'),
     path('update-password/<int:pk>/', UserPasswordUpdateView.as_view(), name='update-password'),
+    path('send-otp/', SendOTPView.as_view(), name='send_otp'),
+    path('verify-otp/',VerifyOTPView.as_view(), name='verify_otp'),
+    
+
+
 ]

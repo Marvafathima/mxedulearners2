@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 
+from datetime import timedelta
+from django.utils import timezone
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, phone_number, password=None, **extra_fields):
         if not email and not phone_number:
@@ -35,7 +37,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_approved = models.BooleanField(default=False)
     is_rejected=models.BooleanField(default=False)
     objects = CustomUserManager()
-
+    joined_at = models.DateTimeField(default=timezone.now)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['phone_number','username']

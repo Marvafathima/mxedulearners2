@@ -19,6 +19,8 @@ import { useContext } from 'react';
 import { ThemeContext } from './contexts/ThemeContext';
 import ToastWrapper from './components/ToastWrapper';
 import StudentProfile from './components/students/studentcomponent/StudentProfile';
+import TutorList from './components/admin/tutors/TutorList';
+
 function App() {
   // const { darkMode } = useContext(ThemeContext);
   return (
@@ -43,6 +45,7 @@ function App() {
           <Route path="/student-home" element={<StudentHomepage />} />
           <Route path="/student/profile" element={<StudentProfile />} />
         </Route>
+
             <Route path="/admin/dashboard"  
             element={
                 <ProtectedAdminRoute>
@@ -57,7 +60,13 @@ function App() {
                 </ProtectedAdminRoute>
               } 
             />
-           
+  <Route path="/admin/tutorlist"  
+            element={
+                <ProtectedAdminRoute>
+                  <TutorList />
+                </ProtectedAdminRoute>
+              } 
+            />         
           </Routes>
         </div>
       </Router>

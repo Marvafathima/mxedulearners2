@@ -12,6 +12,8 @@ const initialState = {
   role:null,
   loading: false,
   error: null,
+  otpSent: false,
+  otpVerified: false,
 };
 
 
@@ -190,6 +192,7 @@ export const fetchStudentDetails = createAsyncThunk(
   }
 );
 
+
 export const logoutUser = createAsyncThunk(
   'auth/logout',
   async (_, { getState }) => {
@@ -208,7 +211,63 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+export const profilesendVerificationOTP = createAsyncThunk(
+  'auth/profilesendVerificationOTP',
+  async (email, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState().auth;
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      console.log(`new updated email is sending to backend for verification${email}`)
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      const response = await userInstance.post('/admin/usermanagement/send-otp/', { email }, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
+export const profileverifyOTP = createAsyncThunk(
+  'auth/profileverifyOTP',
+  async ({ email, otp }, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState().auth;
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      const response = await userInstance.post('/admin/usermanagement/verify-otp/', { email, otp }, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const preupdateProfile = createAsyncThunk(
+  'auth/preupdateProfile',
+  async (profileData, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState().auth;
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      const response = await userInstance.patch(`/admin/usermanagement/preupdate/${user.id}/`, profileData, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
 
 const authSlice = createSlice({
@@ -220,6 +279,7 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.role = null;
+       
       },
 
       setUser: (state, action) => {
@@ -234,6 +294,58 @@ const authSlice = createSlice({
  
   extraReducers: (builder) => {
     builder
+    .addCase(profilesendVerificationOTP.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+      state.otpSent = false;
+      console.log("pendings")
+    })
+    .addCase(profilesendVerificationOTP.fulfilled, (state) => {
+      state.loading = false;
+      state.otpSent = true;
+      console.log("fulfilled")
+    })
+    .addCase(profilesendVerificationOTP.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+      state.otpSent = false;
+      console.log("rejected")
+    })
+
+    // verifyOTP
+    .addCase(profileverifyOTP.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+      state.otpVerified = false;
+    })
+    .addCase(profileverifyOTP.fulfilled, (state) => {
+      state.loading = false;
+      state.otpVerified = true;
+    })
+    .addCase(profileverifyOTP.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+      state.otpVerified = false;
+    })
+
+    // updateProfile
+    .addCase(preupdateProfile.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(preupdateProfile.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+    })
+    .addCase(preupdateProfile.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    })
+
+
+
+
+
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -372,7 +484,7 @@ const authSlice = createSlice({
     })
     .addCase(updatePassword.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.payload || 'Failed to update password';
+      state.error = action.payload || 'Invalid OTP';
     })
 
     

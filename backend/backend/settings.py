@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'usermanagement',
     'rest_framework_simplejwt.token_blacklist',
     'courses',
+    'admintutor',
 
 ]
 

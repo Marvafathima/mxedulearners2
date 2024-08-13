@@ -135,7 +135,7 @@ const AdminSidebar = () => {
       icon: 'chalkboard-teacher',
       subItems: [
         { name: 'Tutor Requests', path: '/admin/tutors/requests' },
-        { name: 'Verified Tutors', path: '/admin/tutors/verified' }
+        { name: 'Verified Tutors', path: '/admin/tutorlist' }
       ],
     },
     { name: 'Courses', path: '/admin/courses', icon: 'book' },

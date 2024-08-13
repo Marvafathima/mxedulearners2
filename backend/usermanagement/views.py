@@ -11,6 +11,8 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth import update_session_auth_hash
 from .serializers import StudentProfileSerializer
+from api.utils import generate_otp,send_otp_email
+
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def tutor_requests(request):
@@ -130,6 +132,109 @@ class UserProfileUpdateView(APIView):
         print("serializer not valid at alllll")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+from datetime import timedelta
+from django.utils import timezone
+from .serializers import OTPVerificationSerializer
+
+class SendOTPView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        email = request.data.get('email')
+        print(email,"recieved email")
+        if not email:
+            print("no email recieved")
+            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Generate OTP
+        try:
+            otp = generate_otp()
+            print("otp generated",otp)
+            if 'otp' in request.session:
+                del request.session['otp']
+            request.session['otp'] = otp
+            # request.session['otp_expiry'] = (timezone.now() + timedelta(minutes=1)).isoformat()
+            request.session.save()
+            print(f"OTP stored in session: {request.session.get('otp')}")
+            print(f"OTP expiry stored in session: {request.session.get('otp_expiry')}")
+  
+            print(f"OTP for {email} is: {otp}")  # For development
+            send_otp_email(email, otp)
+            print("otp sent")
+            return Response({"message": "Please verify your email with the OTP sent.",
+            "email": email,
+            }, status=status.HTTP_200_OK)
+        
+        except:
+        
+            return Response({"message":"Error sending otp"})
+       
+class VerifyOTPView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = OTPVerificationSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        email = serializer.validated_data['email']
+        otp = serializer.validated_data['otp']
+
+        stored_otp = request.session.get('otp')
+        print("stored otp is",stored_otp)
+        otp_expiry = request.session.get('otp_expiry')
+        print("otp expired is ",otp_expiry)
+        if not stored_otp or not otp_expiry:
+            return Response({'error': 'OTP has expired or not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if timezone.now() > timezone.parse_datetime(otp_expiry):
+            del request.session['otp']
+            del request.session['otp_expiry']
+            return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if otp != stored_otp:
+            return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Clear OTP from session
+        del request.session['otp']
+        del request.session['otp_expiry']
+
+        return Response({'success': True, 'message': 'OTP verified successfully'})
+
+from .serializers import UserPreUpdateSerializer
+class UserProfilePreUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        serializer = UserPreUpdateSerializer(request.user, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            # Check if email has changed
+            if 'email' in serializer.validated_data and serializer.validated_data['email'] != request.user.email:
+                # Email change requires OTP verification
+                return Response({'message': 'Email change detected. Please verify your new email.', 'require_otp': True})
+            
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class UserPasswordUpdateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -148,6 +253,6 @@ class UserPasswordUpdateView(APIView):
 class StudentProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request,user_id):
         serializer = StudentProfileSerializer(request.user)
         return Response(serializer.data)
