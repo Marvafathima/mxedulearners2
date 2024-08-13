@@ -20,7 +20,7 @@ import { ThemeContext } from './contexts/ThemeContext';
 import ToastWrapper from './components/ToastWrapper';
 import StudentProfile from './components/students/studentcomponent/StudentProfile';
 import TutorList from './components/admin/tutors/TutorList';
-
+import StudentList from './components/admin/student/StudentList';
 function App() {
   // const { darkMode } = useContext(ThemeContext);
   return (
@@ -66,7 +66,19 @@ function App() {
                   <TutorList />
                 </ProtectedAdminRoute>
               } 
-            />         
+            />
+ <Route path="/admin/students"  
+            element={
+                <ProtectedAdminRoute>
+                  <StudentList />
+                </ProtectedAdminRoute>
+              } 
+            />
+
+
+
+
+
           </Routes>
         </div>
       </Router>
