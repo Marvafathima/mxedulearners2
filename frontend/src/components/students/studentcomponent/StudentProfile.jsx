@@ -487,8 +487,42 @@ const StudentProfile = () => {
           </div>
         </div>
       </div>
-      
       {showOTPModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div className={`bg-${darkMode ? 'dark-gray-200' : 'white'} p-6 rounded-lg shadow-lg relative`}>
+      <button 
+        onClick={() => setShowOTPModal(false)} 
+        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+      >
+        &times;
+      </button>
+      <h2 className="text-xl font-bold mb-4">Verify Your Email</h2>
+      <p>An OTP has been sent to your new email. Please enter it below:</p>
+      <input
+        type="text"
+        value={otp}
+        onChange={(e) => setOTP(e.target.value)}
+        className="w-full p-2 border rounded mt-2"
+        placeholder="Enter OTP"
+      />
+      <button
+        onClick={handleVerifyOTP}
+        className="bg-blue-500 text-white py-2 px-4 rounded mt-4"
+        disabled={loading}
+      >
+        {loading ? 'Verifying...' : 'Verify OTP'}
+      </button>
+      <button
+        onClick={handleResendOTP}
+        className="bg-gray-300 text-gray-700 py-2 px-4 rounded mt-4 ml-2"
+        disabled={loading}
+      >
+        {loading ? 'Sending...' : 'Resend OTP'}
+      </button>
+    </div>
+  </div>
+)}
+      {/* {showOTPModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className={`bg-${darkMode ? 'dark-gray-200' : 'white'} p-6 rounded-lg shadow-lg`}>
             <h2 className="text-xl font-bold mb-4">Verify Your Email</h2>
@@ -520,7 +554,7 @@ const StudentProfile = () => {
             )}
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 };

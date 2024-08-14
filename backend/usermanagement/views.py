@@ -135,40 +135,142 @@ class UserProfileUpdateView(APIView):
 from datetime import timedelta
 from django.utils import timezone
 from .serializers import OTPVerificationSerializer
+from datetime import datetime, timedelta
+# class SendOTPView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def post(self, request):
+#         email = request.data.get('email')
+#         print(email,"recieved email")
+#         if not email:
+#             print("no email recieved")
+#             return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+#         # Generate OTP
+#         try:
+#             otp = generate_otp()
+#             print("otp generated",otp)
+#             if 'otp' in request.session:
+#                 del request.session['otp']
+#             request.session['otp'] = otp
+#             request.session['otp'] = {
+#             'value': otp,
+#             'expires_at': datetime.now() + timedelta(minutes=1)  # Set expiry time for this key
+#             }
+
+
+
+
+#             # request.session['otp_expiry'] = (timezone.now() + timedelta(minutes=1)).isoformat()
+#             #request.session.save()
+#             print(f"OTP stored in session: {request.session.get('otp')}")
+#             print(f"OTP expiry stored in session: {request.session.get('expires_at')}")
+  
+#             print(f"OTP for {email} is: {otp}")  # For development
+#             send_otp_email(email, otp)
+#             print("otp sent")
+#             return Response({"message": "Please verify your email with the OTP sent.",
+#             "email": email,
+#             }, status=status.HTTP_200_OK)
+        
+#         except:
+        
+#             return Response({"message":"Error sending otp"})
+       
+# class VerifyOTPView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def post(self, request):
+#         serializer = OTPVerificationSerializer(data=request.data)
+#         if not serializer.is_valid():
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#         email = serializer.validated_data['email']
+#         otp = serializer.validated_data['otp']
+
+#         stored_otp = request.session.get('otp')
+#         value=None
+#         expires_at=None
+#         if stored_otp:
+#             expires_at =stored_otp['expires_at']
+#             if datetime.now() < expires_at:
+#                 value = stored_otp['value']
+#                 if otp==value:
+#                     return Response({'success': True, 'message': 'OTP verified successfully'})
+#                 else:
+#                     return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+#                 # Use the value since it's still valid
+#             else:
+#                 del request.session['otp']
+              
+#                 return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
+               
+#         else:
+#             # The key doesn't exist or has already been deleted
+#             print("otp value and expires at not found")
+#             return Response({'error': 'OTP has expired or not found'}, status=status.HTTP_400_BAD_REQUEST)
+      
+      
+       #BELOW IS THE ONE I DID YESTERDAY 
+
+        # stored_otp = request.session.get('otp')
+        # print("stored otp is",stored_otp)
+        # otp_expiry = request.session.get('expires_at')
+        # print("otp expired is ",otp_expiry)
+        # if not stored_otp or not otp_expiry:
+        #     return Response({'error': 'OTP has expired or not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        # if timezone.now() > timezone.parse_datetime(otp_expiry):
+        #     del request.session['otp']
+        #     del request.session['otp_expiry']
+        #     return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # if otp != stored_otp:
+        #     return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # # Clear OTP from session
+        # del request.session['otp']
+        # del request.session['otp_expiry']
+
+        # return Response({'success': True, 'message': 'OTP verified successfully'})
+from django.utils import timezone
+from datetime import timedelta
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 class SendOTPView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         email = request.data.get('email')
-        print(email,"recieved email")
+        print(email, "received email")
         if not email:
-            print("no email recieved")
+            print("no email received")
             return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Generate OTP
         try:
             otp = generate_otp()
-            print("otp generated",otp)
-            if 'otp' in request.session:
-                del request.session['otp']
-            request.session['otp'] = otp
-            # request.session['otp_expiry'] = (timezone.now() + timedelta(minutes=1)).isoformat()
+            print("otp generated", otp)
+            # if 'updateotp' in request.session:
+            #     del request.session['updateotp']
+            
+            request.session['updateotp'] = otp
             request.session.save()
-            print(f"OTP stored in session: {request.session.get('otp')}")
-            print(f"OTP expiry stored in session: {request.session.get('otp_expiry')}")
-  
+            print(f"OTP stored in session: {request.session.get('updateotp')}")
             print(f"OTP for {email} is: {otp}")  # For development
             send_otp_email(email, otp)
             print("otp sent")
-            return Response({"message": "Please verify your email with the OTP sent.",
-            "email": email,
+            return Response({
+                "message": "Please verify your email with the OTP sent.",
+                "email": email,
             }, status=status.HTTP_200_OK)
         
         except:
-        
-            return Response({"message":"Error sending otp"})
-       
+            return Response({"message": "Error sending otp"})
+
 class VerifyOTPView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -179,27 +281,22 @@ class VerifyOTPView(APIView):
 
         email = serializer.validated_data['email']
         otp = serializer.validated_data['otp']
+        print("validated email and opt is ",email,otp)
+        stored_otp = request.session.get('updateotp')
+        print("Stored otp is ",stored_otp)
+        if stored_otp:
+            if otp == stored_otp:
+                print("they atre equal")
+                del request.session['updateotp']
+                return Response({'success': True, 'message': 'OTP verified successfully'})
+            else:
+                print("not equeal")
+                del request.session['updateotp']
+                return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            print("not stored otp found sorry")
+            return Response({'error': 'OTP not found'}, status=status.HTTP_400_BAD_REQUEST)
 
-        stored_otp = request.session.get('otp')
-        print("stored otp is",stored_otp)
-        otp_expiry = request.session.get('otp_expiry')
-        print("otp expired is ",otp_expiry)
-        if not stored_otp or not otp_expiry:
-            return Response({'error': 'OTP has expired or not found'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if timezone.now() > timezone.parse_datetime(otp_expiry):
-            del request.session['otp']
-            del request.session['otp_expiry']
-            return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if otp != stored_otp:
-            return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Clear OTP from session
-        del request.session['otp']
-        del request.session['otp_expiry']
-
-        return Response({'success': True, 'message': 'OTP verified successfully'})
 
 from .serializers import UserPreUpdateSerializer
 class UserProfilePreUpdateView(APIView):
