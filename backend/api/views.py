@@ -92,6 +92,10 @@ class LoginView(generics.GenericAPIView):
         email = request.data.get('email')
         password = request.data.get('password')
         user = CustomUser.objects.filter(email=email).first()
+        if not user.is_active:
+            return Response({
+                'detail':"Sorry Admin Blocked you"
+            },status=status.HTTP_401_UNAUTHORIZED)
         if user and user.check_password(password) and user.is_approved:
             refresh = RefreshToken.for_user(user)
             print("refresh token generated")
