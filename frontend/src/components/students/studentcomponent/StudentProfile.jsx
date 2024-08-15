@@ -306,7 +306,7 @@ const StudentProfile = () => {
     if (response.payload && !response.error) {
       toast.success('Profile updated successfully');
       setActiveForm(null);
-      updateLocalStorage();
+      // updateLocalStorage();
     } else {
       if (response.error) {
         if (response.error.email) {

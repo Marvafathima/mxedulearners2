@@ -8,6 +8,7 @@ import Login from './Login';
 import TutorApplication from './tutor/TutorApplication';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { Button } from './ui/button';
 const Navbar = () => {
     const { darkMode, toggleTheme } = useContext(ThemeContext);
     const [isTutorApplicationOpen, setIsTutorApplicationOpen] = useState(false);
@@ -63,6 +64,7 @@ const Navbar = () => {
             >
               Toggle Theme
             </button>
+         
           </div>
         </div>
         <Modal isOpen={isRegisterOpen} onClose={() => setIsRegisterOpen(false)}>
@@ -102,12 +104,14 @@ const LandingPage = () => {
         <h1 className={`${darkMode ? 'text-dark-white' : 'text-light-blueberry'} text-4xl font-bold mb-4`}>
           Welcome to MXEduLearners
         </h1>
+      
         <p className={`${darkMode ? 'text-dark-gray-100' : 'text-light-apricot'} mb-6`}>
           Empowering learners with innovative educational solutions.
         </p>
-        <button className={`${darkMode ? 'bg-dark-gray-200 text-dark-white hover:bg-dark-gray-100' : 'bg-light-citrus text-white hover:bg-light-apricot'} px-6 py-2 rounded transition-colors`}>
+        <Button className={`${darkMode ? 'bg-dark-gray-200 text-dark-white hover:bg-dark-gray-100' : 'bg-light-citrus text-white hover:bg-light-apricot'} px-6 py-2 rounded transition-colors`}>
           Get Started
-        </button>
+        </Button>
+     
       </main>
     </div>
   );

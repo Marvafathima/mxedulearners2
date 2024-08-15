@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { verifyOTP } from '../store/authSlice';
 import { toast } from 'react-toastify';
+import { InputOTP,InputOTPGroup,InputOTPSeparator,InputOTPSlot, } from './ui/input-otp';
 const OTPVerification = ({ email,onSuccess }) => {
   const dispatch = useDispatch();
   const { loading, error,role } = useSelector((state) => state.auth);
@@ -29,6 +30,7 @@ const OTPVerification = ({ email,onSuccess }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
     <p className="text-grey-200">Enter the OTP sent to {email}</p>
+   
     <input
       type="text"
       value={otp}
