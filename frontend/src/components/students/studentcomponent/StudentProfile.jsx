@@ -303,6 +303,7 @@ const StudentProfile = () => {
   };
 
   const updateProfileData = async () => {
+    console.log(profileData.email,profileData.phone_number,profileData.username)
     const response = await dispatch(preupdateProfile(profileData));
     if (response.payload && !response.error) {
       toast.success('Profile updated successfully');

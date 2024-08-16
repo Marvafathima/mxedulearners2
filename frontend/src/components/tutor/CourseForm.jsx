@@ -337,7 +337,7 @@ import { ThemeContext } from '../../contexts/ThemeContext';
 import { useDispatch} from 'react-redux';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-
+import TutorSidebar from './TutorSidebar';
 import { addCourse } from '../../store/courseSlice';
 // import { getCurrentUserTokens } from '../../utils/auth';
 import LessonForm from './LessonForm';
@@ -430,7 +430,12 @@ const CourseForm = () => {
     }
   };
   return (
-    <div className={`p-6 ${darkMode ? 'bg-dark-gray-300 text-dark-white' : 'bg-light-applecore text-light-blueberry'}`}>
+    <div className="flex">
+      <div className="fixed h-screen">
+        <TutorSidebar user={user} />
+      </div>
+      <div className="flex-grow ml-64 p-6 overflow-y-auto">
+    <div className={`max-w-3xl mx-auto p-6 ${darkMode ? 'bg-dark-gray-300 text-dark-white' : 'bg-light-ash text-light-blueberry'}`}>
       <h2 className="text-2xl font-bold mb-4">Create New Course</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -558,7 +563,7 @@ const CourseForm = () => {
           lessonNumber={lessons.length + 1}
         />
       )}
-    </div>
+    </div> </div> </div> 
   );
 };
 
