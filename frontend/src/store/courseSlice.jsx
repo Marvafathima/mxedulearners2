@@ -116,6 +116,28 @@ export const fetchAllCourses = createAsyncThunk(
     }
   }
 );
+export const fetchTutorCourses = createAsyncThunk(
+  'courses/fetchTutorCourses',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState().auth;
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      if (!accessToken) {
+        throw new Error('No access token available');
+      }
+
+      const response = await userInstance.get('/coursemanagement/tutor-courses/', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response ? error.response.data : { message: error.message });
+    }
+  }
+);
+
 
 const courseSlice = createSlice({
   name: 'courses',
@@ -146,6 +168,17 @@ const courseSlice = createSlice({
         state.courses = action.payload;
       })
       .addCase(fetchAllCourses.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(fetchTutorCourses.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchTutorCourses.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.courses = action.payload;
+      })
+      .addCase(fetchTutorCourses.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       });

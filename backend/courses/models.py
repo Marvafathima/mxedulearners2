@@ -14,10 +14,10 @@ class Courses(models.Model):
         ('Cybersecurity', 'Cybersecurity'),
         ('Mobile App Development', 'Mobile App Development')
     ]
-    category = models.CharField(max_length=50, choices=CATEGORY)
+    category = models.CharField(max_length=100, choices=CATEGORY)
     price = models.FloatField(null=False, blank=False)
     offer_percentage = models.FloatField(null=True, blank=True)
-    description = models.TextField(max_length=150, null=False, blank=False)
+    description = models.TextField(max_length=1500, null=False, blank=False)
     thumbnail = models.ImageField(upload_to='course_thumbnail/')
     points = models.PositiveIntegerField(default=0) 
     rating= models.PositiveIntegerField(default=0) 
@@ -27,8 +27,8 @@ class Courses(models.Model):
 
 class Lesson(models.Model):
     course = models.ForeignKey(Courses, related_name='lessons', on_delete=models.CASCADE)
-    title = models.CharField(max_length=100)
-    description = models.TextField()
+    title = models.CharField(max_length=1000)
+    description = models.TextField(max_length=1500)
     duration = models.DurationField()  # This allows you to store time in hours, minutes, and seconds
     lesson_number = models.PositiveIntegerField()
     thumbnail = models.ImageField(upload_to='lesson_thumbnails/', null=True, blank=True)

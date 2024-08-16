@@ -86,3 +86,10 @@ class AllCoursesView(APIView):
         serializer = FetchCourseSerializer(courses, many=True)
        
         return Response(serializer.data)
+from rest_framework import generics
+class TutorCoursesView(generics.ListAPIView):
+    serializer_class = CourseSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Courses.objects.filter(user=self.request.user)

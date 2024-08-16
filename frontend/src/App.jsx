@@ -21,6 +21,7 @@ import ToastWrapper from './components/ToastWrapper';
 import StudentProfile from './components/students/studentcomponent/StudentProfile';
 import TutorList from './components/admin/tutors/TutorList';
 import StudentList from './components/admin/student/StudentList';
+import CourseList from './components/tutor/CourseList';
 function App() {
   // const { darkMode } = useContext(ThemeContext);
   return (
@@ -38,6 +39,7 @@ function App() {
             <Route element={<ProtectedUserRoute allowedRoles={['tutor']} />}>
           <Route path="/tutor-home" element={<TutorHome />} />
            <Route path="/tutor/create-course" element={<CourseForm/>} />
+           <Route path='/tutor/courses' element={<CourseList/>}/>
          {/* <Route path="/tutor/course-preview" element={<CoursePreview />} /> */}
         </Route>
 
