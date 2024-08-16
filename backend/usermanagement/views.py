@@ -297,7 +297,6 @@ class VerifyOTPView(APIView):
             print("not stored otp found sorry")
             return Response({'error': 'OTP not found'}, status=status.HTTP_400_BAD_REQUEST)
 
-
 from .serializers import UserPreUpdateSerializer
 class UserProfilePreUpdateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -313,24 +312,6 @@ class UserProfilePreUpdateView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 class UserPasswordUpdateView(APIView):
     permission_classes = [IsAuthenticated]

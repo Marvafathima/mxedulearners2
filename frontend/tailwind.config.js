@@ -24,6 +24,7 @@ module.exports = {
         'admin-secondary': '#1e3a8a',
         dark: {
           white: '#FFFFFF',
+         
           gray: {
             100: '#5C7C89',
             200: '#1F4959',
@@ -32,6 +33,8 @@ module.exports = {
           black: '#242424',
         },
         light: {
+          cyan:'#659b96',
+          darkcyan:'#8abbbb',
           blueberry:'#192231',
           apricot:'#494E6B' ,
           citrus: '#985E6D',

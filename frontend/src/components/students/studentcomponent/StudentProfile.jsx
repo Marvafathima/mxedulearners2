@@ -255,23 +255,23 @@ const StudentProfile = () => {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
   };
 
-  // const handleProfileUpdate = async (e) => {
-  //   e.preventDefault();
-  //   if (profileData.email !== user.email) {
-  //     // If email has changed, send OTP
-  //     const response = await dispatch(sendVerificationOTP(profileData.email));
-  //     if (response.payload.success) {
-  //       setShowOTPModal(true);
-  //       setTimer(60);
-  //       setIsResendActive(false);
-  //     } else {
-  //       toast.error(response.payload.error);
-  //     }
-  //   } else {
-  //     // If email hasn't changed, update profile directly
-  //     updateProfileData();
-  //   }
-  // };
+  const updateLocalStorageKeys = (oldEmail, newEmail) => {
+    // Get the current tokens
+    const accessToken = localStorage.getItem(`${oldEmail}access_token`);
+    const refreshToken = localStorage.getItem(`${oldEmail}refresh_token`);
+
+    // Remove old keys
+    localStorage.removeItem(`${oldEmail}access_token`);
+    localStorage.removeItem(`${oldEmail}refresh_token`);
+
+    // Set new keys with updated email
+    localStorage.setItem(`${newEmail}access_token`, accessToken);
+    localStorage.setItem(`${newEmail}refresh_token`, refreshToken);
+  };
+
+
+
+
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     if (profileData.email !== user.email) {
@@ -294,6 +294,7 @@ const StudentProfile = () => {
     if (response.payload && !response.error) {
       setShowOTPModal(false);
       setProfileData({ ...profileData, email: newEmail });
+      // updateLocalStorageKeys(user.email, newEmail);
       updateProfileData();
     } else {
       toast.error('Invalid OTP. Please try again.');
@@ -306,7 +307,23 @@ const StudentProfile = () => {
     if (response.payload && !response.error) {
       toast.success('Profile updated successfully');
       setActiveForm(null);
+      dispatch(fetchStudentProfile());
       // updateLocalStorage();
+      const currentUser = localStorage.getItem('current_user');
+      if (currentUser !== profileData.email) {
+        const accessToken = localStorage.getItem(`${currentUser}_access_token`);
+        const refreshToken = localStorage.getItem(`${currentUser}_refresh_token`);
+        const role = localStorage.getItem(`${currentUser}_role`);
+        
+        localStorage.removeItem(`${currentUser}_access_token`);
+        localStorage.removeItem(`${currentUser}_refresh_token`);
+        localStorage.removeItem(`${currentUser}_role`);
+        
+        localStorage.setItem(`${profileData.email}_access_token`, accessToken);
+        localStorage.setItem(`${profileData.email}_refresh_token`, refreshToken);
+        localStorage.setItem(`${profileData.email}_role`, role);
+          localStorage.setItem('current_user', profileData.email);
+        }
     } else {
       if (response.error) {
         if (response.error.email) {
@@ -319,47 +336,7 @@ const StudentProfile = () => {
     }
   };
 
-  // const updateProfileData = async () => {
-  //   const response = await dispatch(updateProfile(profileData));
-  //   if (response.payload.success) {
-  //     toast.success('Profile updated successfully');
-  //     setActiveForm(null);
-  //     // Update local storage
-  //     const currentUser = localStorage.getItem('current_user');
-  //     if (currentUser !== profileData.email) {
-  //       const accessToken = localStorage.getItem(`${currentUser}_access_token`);
-  //       const refreshToken = localStorage.getItem(`${currentUser}_refresh_token`);
-  //       const role = localStorage.getItem(`${currentUser}_role`);
-        
-  //       localStorage.removeItem(`${currentUser}_access_token`);
-  //       localStorage.removeItem(`${currentUser}_refresh_token`);
-  //       localStorage.removeItem(`${currentUser}_role`);
-        
-  //       localStorage.setItem(`${profileData.email}_access_token`, accessToken);
-  //       localStorage.setItem(`${profileData.email}_refresh_token`, refreshToken);
-  //       localStorage.setItem(`${profileData.email}_role`, role);
-  //       localStorage.setItem('current_user', profileData.email);
-  //     }
-  //   } else {
-  //     if (response.payload.email) {
-  //       toast.error(`Email error: ${response.payload.email[0]}`);
-  //     }
-  //     if (response.payload.phone_number) {
-  //       toast.error(`Phone number error: ${response.payload.phone_number[0]}`);
-  //     }
-  //   }
-  // };
 
-  // const handleVerifyOTP = async () => {
-  //   const response = await dispatch(verifyOTP({ email: profileData.email, otp }));
-  //   if (response.payload.success) {
-  //     setShowOTPModal(false);
-  //     updateProfileData();
-  //   } else {
-  //     toast.error('Invalid OTP. Please try again.');
-  //     setIsResendActive(true);
-  //   }
-  // };
 
   const handleResendOTP = async () => {
     const response = await dispatch(sendVerificationOTP(profileData.email));
@@ -522,39 +499,7 @@ const StudentProfile = () => {
     </div>
   </div>
 )}
-      {/* {showOTPModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className={`bg-${darkMode ? 'dark-gray-200' : 'white'} p-6 rounded-lg shadow-lg`}>
-            <h2 className="text-xl font-bold mb-4">Verify Your Email</h2>
-            <p>An OTP has been sent to your new email. Please enter it below:</p>
-            <input
-              type="text"
-              value={otp}
-              onChange={(e) => setOTP(e.target.value)}
-              className="w-full p-2 border rounded mt-2"
-              placeholder="Enter OTP"
-            />
-            <p className="mt-2">Time remaining: {timer} seconds</p>
-            {isResendActive ? (
-              <button
-                onClick={handleResendOTP}
-                className="bg-blue-500 text-white py-2 px-4 rounded mt-4"
-                disabled={loading}
-              >
-                {loading ? 'Sending...' : 'Resend OTP'}
-              </button>
-            ) : (
-              <button
-                onClick={handleVerifyOTP}
-                className="bg-blue-500 text-white py-2 px-4 rounded mt-4"
-                disabled={loading}
-              >
-                {loading ? 'Verifying...' : 'Verify OTP'}
-              </button>
-            )}
-          </div>
-        </div>
-      )} */}
+    
     </>
   );
 };
