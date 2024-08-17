@@ -180,7 +180,7 @@ class QuizSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         data = data.dict() if hasattr(data, 'dict') else data
-
+        print(data,"data in serializer")
         # Handle timeLimit
         if 'timeLimit[hours]' in data and 'timeLimit[minutes]' in data and 'timeLimit[seconds]' in data:
             hours = int(data.pop('timeLimit[hours]')[0] if isinstance(data['timeLimit[hours]'], list) else data['timeLimit[hours]'])
