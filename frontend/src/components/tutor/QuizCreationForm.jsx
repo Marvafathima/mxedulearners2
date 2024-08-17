@@ -132,12 +132,12 @@ const QuizCreationForm = () => {
   };
 
   return (
-    <div className="flex bg-gray-100 min-h-screen">
+    <div className="flex bg-blue min-h-screen">
       <TutorSidebar user={user} />
-      <div className="flex-grow p-6 ml-64">
+      <div className="flex-grow p-6 ml-64 bg-light-ash">
         <h1 className="text-2xl font-bold mb-6">Create New Quiz</h1>
         <div className="flex space-x-6">
-          <form onSubmit={handleSubmit} className="w-1/2 bg-white p-6 rounded-lg shadow-md">
+          <form onSubmit={handleSubmit} className="w-1/2 bg-dark-gray-100 p-6 rounded-lg shadow-md">
             <div className="mb-4">
               <label className="block mb-2 font-bold">Quiz Title</label>
               <input
@@ -145,7 +145,7 @@ const QuizCreationForm = () => {
                 name="title"
                 value={quizData.title}
                 onChange={handleQuizDataChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-black"
                 required
               />
             </div>
@@ -155,7 +155,7 @@ const QuizCreationForm = () => {
                 name="courseId"
                 value={quizData.courseId}
                 onChange={handleQuizDataChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-black"
                 required
               >
                 <option value="">Select a course</option>
@@ -173,7 +173,7 @@ const QuizCreationForm = () => {
                     type="number"
                     value={quizData.timeLimit[unit]}
                     onChange={(e) => handleTimeChange(unit, e.target.value)}
-                    className="w-20 p-2 border rounded"
+                    className="w-20 p-2 border rounded text-black"
                     min="0"
                     placeholder={unit}
                   />
@@ -186,7 +186,7 @@ const QuizCreationForm = () => {
                 name="description"
                 value={quizData.description}
                 onChange={handleQuizDataChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-black"
                 rows="3"
               ></textarea>
             </div>
@@ -197,7 +197,7 @@ const QuizCreationForm = () => {
                 name="question"
                 value={currentQuestion.question}
                 onChange={handleQuestionChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-black"
               />
             </div>
             <div className="mb-4">
@@ -210,13 +210,13 @@ const QuizCreationForm = () => {
                     value={index}
                     checked={currentQuestion.correctOption === index}
                     onChange={() => setCurrentQuestion(prev => ({ ...prev, correctOption: index }))}
-                    className="mr-2"
+                    className="mr-2 text-black"
                   />
                   <input
                     type="text"
                     value={option}
                     onChange={(e) => handleOptionChange(index, e.target.value)}
-                    className="flex-grow p-2 border rounded"
+                    className="flex-grow p-2 border rounded text-black"
                   />
                   {index > 1 && (
                     <button type="button" onClick={() => removeOption(index)} className="ml-2 text-red-500">
@@ -225,7 +225,7 @@ const QuizCreationForm = () => {
                   )}
                 </div>
               ))}
-              <button type="button" onClick={addOption} className="text-blue-500">
+              <button type="button" onClick={addOption} className="text-yellow-200">
                 <FaPlus /> Add Option
               </button>
             </div>
@@ -269,7 +269,7 @@ const QuizCreationForm = () => {
               </button>
             </div>
           </form>
-          <div className="w-1/2 bg-white p-6 rounded-lg shadow-md">
+          <div className="w-1/2 bg-dark-gray-100 p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-bold mb-4">Question Preview</h2>
             {quizData.questions.map((q, index) => (
               <div key={index} className="mb-4 p-4 border rounded">
