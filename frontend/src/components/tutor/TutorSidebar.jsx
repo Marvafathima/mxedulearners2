@@ -89,7 +89,9 @@ const TutorSidebar = ({ user }) => {
         { name: 'View Courses', path: '/tutor/courses' },
       ],
     },
-    { name: 'Schedule', icon: 'fas fa-calendar-alt', path: '/tutor/schedule' },
+   
+
+    { name: 'Quiz', icon: 'fas fa-calendar-alt', path: '/tutor/create-quiz'},
     { name: 'Chat', icon: 'fas fa-comments', path: '/tutor/chat' },
     { name: 'Revenue', icon: 'fas fa-chart-line', path: '/tutor/revenue' },
   ];

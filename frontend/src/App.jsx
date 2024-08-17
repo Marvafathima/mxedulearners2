@@ -22,6 +22,7 @@ import StudentProfile from './components/students/studentcomponent/StudentProfil
 import TutorList from './components/admin/tutors/TutorList';
 import StudentList from './components/admin/student/StudentList';
 import CourseList from './components/tutor/CourseList';
+import QuizCreationForm from './components/tutor/QuizCreationForm';
 function App() {
   // const { darkMode } = useContext(ThemeContext);
   return (
@@ -40,6 +41,7 @@ function App() {
           <Route path="/tutor-home" element={<TutorHome />} />
            <Route path="/tutor/create-course" element={<CourseForm/>} />
            <Route path='/tutor/courses' element={<CourseList/>}/>
+           <Route path='/tutor/create-quiz' element={<QuizCreationForm/>}/>
          {/* <Route path="/tutor/course-preview" element={<CoursePreview />} /> */}
         </Route>
 

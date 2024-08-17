@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'courses',
     'admintutor',
     'adminstudent',
+    'quiz',
 
 ]
 
@@ -214,3 +215,16 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT'))
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 AUTH_USER_MODEL = 'api.CustomUser'
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
