@@ -5,7 +5,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .models import Courses, Lesson
-from .serializers import CourseSerializer, LessonSerializer,FetchCourseSerializer
+from .serializers import (CourseSerializer, LessonSerializer,
+                          FetchCourseSerializer,LessonDetailSerializer,CourseDetailSerializer
+)
 import logging
 from django.db.models import Prefetch
 from api.models import TutorApplication
@@ -93,3 +95,7 @@ class TutorCoursesView(generics.ListAPIView):
 
     def get_queryset(self):
         return Courses.objects.filter(user=self.request.user)
+class CourseDetailView(generics.RetrieveAPIView):
+    queryset = Courses.objects.all()
+    serializer_class = CourseDetailSerializer
+    lookup_field = 'pk'

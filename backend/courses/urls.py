@@ -13,10 +13,11 @@
 #     path('admin/login', AdminLoginView.as_view(), name='admin_login'),
 # ]
 from django.urls import path
-from .views import CourseCreateView,AllCoursesView,TutorCoursesView
+from .views import CourseCreateView,AllCoursesView,TutorCoursesView,CourseDetailView
 
 urlpatterns = [
     path('courses/',CourseCreateView.as_view(), name='create_course'),
     path('courses_fetchall/', AllCoursesView.as_view(), name='all_courses'),
     path('tutor-courses/', TutorCoursesView.as_view(), name='tutor-courses'),
+    path('courses/<int:pk>/', CourseDetailView.as_view(), name='course-detail'),
 ]

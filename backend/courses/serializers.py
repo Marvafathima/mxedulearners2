@@ -3,7 +3,7 @@ from rest_framework import serializers
 from .models import Courses, Lesson
 from django.contrib.auth import get_user_model
 from api.models import TutorApplication
-
+from datetime import timedelta
 
 
 
@@ -33,7 +33,7 @@ class FetchCourseSerializer(serializers.ModelSerializer):
     tutor_education = serializers.SerializerMethodField()
     class Meta:
         model = Courses
-        fields = ['name', 'user', 'category', 'price', 'offer_percentage', 'description', 'thumbnail', 'points', 'rating', 'lessons','tutor_education']
+        fields = ['id','name', 'user', 'category', 'price', 'offer_percentage', 'description', 'thumbnail', 'points', 'rating', 'lessons','tutor_education']
 
     def get_tutor_education(self, obj):
         try:
@@ -41,3 +41,21 @@ class FetchCourseSerializer(serializers.ModelSerializer):
             return tutor_application.education_qualification
         except TutorApplication.DoesNotExist:
             return None
+        
+
+class LessonDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lesson
+        fields = ['id', 'title', 'description', 'duration', 'lesson_number', 'thumbnail', 'video_url', 'points']
+
+class CourseDetailSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    lessons = LessonSerializer(many=True, read_only=True)
+    total_duration = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Courses
+        fields = ['id', 'name', 'user', 'category', 'price', 'offer_percentage', 'description', 'thumbnail', 'points', 'rating', 'lessons', 'total_duration']
+
+    def get_total_duration(self, obj):
+        return sum((lesson.duration for lesson in obj.lessons.all()), timedelta())
