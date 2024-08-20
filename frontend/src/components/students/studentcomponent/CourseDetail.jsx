@@ -2,12 +2,16 @@ import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { FaHeart, FaChevronDown } from 'react-icons/fa';
-
+import Navbar from './Navbar';
+import Subnavbar from './SubNavbar';
+import Footer from './Footer';
+import { fetchStudentDetails } from '../../../store/authSlice';
 import { fetchCourseDetail } from '../../../store/courseSlice';
 const CourseDetail = () => {
     const { id } = useParams();
   const dispatch = useDispatch();
   const { currentCourse, status, error } = useSelector(state => state.courses);
+  const { user,loading,usererror } = useSelector((state) => state.auth);
 console.log("hey we mounted cousrsedetal page")
   useEffect(() => {
     if (id) {
@@ -22,6 +26,10 @@ console.log("hey we mounted cousrsedetal page")
 
   return (
     <div className="bg-gray-100 min-h-screen">
+       <Navbar 
+      user={user}
+       />
+     <Subnavbar/>
       {/* Hero Section */}
       <div className="relative h-96">
         <img 
