@@ -7,11 +7,38 @@ import Subnavbar from './SubNavbar';
 import Footer from './Footer';
 import { fetchStudentDetails } from '../../../store/authSlice';
 import { fetchCourseDetail } from '../../../store/courseSlice';
+import { addToCart } from '../../../store/cartSlice';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 const CourseDetail = () => {
     const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate=useNavigate();
   const { currentCourse, status, error } = useSelector(state => state.courses);
   const { user,loading,usererror } = useSelector((state) => state.auth);
+  // const handleAddToCart = () => {
+  //   try{
+  //     const result= dispatch(addToCart(currentCourse.id));
+  //     if (addToCart.fulfilled.match(result)) {
+  //       toast.success("Successfully added course to the cart")
+  //       navigate('/cart')
+  //     }
+  //   }
+  //   catch{
+  //     toast.error("Error adding course to the cart")
+  //   }
+    
+  // };
+  const handleAddToCart = () => {
+    dispatch(addToCart(currentCourse.id)).then((action) => {
+      if (action.payload.items) {
+        toast.success('Course added to cart successfully!');
+      } else {
+        toast.error(action.payload.error || 'Failed to add course to cart.');
+      }
+    });
+  };
+
 console.log("hey we mounted cousrsedetal page")
   useEffect(() => {
     if (id) {
@@ -51,7 +78,9 @@ console.log("hey we mounted cousrsedetal page")
             <p className="text-gray-600">Creator: { currentCourse.user.username}</p>
           </div>
           <div className="flex items-center">
-            <button className="bg-purple-500 text-white px-6 py-2 rounded-lg mr-4">
+            <button className="bg-purple-500 text-white px-6 py-2 rounded-lg mr-4"
+              onClick={handleAddToCart}
+            >
               Add to Cart
             </button>
             <button className="text-purple-500">

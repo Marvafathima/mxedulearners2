@@ -59,3 +59,5 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 
     def get_total_duration(self, obj):
         return sum((lesson.duration for lesson in obj.lessons.all()), timedelta())
+    
+

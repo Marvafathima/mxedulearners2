@@ -5,7 +5,8 @@ import { Link } from 'react-router-dom';
 import { Menu } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import ProfileDropdown from './ProfileDropdown';
-
+import { FaShoppingCart } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
 const categories = [
   'Full Stack Development',
   'Frontend',
@@ -18,7 +19,7 @@ const categories = [
 
 const Navbar = ({user}) => {
   const { darkMode } = useContext(ThemeContext);
-
+  const { count } = useSelector((state) => state.cart);
   return (
     <nav className={`${darkMode ? 'bg-dark-gray-200' : 'bg-light-blueberry'} p-4`}>
       <div className="container mx-auto flex justify-between items-center">
@@ -87,6 +88,14 @@ const Navbar = ({user}) => {
               <span>{user.username[0].toUpperCase()}</span>
             )}
           </div> */}
+           <a href="/cart" className="text-white hover:text-gray-100 relative">
+            <FaShoppingCart size={24} />
+            {count > 0 && (
+              <span className="absolute -top-2 -right-2 bg-purple-500 text-white rounded-full px-2 py-1 text-xs">
+                {count}
+              </span>
+            )}
+          </a>
           <ProfileDropdown user={user} />
         </div>
       </div>

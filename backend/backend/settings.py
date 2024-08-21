@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'admintutor',
     'adminstudent',
     'quiz',
+    'cart',
 
 ]
 
