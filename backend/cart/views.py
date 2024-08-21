@@ -36,15 +36,27 @@ class CartView(APIView):
         serializer = CartSerializer(cart)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    # def delete(self, request):
+    #     course_id = request.data.get('course_id')
+    #     if not course_id:
+    #         return Response({"error": "course_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    #     try:
+    #         cart = Cart.objects.get(user=request.user)
+    #         cart_item = CartItem.objects.get(cart=cart, course_id=course_id)
+    #         cart_item.delete()
+    #         return Response(status=status.HTTP_204_NO_CONTENT)
+    #     except (Cart.DoesNotExist, CartItem.DoesNotExist):
+    #         return Response({"error": "Item not found in cart"}, status=status.HTTP_404_NOT_FOUND)
     def delete(self, request):
-        course_id = request.data.get('course_id')
-        if not course_id:
-            return Response({"error": "course_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        cart_item_id = request.data.get('cart_item_id')
+        print(cart_item_id,"this is cart item id we reciecrd$$$$$$$$$$$$$$$$$$$$$")
+        if not cart_item_id:
+            return Response({"error": "cart_item_id is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            cart = Cart.objects.get(user=request.user)
-            cart_item = CartItem.objects.get(cart=cart, course_id=course_id)
+            cart_item = CartItem.objects.get(id=cart_item_id, cart__user=request.user)
             cart_item.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        except (Cart.DoesNotExist, CartItem.DoesNotExist):
+        except CartItem.DoesNotExist:
             return Response({"error": "Item not found in cart"}, status=status.HTTP_404_NOT_FOUND)

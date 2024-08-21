@@ -48,19 +48,21 @@ export const addToCart = createAsyncThunk(
 
 export const removeFromCart = createAsyncThunk(
   'cart/removeFromCart',
-  async (courseId, { getState, rejectWithValue }) => {
+  async (cartItemId, { getState, rejectWithValue }) => {
     try {
+      console.log(cartItemId,"sending this cart item to remove in backend")
       const { user } = getState().auth;
       const accessToken = localStorage.getItem(`${user.email}_access_token`);
       if (!accessToken) {
         throw new Error('No access token available');
       }
 
-      await userInstance.delete('/cartemanagement/cart/', {
-        data: { course_id: courseId },
+      await userInstance.delete('/cartmanagement/cart/', {
+        // data: { course_id: courseId },
         headers: {
           'Authorization': `Bearer ${accessToken}`,
         },
+        data: { cart_item_id: cartItemId },
       });
       return courseId;
     } catch (error) {
