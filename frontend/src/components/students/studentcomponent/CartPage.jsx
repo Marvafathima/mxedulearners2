@@ -3,11 +3,11 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCart, removeFromCart } from '../../../store/cartSlice';
 import Swal from 'sweetalert2';
-
+import Navbar from './Navbar';
 const CartPage = () => {
   const dispatch = useDispatch();
   const { items, status, error } = useSelector(state => state.cart);
-
+  const { user,loading,usererror } = useSelector((state) => state.auth);
   useEffect(() => {
     dispatch(fetchCart());
   }, [dispatch]);
@@ -58,7 +58,9 @@ const CartPage = () => {
   if (status === 'failed') return <div>Error: {error}</div>;
 
   return (
+
     <div className="container mx-auto px-4 py-8">
+      <Navbar user={user}/>
       <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
       <div className="flex flex-wrap -mx-4">
         <div className="w-full lg:w-2/3 px-4">
@@ -66,12 +68,12 @@ const CartPage = () => {
             <div key={item.id} className="flex items-center mb-6 bg-white p-4 rounded-lg shadow">
               <img src={item.course.thumbnail} alt={item.course.name} className="w-24 h-24 object-cover rounded mr-4" />
               <div className="flex-grow">
-                <h2 className="text-xl font-semibold">{item.course.name}</h2>
+                <h2 className="text-xl text-black font-semibold">{item.course.name}</h2>
                 <p className="text-gray-600">by {item.course.creator}</p>
                 <div className="mt-2">
                   {item.course.offer_percentage > 0 ? (
                     <>
-                      <span className="font-bold text-lg">₹{(item.course.price * (1 - item.course.offer_percentage / 100)).toFixed(2)}</span>
+                      <span className="font-bold text-lg text-black">₹{(item.course.price * (1 - item.course.offer_percentage / 100)).toFixed(2)}</span>
                       <span className="text-gray-500 line-through ml-2">₹{item.course.price}</span>
                     </>
                   ) : (
