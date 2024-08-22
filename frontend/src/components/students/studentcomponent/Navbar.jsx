@@ -20,6 +20,7 @@ const categories = [
 const Navbar = ({user}) => {
   const { darkMode } = useContext(ThemeContext);
   const { count } = useSelector((state) => state.cart);
+  const cartcount=JSON.parse(localStorage.getItem('cartCount'))
   return (
     <nav className={`${darkMode ? 'bg-dark-gray-200' : 'bg-light-blueberry'} p-4`}>
       <div className="container mx-auto flex justify-between items-center">
@@ -90,9 +91,9 @@ const Navbar = ({user}) => {
           </div> */}
            <a href="/cart" className="text-white hover:text-gray-100 relative">
             <FaShoppingCart size={24} />
-            {count > 0 && (
-              <span className="absolute -top-2 -right-2 bg-purple-500 text-white rounded-full px-2 py-1 text-xs">
-                {count}
+            {cartcount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-purple-500 text-black rounded-full px-2 py-1 text-xs">
+                {cartcount}
               </span>
             )}
           </a>

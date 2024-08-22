@@ -64,7 +64,8 @@ export const removeFromCart = createAsyncThunk(
         },
         data: { cart_item_id: cartItemId },
       });
-      return courseId;
+      
+      return cartItemId;
     } catch (error) {
       return rejectWithValue(error.response ? error.response.data : { message: error.message });
     }
@@ -76,7 +77,7 @@ const cartSlice = createSlice({
   initialState: {
     items: [],
     status: 'idle',
-    count:0,
+    count:JSON.parse(localStorage.getItem('cartCount')),
     error: null,
   },
   reducers: {},
@@ -88,6 +89,8 @@ const cartSlice = createSlice({
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.items = action.payload.items;
+        state.count = action.payload.items.length;
+        localStorage.setItem('cartCount', JSON.stringify(state.count));
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.status = 'failed';
@@ -100,6 +103,7 @@ const cartSlice = createSlice({
         state.items = action.payload.items;
         state.count = action.payload.items.length;
         state.status = 'succeeded';
+        localStorage.setItem('cartCount', JSON.stringify(state.count));
       })
       .addCase(addToCart.rejected, (state, action) => {
         state.status = 'failed';
@@ -107,6 +111,9 @@ const cartSlice = createSlice({
       })
       .addCase(removeFromCart.fulfilled, (state, action) => {
         state.items = state.items.filter(item => item.course.id !== action.payload);
+        console.log(state.count,"this is the count")
+        state.count = state.items.length;
+        localStorage.setItem('cartCount', JSON.stringify(state.count));
       });
   },
 });

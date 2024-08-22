@@ -33,13 +33,14 @@ const CourseDetail = () => {
     dispatch(addToCart(currentCourse.id)).then((action) => {
       if (action.payload.items) {
         toast.success('Course added to cart successfully!');
+        
       } else {
         toast.error(action.payload.error || 'Failed to add course to cart.');
       }
     });
   };
 
-console.log("hey we mounted cousrsedetal page")
+
   useEffect(() => {
     if (id) {
       dispatch(fetchCourseDetail(id));

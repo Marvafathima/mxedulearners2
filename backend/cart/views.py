@@ -57,6 +57,7 @@ class CartView(APIView):
         try:
             cart_item = CartItem.objects.get(id=cart_item_id, cart__user=request.user)
             cart_item.delete()
+            print("cart deleted")
             return Response(status=status.HTTP_204_NO_CONTENT)
         except CartItem.DoesNotExist:
             return Response({"error": "Item not found in cart"}, status=status.HTTP_404_NOT_FOUND)
