@@ -25,6 +25,7 @@ import CourseList from './components/tutor/CourseList';
 import QuizCreationForm from './components/tutor/QuizCreationForm';
 import CourseDetail from './components/students/studentcomponent/CourseDetail';
 import CartPage from './components/students/studentcomponent/CartPage';
+import CheckoutPage from './components/students/studentcomponent/CheckoutPage';
 function App() {
   // const { darkMode } = useContext(ThemeContext);
   return (
@@ -52,6 +53,7 @@ function App() {
           <Route path="/student/profile" element={<StudentProfile />} />
           <Route path="/course/:id" element={<CourseDetail />} />
           <Route path='/cart'element={<CartPage />} />
+          <Route path='/checkout'element={<CheckoutPage />} />
         </Route>
 
             <Route path="/admin/dashboard"  

@@ -5,10 +5,12 @@ import { fetchCart, removeFromCart } from '../../../store/cartSlice';
 import Swal from 'sweetalert2';
 import Navbar from './Navbar';
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 const CartPage = () => {
   const dispatch = useDispatch();
   const { items, status, error } = useSelector(state => state.cart);
   const { user,loading,usererror } = useSelector((state) => state.auth);
+  const navigate=useNavigate();
   useEffect(() => {
     dispatch(fetchCart());
   }, [dispatch]);
@@ -106,7 +108,9 @@ const CartPage = () => {
                 {/* <div className="mb-4">
                   <p className="font-bold text-lg text-black">Total Offer Percentage: <span className="text-green-600">{totalOfferPercentage}%</span></p>
                 </div> */}
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full" type="button">
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full" 
+                onClick={()=> navigate('/checkout')}
+                type="button">
                   Proceed to Payment
                 </button>
               </div>
