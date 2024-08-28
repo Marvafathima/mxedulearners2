@@ -78,13 +78,40 @@ class CourseCreateView(APIView):
         logger.error(f"Course serializer errors: {course_serializer.errors}")
         return Response(course_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+# class AllCoursesView(APIView):
+#     def get(self, request):
+#         courses = Courses.objects.all().select_related('user').prefetch_related(
+#             Prefetch('user__tutorapplication', queryset=TutorApplication.objects.all(), to_attr='tutor_info')
+#         )
+#         for course in courses:
+#             print(course.user.username)
+#         serializer = FetchCourseSerializer(courses, many=True)
+       
+#         return Response(serializer.data)
+from razorpay_backend.models import OrdersItem,Orders
+from django.db.models import Prefetch, Exists, OuterRef
 class AllCoursesView(APIView):
     def get(self, request):
-        courses = Courses.objects.all().select_related('user').prefetch_related(
+        user = request.user
+
+        # Create a subquery to check if the course exists in user's OrdersItem
+        purchased_courses = OrdersItem.objects.filter(
+            order__user=user,
+            course=OuterRef('pk')
+        )
+
+        # Fetch all courses, excluding the ones the user has purchased
+        courses = Courses.objects.annotate(
+            is_purchased=Exists(purchased_courses)
+        ).filter(
+            is_purchased=False
+        ).select_related('user').prefetch_related(
             Prefetch('user__tutorapplication', queryset=TutorApplication.objects.all(), to_attr='tutor_info')
         )
+
         for course in courses:
             print(course.user.username)
+
         serializer = FetchCourseSerializer(courses, many=True)
        
         return Response(serializer.data)

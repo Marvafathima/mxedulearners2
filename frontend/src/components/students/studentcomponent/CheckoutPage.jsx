@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import {server}from '../../../../server'
 import { userInstance as axios } from '../../../api/axios';
@@ -17,6 +18,7 @@ const CheckoutPage = () => {
   const [paymentMethod, setPaymentMethod] = useState('');
   const { items } = useSelector(state => state.cart);
   const dispatch=useDispatch();
+  const navigate=useNavigate();
   const {user}=useSelector(state=>state.auth);
   const totals = useMemo(() => {
     return items.reduce((acc, item) => {
@@ -69,7 +71,8 @@ const CheckoutPage = () => {
             });
 
             alert('Payment successful');
-            dispatch(clearCart()); 
+            dispatch(clearCart());
+            navigate("/student-home")
             // Clear the cart after successful payment
             // Redirect to success page or courses page
           } catch (error) {

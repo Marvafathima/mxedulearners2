@@ -76,7 +76,7 @@ const Navbar = ({user}) => {
         
         {/* Rest of the navbar content */}
         <div className="flex items-center space-x-4">
-          <Link to="/courses" className={darkMode ? 'text-dark-white' : 'text-white'}>Courses</Link>
+          <Link to="/student-home" className={darkMode ? 'text-dark-white' : 'text-white'}>Courses</Link>
           <Link to="/chats" className={darkMode ? 'text-dark-white' : 'text-white'}>Chats</Link>
           <Link to="/video-call" className={darkMode ? 'text-dark-white' : 'text-white'}>Video Call</Link>
           <Link to="/discussion" className={darkMode ? 'text-dark-white' : 'text-white'}>Discussion</Link>
