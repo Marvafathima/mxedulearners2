@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Navbar from './Navbar';
+
+import {server}from '../../../../server'
+import { userInstance as axios } from '../../../api/axios';
 const indianStates = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
   'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
@@ -18,7 +21,7 @@ const CheckoutPage = () => {
     return items.reduce((acc, item) => {
       const price = item.course.price;
       const offerPrice = price * (1 - item.course.offer_percentage / 100);
-      
+
       acc.totalPrice += price;
       acc.totalOfferPrice += offerPrice;
       return acc;
@@ -26,6 +29,122 @@ const CheckoutPage = () => {
   }, [items]);
 
   const discount = totals.totalPrice - totals.totalOfferPrice;
+  // const handlePayment = async () => {
+  //   try {
+  //     const orderItems = items.map(item => ({
+  //       course_id: item.course.id,
+  //       price: item.course.price * (1 - item.course.offer_percentage / 100)
+  //     }));
+  
+  //     const accessToken = localStorage.getItem(`${user.email}_access_token`);
+  //     console.log("Access token:", accessToken);
+  
+  //     if (!accessToken) {
+  //       throw new Error('No access token available');
+  //     }
+  
+  //     console.log("Sending request to create order...");
+  //     const response = await axios.post(`/razorpay/pay/`, {
+  //       amount: totals.totalOfferPrice,
+  //       items: orderItems
+  //     }, {
+  //       headers: {
+  //         'Authorization': `Bearer ${accessToken}`,
+  //       },
+  //       withCredentials: true, // Add this line
+  //     });
+      
+  //     console.log("Order creation response:", response.data);
+  
+  //     // ... rest of the function remains the same
+  //   } catch (error) {
+  //     console.error('Error in handlePayment:', error);
+  //     if (error.response) {
+  //       console.error('Response data:', error.response.data);
+  //       console.error('Response status:', error.response.status);
+  //       console.error('Response headers:', error.response.headers);
+  //     } else if (error.request) {
+  //       console.error('No response received:', error.request);
+  //     } else {
+  //       console.error('Error setting up request:', error.message);
+  //     }
+  //     alert('Error creating order: ' + (error.response?.data?.detail || error.message));
+  //   }
+  // };
+  const handlePayment = async () => {
+    // try {
+      const orderItems = items.map(item => ({
+        course_id: item.course.id,
+        price: item.course.price * (1 - item.course.offer_percentage / 100)
+      }));
+
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      if (!accessToken) {
+        throw new Error('No access token available');
+      }
+     
+      const response = await axios.post(`/razorpay/pay`, {
+        amount: totals.totalOfferPrice,
+        items: orderItems
+      }, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      const options = {
+        key:'rzp_test_3nb0fP5EBtY0f3', // Replace with your actual Razorpay key ID
+        amount: response.data.payment.amount,
+        currency: "INR",
+        name: "Your Company Name",
+        description: "Course Purchase",
+        order_id: response.data.payment.id,
+        handler: async function (response) {
+          try {
+            await axios.post(`/razorpay/payment/success/`, {
+              response: JSON.stringify(response)
+            }, {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+              },
+            });
+
+            alert('Payment successful');
+            // dispatch(clearCart()); 
+            // Clear the cart after successful payment
+            // Redirect to success page or courses page
+          } catch (error) {
+            console.error('Payment verification failed:', error);
+            alert('Payment verification failed');
+          }
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+          contact: user.phone || ""
+        },
+        theme: {
+          color: "#3399cc"
+        }
+      };
+
+      const rzp1 = new window.Razorpay(options);
+      rzp1.on('payment.failed', function (response){
+        axios.post(`/razorpay/payment/failure/`, {
+          response: JSON.stringify(response)
+        }, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
+        alert('Payment failed. Please try again.');
+      });
+      rzp1.open();
+    // } catch (error) {
+    //   console.error('Error creating order:', error);
+    //   alert('Error creating order');
+    // }
+  };
 
   return (
     <>
@@ -87,7 +206,7 @@ const CheckoutPage = () => {
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold mb-4">Order details</h2>
+            <h2 className="text-2xl font-bold mb-4 ">Order details</h2>
             {items.map(item => (
               <div key={item.id} className="flex items-center mb-4">
                 <img src={item.course.thumbnail} alt={item.course.name} className="w-16 h-16 object-cover mr-4"/>
@@ -105,15 +224,17 @@ const CheckoutPage = () => {
 
         <div className="w-full lg:w-1/3 px-4">
           <div className="bg-gray-100 p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-4">Summary</h2>
+            <h2 className="text-2xl font-bold mb-4 text-black">Summary</h2>
             <div className="mb-4">
-              <p className="flex justify-between"><span>Original Price:</span><span>₹{totals.totalPrice.toFixed(2)}</span></p>
-              <p className="flex justify-between"><span>Discounts:</span><span>-₹{discount.toFixed(2)}</span></p>
+              <p className="flex justify-between text-black"><span>Original Price:</span><span>₹{totals.totalPrice.toFixed(2)}</span></p>
+              <p className="flex justify-between text-black"><span>Discounts:</span><span>-₹{discount.toFixed(2)}</span></p>
             </div>
             <div className="border-t pt-4">
-              <p className="flex justify-between font-bold"><span>Total:</span><span>₹{totals.totalOfferPrice.toFixed(2)}</span></p>
+              <p className="flex justify-between font-bold text-black"><span>Total:</span><span>₹{totals.totalOfferPrice.toFixed(2)}</span></p>
             </div>
-            <button className="mt-6 w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button 
+            onClick={handlePayment}
+            className="mt-6 w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
               Complete Checkout
             </button>
             <p className="mt-4 text-center text-sm text-gray-600">30-Day Money-Back Guarantee</p>

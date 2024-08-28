@@ -16,27 +16,23 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Cart',
+            name='Orders',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('order_amount', models.DecimalField(decimal_places=2, max_digits=10)),
+                ('order_payment_id', models.CharField(max_length=100)),
+                ('isPaid', models.BooleanField(default=False)),
+                ('order_date', models.DateTimeField(auto_now_add=True)),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
-            name='CartItem',
+            name='OrdersItem',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('added_at', models.DateTimeField(auto_now_add=True)),
-                ('cart', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cart.cart')),
+                ('price', models.DecimalField(decimal_places=2, max_digits=10)),
                 ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='courses.courses')),
+                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='razorpay_backend.orders')),
             ],
-            options={
-                'unique_together': {('cart', 'course')},
-            },
-        ),
-        migrations.AddField(
-            model_name='cart',
-            name='courses',
-            field=models.ManyToManyField(through='cart.CartItem', to='courses.courses'),
         ),
     ]

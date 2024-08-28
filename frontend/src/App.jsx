@@ -1,7 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { store } from './store/store';
+// import { store } from './store/store';
 import LandingPage from './components/Landing';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Home  from './components/Home';
@@ -26,6 +26,9 @@ import QuizCreationForm from './components/tutor/QuizCreationForm';
 import CourseDetail from './components/students/studentcomponent/CourseDetail';
 import CartPage from './components/students/studentcomponent/CartPage';
 import CheckoutPage from './components/students/studentcomponent/CheckoutPage';
+
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from '../src/store/store';
 function App() {
   // const { darkMode } = useContext(ThemeContext);
   return (

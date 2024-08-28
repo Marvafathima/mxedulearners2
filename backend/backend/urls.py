@@ -11,6 +11,7 @@ urlpatterns = [
     path('api/users/admin/adminstudent/',include('adminstudent.urls')),
     path('api/users/quizmanagement/',include('quiz.urls')),
     path('api/users/cartmanagement/',include('cart.urls')),
+    path('api/users/razorpay/',include('razorpay_backend.urls'))
 
     # other paths
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

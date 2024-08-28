@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'adminstudent',
     'quiz',
     'cart',
+    'razorpay_backend'
 
 ]
 
