@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Navbar from './Navbar';
-
 import {server}from '../../../../server'
 import { userInstance as axios } from '../../../api/axios';
+import { clearCart } from '../../../store/cartSlice';
 const indianStates = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
   'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
@@ -16,6 +16,7 @@ const CheckoutPage = () => {
   const [selectedState, setSelectedState] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const { items } = useSelector(state => state.cart);
+  const dispatch=useDispatch();
   const {user}=useSelector(state=>state.auth);
   const totals = useMemo(() => {
     return items.reduce((acc, item) => {
@@ -29,50 +30,8 @@ const CheckoutPage = () => {
   }, [items]);
 
   const discount = totals.totalPrice - totals.totalOfferPrice;
-  // const handlePayment = async () => {
-  //   try {
-  //     const orderItems = items.map(item => ({
-  //       course_id: item.course.id,
-  //       price: item.course.price * (1 - item.course.offer_percentage / 100)
-  //     }));
-  
-  //     const accessToken = localStorage.getItem(`${user.email}_access_token`);
-  //     console.log("Access token:", accessToken);
-  
-  //     if (!accessToken) {
-  //       throw new Error('No access token available');
-  //     }
-  
-  //     console.log("Sending request to create order...");
-  //     const response = await axios.post(`/razorpay/pay/`, {
-  //       amount: totals.totalOfferPrice,
-  //       items: orderItems
-  //     }, {
-  //       headers: {
-  //         'Authorization': `Bearer ${accessToken}`,
-  //       },
-  //       withCredentials: true, // Add this line
-  //     });
-      
-  //     console.log("Order creation response:", response.data);
-  
-  //     // ... rest of the function remains the same
-  //   } catch (error) {
-  //     console.error('Error in handlePayment:', error);
-  //     if (error.response) {
-  //       console.error('Response data:', error.response.data);
-  //       console.error('Response status:', error.response.status);
-  //       console.error('Response headers:', error.response.headers);
-  //     } else if (error.request) {
-  //       console.error('No response received:', error.request);
-  //     } else {
-  //       console.error('Error setting up request:', error.message);
-  //     }
-  //     alert('Error creating order: ' + (error.response?.data?.detail || error.message));
-  //   }
-  // };
   const handlePayment = async () => {
-    // try {
+    try {
       const orderItems = items.map(item => ({
         course_id: item.course.id,
         price: item.course.price * (1 - item.course.offer_percentage / 100)
@@ -96,7 +55,7 @@ const CheckoutPage = () => {
         key:'rzp_test_3nb0fP5EBtY0f3', // Replace with your actual Razorpay key ID
         amount: response.data.payment.amount,
         currency: "INR",
-        name: "Your Company Name",
+        name: "Mxedulearners",
         description: "Course Purchase",
         order_id: response.data.payment.id,
         handler: async function (response) {
@@ -110,7 +69,7 @@ const CheckoutPage = () => {
             });
 
             alert('Payment successful');
-            // dispatch(clearCart()); 
+            dispatch(clearCart()); 
             // Clear the cart after successful payment
             // Redirect to success page or courses page
           } catch (error) {
@@ -140,10 +99,10 @@ const CheckoutPage = () => {
         alert('Payment failed. Please try again.');
       });
       rzp1.open();
-    // } catch (error) {
-    //   console.error('Error creating order:', error);
-    //   alert('Error creating order');
-    // }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      alert('Error creating order');
+    }
   };
 
   return (

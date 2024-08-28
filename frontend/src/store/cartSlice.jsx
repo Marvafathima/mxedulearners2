@@ -72,6 +72,28 @@ export const removeFromCart = createAsyncThunk(
   }
 );
 
+export const clearCart = createAsyncThunk(
+  'cart/clearCart',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState().auth;
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      if (!accessToken) {
+        throw new Error('No access token available');
+      }
+
+      await userInstance.delete('/cartmanagement/clear-cart/', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      
+      return;
+    } catch (error) {
+      return rejectWithValue(error.response ? error.response.data : { message: error.message });
+    }
+  }
+);
 const cartSlice = createSlice({
   name: 'cart',
   initialState: {
@@ -114,6 +136,19 @@ const cartSlice = createSlice({
         console.log(state.count,"this is the count")
         state.count = state.items.length;
         localStorage.setItem('cartCount', JSON.stringify(state.count));
+      })
+      .addCase(clearCart.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(clearCart.fulfilled, (state) => {
+        state.items = [];
+        state.count = 0;
+        state.status = 'succeeded';
+        localStorage.setItem('cartCount', '0');
+      })
+      .addCase(clearCart.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
       });
   },
 });
