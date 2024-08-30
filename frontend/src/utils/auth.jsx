@@ -16,7 +16,25 @@ export const getCurrentUserTokens = () => {
 
 export const BASE_URL = 'http://127.0.0.1:8000/'; // Replace with your actual backend URL
 
- export function getFullImageUrl(relativePath) {
+//  export function getFullImageUrl(relativePath) {
+//   if (!relativePath) return null;
+//   return `${BASE_URL}${relativePath}`;
+// }
+
+export const AWS_BUCKET ='https://mxedulearnerbucket.s3.ap-south-1.amazonaws.com/';
+export function getFullImageUrl(relativePath){
   if (!relativePath) return null;
-  return `${BASE_URL}${relativePath}`;
+  // If the path already starts with http or https, assume it's a full URL
+  if (relativePath.startsWith('http://') || relativePath.startsWith('https://')) {
+    return relativePath;
+  }
+  
+  // Ensure the relative path doesn't start with a slash
+  const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath;
+  
+  // Construct the full S3 URL
+  return `${AWS_BUCKET}${cleanPath}`;
+
+  // return `${AWS_BUCKET}${relativePath}`
+
 }

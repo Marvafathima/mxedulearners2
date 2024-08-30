@@ -7,12 +7,28 @@ import { ThemeContext } from '../../contexts/ThemeContext';
 import { getFullImageUrl } from '../../utils/auth';
 import TutorSidebar from './TutorSidebar';
 import TutorNavbar from './TutorNavbar';
+import { toast } from 'react-toastify';
 
 const TutorHome = () => {
   const { darkMode } = useContext(ThemeContext);
   const dispatch = useDispatch();
   const { user, loading, error } = useSelector((state) => state.auth);
   const effectRan = useRef(false);
+
+  const [imageSrc, setImageSrc] = useState(() => getFullImageUrl(user.profile_pic));
+  const [imgError, setImgError] = useState(false);
+ 
+  const handleImageError = () => {
+    if (!imgerror) {
+      setError(true);
+      setImageSrc(getFullImageUrl('path/to/fallback/image.png')); // Make sure this fallback image exists in your S3 bucket
+    }
+  };
+
+  if (!imageSrc) {
+    return <div>No image available</div>;
+  }
+
   const [showProfileOptions, setShowProfileOptions] = useState(false);
   const [activeForm, setActiveForm] = useState('profile'); // 'profile' or 'password'
   const [editMode, setEditMode] = useState(false);
@@ -48,13 +64,42 @@ const TutorHome = () => {
   }, [user]);
 
 
+  // const handleImageUpload = async (event) => {
+  //   const file = event.target.files[0];
+  //   if (file) {
+  //     const formData = new FormData();
+  //     formData.append('profile_pic', file);
+  //     try {
+  //       await dispatch(updateProfilePicture(formData));
+  //       toast.success('Profile picture updated successfully!');
+  //       setShowProfileOptions(false);
+        
+  //     } catch (error) {
+  //       toast.error('Failed to update profile picture. Please try again.');
+  //       console.error('Error updating profile picture:', error);
+  //     }
+  //   }
+  // };
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       const formData = new FormData();
       formData.append('profile_pic', file);
-      await dispatch(updateProfilePicture(formData));
-      setShowProfileOptions(false);
+      try {
+        const resultAction = await dispatch(updateProfilePicture(formData));
+        if (updateProfilePicture.fulfilled.match(resultAction)) {
+          const newImageUrl = resultAction.payload.profile_pic;
+          setImageSrc(getFullImageUrl(newImageUrl));
+          setImgError(false);
+          toast.success('Profile picture updated successfully!');
+          setShowProfileOptions(false);
+        } else {
+          throw new Error('Failed to update profile picture');
+        }
+      } catch (error) {
+        toast.error('Failed to update profile picture. Please try again.');
+        console.error('Error updating profile picture:', error);
+      }
     }
   };
   const handleRemoveProfilePic = async () => {
@@ -135,16 +180,8 @@ const TutorHome = () => {
 
 
 <div className={`flex h-screen ${darkMode ? 'bg-dark-gray-300' : 'bg-light-applecore'}`}>
-      {/* Sidebar */}
-      {/* <div className={`w-64 ${darkMode ? 'bg-dark-gray-200' : 'bg-light-blueberry'} text-white p-4`}>
-        <div className="text-2xl font-bold mb-8">MXEduLearners</div>
-        {sidebarItems.map((item, index) => (
-          <div key={index} className={`flex items-center mb-4 cursor-pointer ${darkMode ? 'hover:bg-dark-gray-100' : 'hover:bg-light-apricot'} p-2 rounded`}>
-            <i className={`${item.icon} mr-3`}></i>
-            <span>{item.name}</span>
-          </div>
-        ))}
-      </div> */}
+     
+      
       
       <TutorSidebar user={user}></TutorSidebar>
 
@@ -161,13 +198,12 @@ const TutorHome = () => {
    
     <div className="w-24 h-24 rounded-full border-4 border-white overflow-hidden">
     <img
-      src={getFullImageUrl(user.profile_pic)}
+      // src={getFullImageUrl(user.profile_pic)}
+      src={imageSrc}
       alt="Profile"
       className="w-full h-full object-cover"
-      onError={(e) => {
-        e.target.onerror = null;
-        e.target.src = 'path/to/fallback/image.png'; // Replace with a path to a default image
-      }}
+      onError={handleImageError}
+  
     />
   </div>
   ) : (
