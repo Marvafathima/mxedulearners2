@@ -77,8 +77,8 @@ const TutorSidebar = ({ user }) => {
   const [coursesOpen, setCoursesOpen] = useState(false);
 
   const sidebarItems = [
-    { name: 'Dashboard', icon: 'fas fa-tachometer-alt', path: '/tutor/dashboard' },
-    { name: 'My Profile', icon: 'fas fa-user', path: '/tutor/profile' },
+    { name: 'Dashboard', icon: 'fas fa-tachometer-alt', path: '/tutor-home' },
+    { name: 'My Profile', icon: 'fas fa-user', path: '/tutor-home' },
     { name: 'Students', icon: 'fas fa-users', path: '/tutor/students' },
     {
       name: 'Courses',
