@@ -1,7 +1,6 @@
 from django.db import models
 from api.models import CustomUser
 from django.core.validators import MinValueValidator, MaxValueValidator
-from storages.backends.s3boto3 import S3Boto3Storage
 # Create your models here.
 class Courses(models.Model):
     name = models.CharField(max_length=50)
