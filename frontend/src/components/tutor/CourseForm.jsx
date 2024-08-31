@@ -17,6 +17,88 @@ const CourseForm = () => {
   const dispatch = useDispatch();
   const user = useSelector(state => state.auth.user); // Assuming you have user info in Redux state
 
+  // const [lessons, setLessons] = useState([]);
+  // const [showLessonForm, setShowLessonForm] = useState(false);
+  // const [courseData, setCourseData] = useState({
+  //   name: '',
+  //   category: '',
+  //   price: '',
+  //   offer_percentage: '',
+  //   description: '',
+  //   thumbnail: null,
+  //   points: 0
+  // });
+
+  // const [previewImage, setPreviewImage] = useState(null);
+
+  const categories = [
+    'Full Stack Development',
+    'Frontend',
+    'Backend',
+    'Data Science',
+    'Machine Learning',
+    'Cybersecurity',
+    'Mobile App Development'
+  ];
+ 
+  // const handleChange = (e) => {
+  //   const { name, value, type, files } = e.target;
+  //   if (type === 'file') {
+  //     setCourseData(prev => ({ ...prev, [name]: files[0] }));
+  //     setPreviewImage(URL.createObjectURL(files[0]));
+  //   } else {
+  //     setCourseData(prev => ({ ...prev, [name]: value }));
+  //   }
+  // };
+
+  // const addLesson = (lessonData) => {
+  //   setLessons(prev => [...prev, lessonData]);
+  //   setShowLessonForm(false);
+  // };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const formData = new FormData();
+
+  //     // Append course data
+  //     Object.keys(courseData).forEach(key => {
+  //       if (key === 'thumbnail' && courseData[key] instanceof File) {
+  //         formData.append(key, courseData[key].name);
+  //         formData.append('thumbnail_file', courseData[key]);
+  //       } else if (key !== 'lessons') {
+  //         formData.append(key, courseData[key]);
+  //       }
+  //     });
+
+  //     formData.append('user', user.id);
+
+  //     // Append lessons data
+  //     lessons.forEach((lesson, index) => {
+  //       Object.keys(lesson).forEach(key => {
+  //         if (key === 'thumbnail' && lesson[key] instanceof File) {
+  //           formData.append(`lessons[${index}][${key}]`, lesson[key].name);
+  //           formData.append(`lessons[${index}][thumbnail_file]`, lesson[key]);
+  //         } else if (key === 'video' && lesson[key] instanceof File) {
+  //           formData.append(`lessons[${index}][${key}]`, lesson[key].name);
+  //           formData.append(`lessons[${index}][video_file]`, lesson[key]);
+  //         } else {
+  //           formData.append(`lessons[${index}][${key}]`, lesson[key]);
+  //         }
+  //       });
+  //     });
+
+  //     console.log("Data being sent to backend:", Object.fromEntries(formData));
+
+  //     const result = await dispatch(addCourse(formData)).unwrap();
+  //     toast.success("Successfully created a course");
+  //     console.log("Success:", result);
+  //     // navigate('/tutor-home');
+  //   } catch (error) {
+  //     console.error("Failure:", error);
+  //     toast.error(error.message || 'An error occurred while creating the course.');
+  //   }
+  // };
   const [lessons, setLessons] = useState([]);
   const [showLessonForm, setShowLessonForm] = useState(false);
   const [courseData, setCourseData] = useState({
@@ -31,16 +113,6 @@ const CourseForm = () => {
 
   const [previewImage, setPreviewImage] = useState(null);
 
-  const categories = [
-    'Full Stack Development',
-    'Frontend',
-    'Backend',
-    'Data Science',
-    'Machine Learning',
-    'Cybersecurity',
-    'Mobile App Development'
-  ];
- 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
     if (type === 'file') {
@@ -51,41 +123,11 @@ const CourseForm = () => {
     }
   };
 
-  const addLesson = (lessonData) => {
-    setLessons(prev => [...prev, lessonData]);
+  const addLesson = (lessonFormData) => {
+    setLessons(prev => [...prev, lessonFormData]);
     setShowLessonForm(false);
   };
- 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const formData = new FormData();
-      
-  //     // Append course data
-  //     Object.keys(courseData).forEach(key => {
-  //       if (key === 'thumbnail' && courseData[key] instanceof File) {
-  //         // Save the thumbnail filename instead of the file
-  //         formData.append(key, courseData[key].name);
-  //         // Append the actual file with a different key
-  //         formData.append('thumbnail_file', courseData[key], courseData[key].name);
-  //       } else if (key !== 'lessons') {
-  //         formData.append(key, courseData[key]);
-  //       }
-  //     });
-      
-  //     formData.append('user', user.id);
-      
-  //     // Append lessons data
-  //     lessons.forEach((lesson, index) => {
-  //       Object.keys(lesson).forEach(key => {
-  //         if (key === 'thumbnail' && lesson[key] instanceof File) {
-  //           formData.append(`lessons[${index}][${key}]`, lesson[key].name);
-  //           formData.append(`lessons[${index}][thumbnail_file]`, lesson[key], lesson[key].name);
-  //         } else {
-  //           formData.append(`lessons[${index}][${key}]`, lesson[key]);
-  //         }
-  //       });
-  //     });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -94,10 +136,8 @@ const CourseForm = () => {
       // Append course data
       Object.keys(courseData).forEach(key => {
         if (key === 'thumbnail' && courseData[key] instanceof File) {
-          console.log("thumbnail is present")
-          formData.append(key, courseData[key].name);
-          formData.append('thumbnail_file', courseData[key], courseData[key].name);
-        } else if (key !== 'lessons') {
+          formData.append('thumbnail_file', courseData[key]);
+        } else {
           formData.append(key, courseData[key]);
         }
       });
@@ -105,43 +145,21 @@ const CourseForm = () => {
       formData.append('user', user.id);
 
       // Append lessons data
-      lessons.forEach((lesson, index) => {
-        Object.keys(lesson).forEach(key => {
-          if (key === 'thumbnail' && lesson[key] instanceof File) {
-            formData.append(`lessons[${index}][${key}]`, lesson[key].name);
-            formData.append(`lessons[${index}][thumbnail_file]`, lesson[key], lesson[key].name);
-          } else if (key === 'video' && lesson[key] instanceof File) {
-            formData.append(`lessons[${index}][${key}]`, lesson[key].name);
-            formData.append(`lessons[${index}][video_file]`, lesson[key], lesson[key].name);
-          } else {
-            formData.append(`lessons[${index}][${key}]`, lesson[key]);
-          }
-        });
+      lessons.forEach((lessonFormData, index) => {
+        for (let [key, value] of lessonFormData.entries()) {
+          formData.append(`lessons[${index}][${key}]`, value);
+        }
       });
-
-      console.log("Data being sent to backend:", Object.fromEntries(formData));
 
       const result = await dispatch(addCourse(formData)).unwrap();
       toast.success("Successfully created a course");
       console.log("Success:", result);
       // navigate('/tutor-home');
     } catch (error) {
-      console.log("Failure:", error);
+      console.error("Failure:", error);
       toast.error(error.message || 'An error occurred while creating the course.');
     }
   };
-  
-  //     console.log("Data being sent to backend:", Object.fromEntries(formData));
-  
-  //     const result = await dispatch(addCourse(formData)).unwrap();
-  //     toast.success("Successfully created a course")
-  //     console.log("Success:", result);
-  //     // navigate('/tutor-home');
-  //   } catch (error) {
-  //     console.log("Failure:", error);
-  //     toast.error(error.message || 'An error occurred while creating the course.');
-  //   }
-  // };
   return (
     <div className="flex">
       <div className="fixed h-screen">

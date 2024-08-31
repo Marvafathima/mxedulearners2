@@ -4,14 +4,14 @@ import { ThemeContext } from '../../contexts/ThemeContext';
 import { useRef } from 'react';
 const LessonForm = ({ onSave, onCancel, lessonNumber, initialData = null }) => {
   const { darkMode } = useContext(ThemeContext);
-  const [lessonData, setLessonData] = useState(initialData || {
-    title: '',
-    description: '',
-    duration: '',
-    video: null,
-    thumbnail: null,
-    points: 0
-  });
+  // const [lessonData, setLessonData] = useState(initialData || {
+  //   title: '',
+  //   description: '',
+  //   duration: '',
+  //   video: null,
+  //   thumbnail: null,
+  //   points: 0
+  // });
   // const [previewImage, setPreviewImage] = useState(initialData?.thumbnail || null);
 
   // const handleChange = (e) => {
@@ -35,7 +35,56 @@ const LessonForm = ({ onSave, onCancel, lessonNumber, initialData = null }) => {
   //   };
   //   onSave(lessonDataToSave);
   // };
-  const [previewImage, setPreviewImage] = useState(initialData?.thumbnail || null);
+  // const [previewImage, setPreviewImage] = useState(initialData?.thumbnail || null);
+  // const [uploadProgress, setUploadProgress] = useState(0);
+  // const fileInputRef = useRef(null);
+
+  // const handleChange = (e) => {
+  //   const { name, value, type, files } = e.target;
+  //   if (type === 'file') {
+  //     const file = files[0];
+  //     if (name === 'video') {
+  //       setLessonData(prev => ({ ...prev, [name]: file }));
+  //       simulateVideoUpload(file);
+  //     } else if (name === 'thumbnail') {
+  //       setLessonData(prev => ({ ...prev, [name]: file }));
+  //       setPreviewImage(URL.createObjectURL(file));
+  //     }
+  //   } else {
+  //     setLessonData(prev => ({ ...prev, [name]: value }));
+  //   }
+  // };
+
+  // const simulateVideoUpload = (file) => {
+  //   let progress = 0;
+  //   const interval = setInterval(() => {
+  //     progress += 10;
+  //     setUploadProgress(progress);
+  //     if (progress >= 100) {
+  //       clearInterval(interval);
+  //     }
+  //   }, 500);
+  // };
+
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   const lessonDataToSave = {
+  //     ...lessonData,
+  //     lesson_number: lessonNumber,
+  //     thumbnail: lessonData.thumbnail instanceof File ? lessonData.thumbnail.name : lessonData.thumbnail,
+  //     video: lessonData.video instanceof File ? lessonData.video.name : lessonData.video
+  //   };
+  //   onSave(lessonDataToSave);
+  // };
+  const [lessonData, setLessonData] = useState(initialData || {
+    title: '',
+    description: '',
+    duration: '',
+    video: null,
+    thumbnail: null,
+    points: 0
+  });
+  const [previewImage, setPreviewImage] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef(null);
 
@@ -43,12 +92,11 @@ const LessonForm = ({ onSave, onCancel, lessonNumber, initialData = null }) => {
     const { name, value, type, files } = e.target;
     if (type === 'file') {
       const file = files[0];
-      if (name === 'video') {
-        setLessonData(prev => ({ ...prev, [name]: file }));
-        simulateVideoUpload(file);
-      } else if (name === 'thumbnail') {
-        setLessonData(prev => ({ ...prev, [name]: file }));
+      setLessonData(prev => ({ ...prev, [name]: file }));
+      if (name === 'thumbnail') {
         setPreviewImage(URL.createObjectURL(file));
+      } else if (name === 'video') {
+        simulateVideoUpload(file);
       }
     } else {
       setLessonData(prev => ({ ...prev, [name]: value }));
@@ -68,15 +116,19 @@ const LessonForm = ({ onSave, onCancel, lessonNumber, initialData = null }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const lessonDataToSave = {
-      ...lessonData,
-      lesson_number: lessonNumber,
-      thumbnail: lessonData.thumbnail instanceof File ? lessonData.thumbnail.name : lessonData.thumbnail,
-      video: lessonData.video instanceof File ? lessonData.video.name : lessonData.video
-    };
-    onSave(lessonDataToSave);
+    const formData = new FormData();
+    Object.keys(lessonData).forEach(key => {
+      if (key === 'video' || key === 'thumbnail') {
+        if (lessonData[key] instanceof File) {
+          formData.append(key, lessonData[key]);
+        }
+      } else {
+        formData.append(key, lessonData[key]);
+      }
+    });
+    formData.append('lesson_number', lessonNumber);
+    onSave(formData);
   };
-
 
   return (
     <div className={`p-6 mt-4 ${darkMode ? 'bg-dark-gray-200' : 'bg-light-ash'} rounded`}>
