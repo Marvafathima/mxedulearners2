@@ -32,7 +32,7 @@ class Lesson(models.Model):
     duration = models.DurationField()  # This allows you to store time in hours, minutes, and seconds
     lesson_number = models.PositiveIntegerField()
     thumbnail = models.ImageField(upload_to='lesson_thumbnails/', null=True, blank=True)
-    video_url = models.URLField()  # For storing YouTube or other video URLs
+    video = models.FileField(upload_to='lesson_videos/',default="",null=False, blank=False)  # New field for video file
     points = models.PositiveIntegerField(default=0)  # Points for individual lesson
 
     def __str__(self):
