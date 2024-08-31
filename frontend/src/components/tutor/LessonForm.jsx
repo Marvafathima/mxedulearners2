@@ -1,10 +1,19 @@
 
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { ThemeContext } from '../../contexts/ThemeContext';
-import { useRef } from 'react';
+import { 
+  Box, 
+  Typography, 
+  TextField, 
+  Button, 
+  LinearProgress,
+} from '@mui/material';
+
 const LessonForm = ({ onSave, onCancel, lessonNumber, initialData = null }) => {
   const { darkMode } = useContext(ThemeContext);
- 
+  const fileInputRef = useRef(null);
+  const thumbnailInputRef = useRef(null);
+
   const [lessonData, setLessonData] = useState(initialData || {
     title: '',
     description: '',
@@ -15,7 +24,6 @@ const LessonForm = ({ onSave, onCancel, lessonNumber, initialData = null }) => {
   });
   const [previewImage, setPreviewImage] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -60,122 +68,127 @@ const LessonForm = ({ onSave, onCancel, lessonNumber, initialData = null }) => {
   };
 
   return (
-    <div className={`p-6 mt-4 ${darkMode ? 'bg-dark-gray-200' : 'bg-light-ash'} rounded`}>
-      <h3 className="text-xl font-bold mb-4">
+    <Box sx={{ 
+      p: 3, 
+      mt: 2, 
+      bgcolor: darkMode ? 'grey.800' : 'grey.100', 
+      borderRadius: 2 
+    }}>
+      <Typography variant="h5" gutterBottom>
         {initialData ? `Edit Lesson #${lessonNumber}` : `Add Lesson #${lessonNumber}`}
-      </h3>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-2">Lesson Title</label>
-          <input
-            type="text"
-            name="title"
-            value={lessonData.title}
-            onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-100' : 'bg-white'}`}
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-2">Description</label>
-          <textarea
-            name="description"
-            value={lessonData.description}
-            onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-100' : 'bg-white'}`}
-            rows="4"
-            required
-          ></textarea>
-        </div>
-        <div>
-          <label className="block mb-2">Duration (HH:MM:SS)</label>
-          <input
-            type="text"
-            name="duration"
-            value={lessonData.duration}
-            onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-100' : 'bg-white'}`}
-            pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}"
-            placeholder="00:30:00"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-2">Video Upload</label>
+      </Typography>
+      <form onSubmit={handleSubmit}>
+        <TextField
+          fullWidth
+          label="Lesson Title"
+          name="title"
+          value={lessonData.title}
+          onChange={handleChange}
+          margin="normal"
+          required
+        />
+        <TextField
+          fullWidth
+          label="Description"
+          name="description"
+          value={lessonData.description}
+          onChange={handleChange}
+          margin="normal"
+          multiline
+          rows={4}
+          required
+        />
+        <TextField
+          fullWidth
+          label="Duration (HH:MM:SS)"
+          name="duration"
+          value={lessonData.duration}
+          onChange={handleChange}
+          margin="normal"
+          placeholder="00:30:00"
+          inputProps={{ 
+            pattern: "[0-9]{2}:[0-9]{2}:[0-9]{2}",
+          }}
+          required
+        />
+        <Box sx={{ mt: 2, mb: 2 }}>
           <input
             type="file"
             name="video"
             onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-100' : 'bg-white'}`}
             accept="video/*"
             ref={fileInputRef}
+            style={{ display: 'none' }}
           />
+          <Button
+            variant="contained"
+            component="label"
+            onClick={() => fileInputRef.current.click()}
+          >
+            Upload Video
+          </Button>
           {uploadProgress > 0 && uploadProgress < 100 && (
-            <div className="mt-2">
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div
-                  className="bg-blue-600 h-2.5 rounded-full"
-                  style={{ width: `${uploadProgress}%` }}
-                ></div>
-              </div>
-              <p className="text-sm mt-1">{uploadProgress}% uploaded</p>
-            </div>
+            <Box sx={{ width: '100%', mt: 2 }}>
+              <LinearProgress variant="determinate" value={uploadProgress} />
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                {uploadProgress}% uploaded
+              </Typography>
+            </Box>
           )}
           {uploadProgress === 100 && (
-            <p className="text-sm mt-1 text-green-600">Upload complete!</p>
+            <Typography variant="body2" color="success.main" sx={{ mt: 1 }}>
+              Upload complete!
+            </Typography>
           )}
-        </div>
-        {/* <div>
-          <label className="block mb-2">Video URL</label>
-          <input
-            type="url"
-            name="video_url"
-            value={lessonData.video_url}
-            onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-100' : 'bg-white'}`}
-            required
-          />
-        </div> */}
-        <div>
-          <label className="block mb-2">Lesson Thumbnail</label>
+        </Box>
+        <Box sx={{ mt: 2, mb: 2 }}>
           <input
             type="file"
             name="thumbnail"
             onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-100' : 'bg-white'}`}
             accept="image/*"
+            style={{ display: 'none' }}
+            ref={thumbnailInputRef}
           />
+          <Button
+            variant="contained"
+            component="label"
+            onClick={() => thumbnailInputRef.current.click()}
+          >
+            Upload Thumbnail
+          </Button>
           {previewImage && (
-            <img src={previewImage} alt="Thumbnail preview" className="mt-2 max-w-xs" />
+            <Box sx={{ mt: 2, maxWidth: 200 }}>
+              <img src={previewImage} alt="Thumbnail preview" style={{ width: '100%' }} />
+            </Box>
           )}
-        </div>
-        <div>
-          <label className="block mb-2">Lesson Points</label>
-          <input
-            type="number"
-            name="points"
-            value={lessonData.points}
-            onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-100' : 'bg-white'}`}
-          />
-        </div>
-        <div className="flex justify-end space-x-4">
-          <button
-            type="button"
+        </Box>
+        <TextField
+          fullWidth
+          label="Lesson Points"
+          name="points"
+          type="number"
+          value={lessonData.points}
+          onChange={handleChange}
+          margin="normal"
+        />
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 2 }}>
+          <Button
+            variant="outlined"
             onClick={onCancel}
-            className={`${darkMode ? 'bg-dark-gray-100' : 'bg-light-blueberry'} text-white p-2 rounded`}
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
-            className={`${darkMode ? 'bg-dark-gray-100' : 'bg-light-citrus'} text-white p-2 rounded`}
+            variant="contained"
+            color="primary"
           >
             {initialData ? 'Update Lesson' : 'Save Lesson'}
-          </button>
-        </div>
+          </Button>
+        </Box>
       </form>
-    </div>
+    </Box>
   );
 };
 

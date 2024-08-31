@@ -1,33 +1,32 @@
 
-  import React, { useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../../contexts/ThemeContext';
-import { useDispatch} from 'react-redux';
-import { useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
-import TutorSidebar from './TutorSidebar';
+import { useDispatch, useSelector } from 'react-redux';
 import { addCourse } from '../../store/courseSlice';
-// import { getCurrentUserTokens } from '../../utils/auth';
 import LessonForm from './LessonForm';
-
+import TutorSidebar from './TutorSidebar';
+import { 
+  Button, 
+  TextField, 
+  Select, 
+  MenuItem, 
+  FormControl, 
+  InputLabel, 
+  Box, 
+  Typography, 
+  Skeleton,
+  Snackbar,
+  Alert
+} from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 
 const CourseForm = () => {
   const { darkMode } = useContext(ThemeContext);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector(state => state.auth.user); // Assuming you have user info in Redux state
+  const user = useSelector(state => state.auth.user);
 
-
-  const categories = [
-    'Full Stack Development',
-    'Frontend',
-    'Backend',
-    'Data Science',
-    'Machine Learning',
-    'Cybersecurity',
-    'Mobile App Development'
-  ];
- 
   const [lessons, setLessons] = useState([]);
   const [showLessonForm, setShowLessonForm] = useState(false);
   const [courseData, setCourseData] = useState({
@@ -41,6 +40,8 @@ const CourseForm = () => {
   });
 
   const [previewImage, setPreviewImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -59,10 +60,10 @@ const CourseForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const formData = new FormData();
 
-      // Append course data
       Object.keys(courseData).forEach(key => {
         if (key === 'thumbnail' && courseData[key] instanceof File) {
           formData.append('thumbnail_file', courseData[key]);
@@ -73,160 +74,183 @@ const CourseForm = () => {
 
       formData.append('user', user.id);
 
-      // Append lessons data
       lessons.forEach((lessonFormData, index) => {
         for (let [key, value] of lessonFormData.entries()) {
           formData.append(`lessons[${index}][${key}]`, value);
         }
       });
 
-      const result = await dispatch(addCourse(formData)).unwrap();
-      toast.success("Successfully created a course");
-      console.log("Success:", result);
-      // navigate('/tutor-home');
+      await dispatch(addCourse(formData)).unwrap();
+      setIsSuccess(true);
+      setTimeout(() => {
+        navigate('/tutor/courses');
+      }, 2000);
     } catch (error) {
       console.error("Failure:", error);
-      toast.error(error.message || 'An error occurred while creating the course.');
+      // Handle error (you might want to set an error state and display it)
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ width: '100%', marginTop: 2 }}>
+        <Skeleton variant="rectangular" width="100%" height={118} />
+        <Skeleton width="60%" />
+        <Skeleton width="80%" />
+        <Skeleton width="40%" />
+      </Box>
+    );
+  }
+
   return (
     <div className="flex">
       <div className="fixed h-screen">
         <TutorSidebar user={user} />
       </div>
       <div className="flex-grow ml-64 p-6 overflow-y-auto">
-    <div className={`max-w-3xl mx-auto p-6 ${darkMode ? 'bg-dark-gray-300 text-dark-white' : 'bg-light-ash text-light-blueberry'}`}>
-      <h2 className="text-2xl font-bold mb-4">Create New Course</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-2">Course Name</label>
-          <input
-            type="text"
-            name="name"
-            value={courseData.name}
-            onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-200' : 'bg-white'}`}
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-2">Category</label>
-          <select
-            name="category"
-            value={courseData.category}
-            onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-200' : 'bg-white'}`}
-            required
-          >
-            <option value="">Select a category</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block mb-2">Price</label>
-          <input
-            type="number"
-            name="price"
-            value={courseData.price}
-            onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-200' : 'bg-white'}`}
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-2">Offer Percentage</label>
-          <input
-            type="number"
-            name="offer_percentage"
-            value={courseData.offer_percentage}
-            onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-200' : 'bg-white'}`}
-          />
-        </div>
-        <div>
-          <label className="block mb-2">Description</label>
-          <textarea
-            name="description"
-            value={courseData.description}
-            onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-200' : 'bg-white'}`}
-            rows="4"
-            required
-          ></textarea>
-        </div>
-        <div>
-          <label className="block mb-2">Thumbnail</label>
-          <input
-            type="file"
-            name="thumbnail"
-            onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-200' : 'bg-white'}`}
-            accept="image/*"
-          />
-          {previewImage && (
-            <img src={previewImage} alt="Thumbnail preview" className="mt-2 max-w-xs" />
+        <Box sx={{ maxWidth: '800px', margin: 'auto' }}>
+          <Typography variant="h4" gutterBottom>
+            Create New Course
+          </Typography>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              label="Course Name"
+              name="name"
+              value={courseData.name}
+              onChange={handleChange}
+              margin="normal"
+              required
+            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Category</InputLabel>
+              <Select
+                name="category"
+                value={courseData.category}
+                onChange={handleChange}
+                required
+              >
+               
+                <MenuItem value="Frontend">Frontend</MenuItem>
+                <MenuItem value="Backend">Backend</MenuItem>
+                <MenuItem value="Full Stack Development">Full Stack Development</MenuItem>
+                <MenuItem value="Data Science">Data Science</MenuItem>
+                <MenuItem value="Machine Learning">Machine Learning</MenuItem>
+                <MenuItem value="Cybersecurity">Cybersecurity</MenuItem>
+                <MenuItem value="Mobile App Development">Mobile App Development</MenuItem>
+               
+               
+              </Select>
+  
+            </FormControl>
+            <TextField
+              fullWidth
+              label="Price"
+              name="price"
+              type="number"
+              value={courseData.price}
+              onChange={handleChange}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Offer Percentage"
+              name="offer_percentage"
+              type="number"
+              value={courseData.offer_percentage}
+              onChange={handleChange}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Description"
+              name="description"
+              multiline
+              rows={4}
+              value={courseData.description}
+              onChange={handleChange}
+              margin="normal"
+              required
+            />
+            <input
+              type="file"
+              name="thumbnail"
+              onChange={handleChange}
+              accept="image/*"
+              style={{ display: 'none' }}
+              id="thumbnail-upload"
+            />
+            <label htmlFor="thumbnail-upload">
+              <Button variant="contained" component="span">
+                Upload Thumbnail
+              </Button>
+            </label>
+            {previewImage && (
+              <img src={previewImage} alt="Thumbnail preview" style={{ maxWidth: '200px', marginTop: '10px' }} />
+            )}
+            <TextField
+              fullWidth
+              label="Course Points"
+              name="points"
+              type="number"
+              value={courseData.points}
+              onChange={handleChange}
+              margin="normal"
+            />
+            <Button
+              variant="contained"
+              onClick={() => setShowLessonForm(true)}
+              sx={{ marginTop: 2 }}
+            >
+              Add Lesson
+            </Button>
+            {lessons.length > 0 && (
+              <Box sx={{ marginTop: 2 }}>
+                <Typography variant="h6">Lessons Added: {lessons.length}</Typography>
+                <ul>
+                  {lessons.map((lesson, index) => (
+                    <li key={index}>{lesson.get('title')}</li>
+                  ))}
+                </ul>
+              </Box>
+            )}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => navigate('/tutor/courses')}
+              >
+                Cancel
+              </Button>
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                color="primary"
+                loading={isLoading}
+              >
+                Save and Preview
+              </LoadingButton>
+            </Box>
+          </form>
+          {showLessonForm && (
+            <LessonForm
+              onSave={addLesson}
+              onCancel={() => setShowLessonForm(false)}
+              lessonNumber={lessons.length + 1}
+            />
           )}
-        </div>
-        <div>
-          <label className="block mb-2">Course Points</label>
-          <input
-            type="number"
-            name="points"
-            value={courseData.points}
-            onChange={handleChange}
-            className={`w-full p-2 rounded ${darkMode ? 'bg-dark-gray-200' : 'bg-white'}`}
-          />
-        </div>
-        <div>
-          <button
-            type="button"
-            onClick={() => setShowLessonForm(true)}
-            className={`${darkMode ? 'bg-dark-gray-100' : 'bg-light-citrus'} text-white p-2 rounded`}
-          >
-            Add Lesson
-          </button>
-        </div>
-
-        {lessons.length > 0 && (
-          <div>
-            <h3 className="font-bold mb-2">Lessons Added: {lessons.length}</h3>
-            <ul>
-              {lessons.map((lesson, index) => (
-                <li key={index}>{lesson.title}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-        <div className="flex justify-end space-x-4">
-          <button
-            type="button"
-            onClick={() => navigate('/tutor/courses')}
-            className={`${darkMode ? 'bg-dark-gray-100' : 'bg-light-apricot'} text-white p-2 rounded`}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className={`${darkMode ? 'bg-dark-gray-100' : 'bg-light-citrus'} text-white p-2 rounded`}
-          >
-            Save and Preview
-          </button>
-        </div>
-      </form>
-
-      {showLessonForm && (
-        <LessonForm
-          onSave={addLesson}
-          onCancel={() => setShowLessonForm(false)}
-          lessonNumber={lessons.length + 1}
-        />
-      )}
-    </div> </div> </div> 
+        </Box>
+      </div>
+      <Snackbar open={isSuccess} autoHideDuration={2000}>
+        <Alert severity="success" sx={{ width: '100%' }}>
+          Course created successfully!
+        </Alert>
+      </Snackbar>
+    </div>
   );
 };
-
-    
 
 export default CourseForm;
