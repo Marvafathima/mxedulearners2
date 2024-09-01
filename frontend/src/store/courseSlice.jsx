@@ -116,6 +116,19 @@ export const fetchAllCourses = createAsyncThunk(
     }
   }
 );
+export const fetchPurchasedCourses=createAsyncThunk(
+  'courses.fetchPurchasedCourses',
+  async (_,{rejectWithValue})=>{
+    try {
+      console.log("trying to send data to backend")
+      const response=await userInstance.get('/coursemanagement/courses_fetch_purchased/');
+      console.log("fetched courses",response.data)
+      return response.data;
+    }catch (error){
+      return rejectWithValue(error.response? error.response.data: {message:error.message});
+    }
+  }
+);
 export const fetchTutorCourses = createAsyncThunk(
   'courses/fetchTutorCourses',
   async (_, { getState, rejectWithValue }) => {
@@ -192,6 +205,17 @@ const courseSlice = createSlice({
       .addCase(fetchAllCourses.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
+      })
+      .addCase(fetchPurchasedCourses.fulfilled,(state,action)=>{
+        state.status='succeeded';
+        state.courses=action.payload;
+      })
+      .addCase(fetchPurchasedCourses.pending,(state)=>{
+        state.status="loading";
+      })
+      .addCase(fetchPurchasedCourses.rejected,(state,action)=>{
+        state.status="failed";
+        state.error=action.payload
       })
       .addCase(fetchTutorCourses.pending, (state) => {
         state.status = 'loading';

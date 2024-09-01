@@ -107,6 +107,32 @@ class AllCoursesView(APIView):
         serializer = FetchCourseSerializer(courses, many=True)
        
         return Response(serializer.data)
+class PurchasedCoursesView(APIView):
+    def get(self, request):
+        user = request.user
+
+        # Create a subquery to check if the course exists in user's OrdersItem
+        purchased_courses = OrdersItem.objects.filter(
+            order__user=user,
+            course=OuterRef('pk')
+        )
+
+        # Fetch all courses that the user has purchased
+        courses = Courses.objects.annotate(
+            is_purchased=Exists(purchased_courses)
+        ).filter(
+            is_purchased=True
+        ).select_related('user').prefetch_related(
+            Prefetch('user__tutorapplication', queryset=TutorApplication.objects.all(), to_attr='tutor_info')
+        )
+
+        # You can keep this for debugging, but remember to remove it in production
+        for course in courses:
+            print(f"Purchased course: {course.name} by {course.user.username}")
+
+        serializer = FetchCourseSerializer(courses, many=True)
+       
+        return Response(serializer.data, status=status.HTTP_200_OK)
 from rest_framework import generics
 class TutorCoursesView(generics.ListAPIView):
     serializer_class = CourseSerializer

@@ -1,25 +1,39 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Typography, Button, Card, CardContent, LinearProgress, Grid, Container, Paper } from '@mui/material';
 import { CheckCircle, PlayArrow, EmojiEvents } from '@mui/icons-material';
 import Navbar from './Navbar'; // Assuming you have this component
 import Footer from './Footer'; // Assuming you have this component
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ProfileSidebar from './ProfileSidebar';
+import { fetchPurchasedCourses } from '../../../store/courseSlice';
 import Layout from './Layout';
 const MyCoursesPage = () => {
-  const courses = [
-    { id: 1, title: 'Basic of English Language', progress: 30, completed: false },
-    { id: 2, title: 'Introduction the web development', progress: 0, completed: false },
-    { id: 3, title: 'Basic data-structure and algorithm', progress: 100, completed: true },
-    { id: 4, title: 'Lorem ipsum dolor in nulla noslstid', progress: 50, completed: false },
-  ];
+//   const courses = [
+//     { id: 1, title: 'Basic of English Language', progress: 30, completed: false },
+//     { id: 2, title: 'Introduction the web development', progress: 0, completed: false },
+//     { id: 3, title: 'Basic data-structure and algorithm', progress: 100, completed: true },
+//     { id: 4, title: 'Lorem ipsum dolor in nulla noslstid', progress: 50, completed: false },
+//   ];
   const{user} =useSelector((state)=>state.auth);
-
+  
+  const dispatch=useDispatch();
+ useEffect(()=>{
+    console.log("dispatching this action")
+    dispatch(fetchPurchasedCourses());
+ },[dispatch]);
+ 
+ const {courses,loading,error}=useSelector((state)=>state.courses)
+ if (loading){
+    return <div>Loading....</div>
+ }
+ if (error){
+    return <div>{error}</div>
+ }
   return (
     <Layout>
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
 
-    {/* <Navbar user={user} /> */}
+
 
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flexGrow: 1 }}>
         <Typography variant="h4" gutterBottom>
@@ -61,15 +75,15 @@ const MyCoursesPage = () => {
           Course Catalog
         </Button>
 
-        <Grid container spacing={3}>
+         <Grid container spacing={3}>
           {courses.map((course) => (
             <Grid item xs={12} key={course.id}>
               <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
-                    {course.title}
-                  </Typography>
-                  {course.completed ? (
+                    {course.name}
+                  </Typography> 
+                  {/* {course.completed ? (
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                       <Typography color="success.main" sx={{ display: 'flex', alignItems: 'center' }}>
                         <CheckCircle sx={{ mr: 1 }} /> Completed
@@ -90,12 +104,12 @@ const MyCoursesPage = () => {
                         </Button>
                       </Box>
                     </>
-                  )}
-                </CardContent>
+                  )} */}
+                 </CardContent>
               </Card>
             </Grid>
           ))}
-        </Grid>
+        </Grid> 
       </Container>
      
 
