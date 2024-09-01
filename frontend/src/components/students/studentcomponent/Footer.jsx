@@ -6,7 +6,7 @@ const Footer = () => {
   const { darkMode } = useContext(ThemeContext);
 
   return (
-    <footer className={`${darkMode ? 'bg-dark-gray-200 text-dark-white' : 'bg-light-blueberry text-white'} py-8`}>
+    <footer className={`${darkMode ? 'bg-dark-gray-200 text-dark-white' : 'bg-light-blueberry text-white'} py-8 `}>
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>

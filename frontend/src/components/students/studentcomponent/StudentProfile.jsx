@@ -352,157 +352,308 @@ const StudentProfile = () => {
 
   // ... (rest of the component code remains the same)
 
-  return (
-    <>
-      <Navbar user={user} />
-       <div className={`flex ${darkMode ? 'bg-dark-gray-300 text-dark-white' : 'bg-light-blueberry-100 text-gray-900'}`}>
-         <ProfileSidebar />
-         <div className="flex-grow p-8">
-          <div className={`bg-${darkMode ? 'dark-gray-200' : 'light-blueberry'} rounded-lg shadow-md p-6`}>
-             <div className={`flex items-center mb-6 ${darkMode ? 'text-dark-white' : 'text-white'}`}>
-             <div className="relative">
-                 <img
-                  src={getFullImageUrl(user.profile_pic) || 'https://via.placeholder.com/150'}
-                  alt={user.username}
-                  className="w-24 h-24 rounded-full mr-6"
-                />
-                <label htmlFor="profile-pic-input" className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-1 cursor-pointer">
-                  <FaPlus className="text-white" />
-                </label>
-                <input
-                  id="profile-pic-input"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  // onChange={handleProfilePictureChange}
-                />
-                {user.profile_pic && (
-                  <button
-                    // onClick={handleRemoveProfilePicture}
-                    className="absolute top-0 right-0 bg-red-500 rounded-full p-1"
-                  >
-                    <FaTrash className="text-white" />
-                  </button>
-                )}
-              </div>
-              <div>
-                <h2 className="text-2xl font-semibold">{user.username}</h2>
-                <p className={`${darkMode ? 'text-gray-400' : 'text-gray-200'}`}>{user.email}</p>
-                <h3 className="font-semibold mb-2">Phone: {user.phone_number}</h3>
-              </div>
+//   return (
+//     <>
+//       <Navbar user={user} />
+//        <div className={`flex ${darkMode ? 'bg-dark-gray-300 text-dark-white' : 'bg-light-blueberry-100 text-gray-900'}`}>
+//          <ProfileSidebar />
+//          <div className="flex-grow p-8">
+//           <div className={`bg-${darkMode ? 'dark-gray-200' : 'light-blueberry'} rounded-lg shadow-md p-6`}>
+//              <div className={`flex items-center mb-6 ${darkMode ? 'text-dark-white' : 'text-white'}`}>
+//              <div className="relative">
+//                  <img
+//                   src={getFullImageUrl(user.profile_pic) || 'https://via.placeholder.com/150'}
+//                   alt={user.username}
+//                   className="w-24 h-24 rounded-full mr-6"
+//                 />
+//                 <label htmlFor="profile-pic-input" className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-1 cursor-pointer">
+//                   <FaPlus className="text-white" />
+//                 </label>
+//                 <input
+//                   id="profile-pic-input"
+//                   type="file"
+//                   accept="image/*"
+//                   className="hidden"
+//                   // onChange={handleProfilePictureChange}
+//                 />
+//                 {user.profile_pic && (
+//                   <button
+//                     // onClick={handleRemoveProfilePicture}
+//                     className="absolute top-0 right-0 bg-red-500 rounded-full p-1"
+//                   >
+//                     <FaTrash className="text-white" />
+//                   </button>
+//                 )}
+//               </div>
+//               <div>
+//                 <h2 className="text-2xl font-semibold">{user.username}</h2>
+//                 <p className={`${darkMode ? 'text-gray-400' : 'text-gray-200'}`}>{user.email}</p>
+//                 <h3 className="font-semibold mb-2">Phone: {user.phone_number}</h3>
+//               </div>
+//             </div>
+//             <div className="grid grid-cols-4 gap-4 mt-6">
+//               {statsData.map((stat, index) => (
+//                 <div key={index} className={`${darkMode ? 'bg-dark-gray-300' : 'bg-white'} p-4 rounded-lg shadow text-center`}>
+//                   <div className={`text-3xl mb-2 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`}>{stat.icon}</div>
+//                   <div className={`font-semibold ${darkMode ? 'text-dark-white' : 'text-gray-800'}`}>{stat.label}</div>
+//                   <div className={`text-lg ${darkMode ? 'text-blue-400' : 'text-blue-500'}`}>{stat.value}</div>
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+//           <div className="mt-8 flex space-x-4 justify-center">
+//             <button
+//               onClick={() => setActiveForm('editProfile')}
+//               className={`py-2 px-4 rounded ${
+//                 activeForm === 'editProfile'
+//                   ? 'bg-blue-500 text-white'
+//                   : `${darkMode ? 'bg-dark-gray-200 text-dark-white' : 'bg-light-cyan text-gray-800'}`
+//               }`}
+//             >
+//               Edit Profile
+//             </button>
+//             <button
+//               onClick={() => setActiveForm('resetPassword')}
+//               className={`py-2 px-4 rounded ${
+//                 activeForm === 'resetPassword'
+//                   ? 'bg-blue-500 text-white'
+//                   : `${darkMode ? 'bg-dark-gray-200 text-dark-white' : 'bg-light-cyan text-gray-800'}`
+//               }`}
+//             >
+//               Reset Password
+//             </button>
+//           </div>
+//           <div className="flex justify-center mt-4">
+//             {activeForm === 'editProfile' && (
+//               <form onSubmit={handleProfileUpdate} className={`w-1/2 mt-4 ${darkMode ? 'bg-dark-gray-200 text-black' : 'bg-light-darkcyan'} p-6 rounded-lg shadow`}>
+//                 <div className="mb-4">
+//                   <label className="block mb-2">Username</label>
+//                   <input type="text" name="username" value={profileData.username} onChange={handleInputChange} className="w-full p-2 border rounded" />
+//                 </div>
+//                 <div className="mb-4">
+//                   <label className="block mb-2">Email</label>
+//                   <input type="email" name="email" value={profileData.email} onChange={handleInputChange} className="w-full p-2 border rounded" />
+//                 </div>
+//                 <div className="mb-4">
+//                   <label className="block mb-2">Phone Number</label>
+//                   <input type="tel" name="phone_number" value={profileData.phone_number} onChange={handleInputChange} className="w-full p-2 border rounded" />
+//                 </div>
+//                 <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
+//                   Save Changes
+//                 </button>
+//               </form>
+//             )}
+//             {activeForm === 'resetPassword' && (
+//               <form className={`w-1/2 mt-4 ${darkMode ? 'bg-dark-gray-200' : 'bg-light-darkcyan'} p-6 rounded-lg shadow`}>
+//                 <div className="mb-4">
+//                   <label className="block mb-2">Old Password</label>
+//                   <input type="password" className="w-full p-2 border rounded" />
+//                 </div>
+//                 <div className="mb-4">
+//                   <label className="block mb-2">New Password</label>
+//                   <input type="password" className="w-full p-2 border rounded" />
+//                 </div>
+//                 <div className="mb-4">
+//                   <label className="block mb-2">Confirm New Password</label>
+//                   <input type="password" className="w-full p-2 border rounded" />
+//                 </div>
+//                 <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
+//                   Reset Password
+//                 </button>
+//               </form>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+//       {showOTPModal && (
+//   <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+//     <div className={`bg-${darkMode ? 'dark-gray-200' : 'white'} p-6 rounded-lg shadow-lg relative`}>
+//       <button 
+//         onClick={() => setShowOTPModal(false)} 
+//         className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+//       >
+//         &times;
+//       </button>
+//       <h2 className="text-xl font-bold mb-4">Verify Your Email</h2>
+//       <p>An OTP has been sent to your new email. Please enter it below:</p>
+//       <input
+//         type="text"
+//         value={otp}
+//         onChange={(e) => setOTP(e.target.value)}
+//         className="w-full p-2 border rounded mt-2"
+//         placeholder="Enter OTP"
+//       />
+//       <button
+//         onClick={handleVerifyOTP}
+//         className="bg-blue-500 text-white py-2 px-4 rounded mt-4"
+//         disabled={loading}
+//       >
+//         {loading ? 'Verifying...' : 'Verify OTP'}
+//       </button>
+//       <button
+//         onClick={handleResendOTP}
+//         className="bg-gray-300 text-gray-700 py-2 px-4 rounded mt-4 ml-2"
+//         disabled={loading}
+//       >
+//         {loading ? 'Sending...' : 'Resend OTP'}
+//       </button>
+//     </div>
+//   </div>
+// )}
+    
+//     </>
+//   );
+// };
+
+return (
+  <div className="min-h-screen flex flex-col">
+    <Navbar user={user} className="fixed top-0 left-0 right-0 z-50" />
+    <div className="flex flex-1 pt-16"> {/* Add top padding to account for fixed Navbar */}
+      <ProfileSidebar className="fixed left-0 top-16 bottom-0 w-64 overflow-y-auto" />
+      <div className="flex-1 ml-64 p-8 overflow-y-auto"> {/* Add left margin to account for Sidebar width */}
+        <div className={`bg-${darkMode ? 'dark-gray-200' : 'light-blueberry'} rounded-lg shadow-md p-6`}>
+          <div className={`flex items-center mb-6 ${darkMode ? 'text-dark-white' : 'text-white'}`}>
+            <div className="relative">
+              <img
+                src={getFullImageUrl(user.profile_pic) || 'https://via.placeholder.com/150'}
+                alt={user.username}
+                className="w-24 h-24 rounded-full mr-6"
+              />
+              <label htmlFor="profile-pic-input" className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-1 cursor-pointer">
+                <FaPlus className="text-white" />
+              </label>
+              <input
+                id="profile-pic-input"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                // onChange={handleProfilePictureChange}
+              />
+              {user.profile_pic && (
+                <button
+                  // onClick={handleRemoveProfilePicture}
+                  className="absolute top-0 right-0 bg-red-500 rounded-full p-1"
+                >
+                  <FaTrash className="text-white" />
+                </button>
+              )}
             </div>
-            <div className="grid grid-cols-4 gap-4 mt-6">
-              {statsData.map((stat, index) => (
-                <div key={index} className={`${darkMode ? 'bg-dark-gray-300' : 'bg-white'} p-4 rounded-lg shadow text-center`}>
-                  <div className={`text-3xl mb-2 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`}>{stat.icon}</div>
-                  <div className={`font-semibold ${darkMode ? 'text-dark-white' : 'text-gray-800'}`}>{stat.label}</div>
-                  <div className={`text-lg ${darkMode ? 'text-blue-400' : 'text-blue-500'}`}>{stat.value}</div>
-                </div>
-              ))}
+            <div>
+              <h2 className="text-2xl font-semibold">{user.username}</h2>
+              <p className={`${darkMode ? 'text-gray-400' : 'text-gray-200'}`}>{user.email}</p>
+              <h3 className="font-semibold mb-2">Phone: {user.phone_number}</h3>
             </div>
           </div>
-          <div className="mt-8 flex space-x-4 justify-center">
-            <button
-              onClick={() => setActiveForm('editProfile')}
-              className={`py-2 px-4 rounded ${
-                activeForm === 'editProfile'
-                  ? 'bg-blue-500 text-white'
-                  : `${darkMode ? 'bg-dark-gray-200 text-dark-white' : 'bg-light-cyan text-gray-800'}`
-              }`}
-            >
-              Edit Profile
-            </button>
-            <button
-              onClick={() => setActiveForm('resetPassword')}
-              className={`py-2 px-4 rounded ${
-                activeForm === 'resetPassword'
-                  ? 'bg-blue-500 text-white'
-                  : `${darkMode ? 'bg-dark-gray-200 text-dark-white' : 'bg-light-cyan text-gray-800'}`
-              }`}
-            >
-              Reset Password
-            </button>
-          </div>
-          <div className="flex justify-center mt-4">
-            {activeForm === 'editProfile' && (
-              <form onSubmit={handleProfileUpdate} className={`w-1/2 mt-4 ${darkMode ? 'bg-dark-gray-200 text-black' : 'bg-light-darkcyan'} p-6 rounded-lg shadow`}>
-                <div className="mb-4">
-                  <label className="block mb-2">Username</label>
-                  <input type="text" name="username" value={profileData.username} onChange={handleInputChange} className="w-full p-2 border rounded" />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-2">Email</label>
-                  <input type="email" name="email" value={profileData.email} onChange={handleInputChange} className="w-full p-2 border rounded" />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-2">Phone Number</label>
-                  <input type="tel" name="phone_number" value={profileData.phone_number} onChange={handleInputChange} className="w-full p-2 border rounded" />
-                </div>
-                <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
-                  Save Changes
-                </button>
-              </form>
-            )}
-            {activeForm === 'resetPassword' && (
-              <form className={`w-1/2 mt-4 ${darkMode ? 'bg-dark-gray-200' : 'bg-light-darkcyan'} p-6 rounded-lg shadow`}>
-                <div className="mb-4">
-                  <label className="block mb-2">Old Password</label>
-                  <input type="password" className="w-full p-2 border rounded" />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-2">New Password</label>
-                  <input type="password" className="w-full p-2 border rounded" />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-2">Confirm New Password</label>
-                  <input type="password" className="w-full p-2 border rounded" />
-                </div>
-                <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
-                  Reset Password
-                </button>
-              </form>
-            )}
+          <div className="grid grid-cols-4 gap-4 mt-6">
+            {statsData.map((stat, index) => (
+              <div key={index} className={`${darkMode ? 'bg-dark-gray-300' : 'bg-white'} p-4 rounded-lg shadow text-center`}>
+                <div className={`text-3xl mb-2 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`}>{stat.icon}</div>
+                <div className={`font-semibold ${darkMode ? 'text-dark-white' : 'text-gray-800'}`}>{stat.label}</div>
+                <div className={`text-lg ${darkMode ? 'text-blue-400' : 'text-blue-500'}`}>{stat.value}</div>
+              </div>
+            ))}
           </div>
         </div>
+        <div className="mt-8 flex space-x-4 justify-center">
+          <button
+            onClick={() => setActiveForm('editProfile')}
+            className={`py-2 px-4 rounded ${
+              activeForm === 'editProfile'
+                ? 'bg-blue-500 text-white'
+                : `${darkMode ? 'bg-dark-gray-200 text-dark-white' : 'bg-light-cyan text-gray-800'}`
+            }`}
+          >
+            Edit Profile
+          </button>
+          <button
+            onClick={() => setActiveForm('resetPassword')}
+            className={`py-2 px-4 rounded ${
+              activeForm === 'resetPassword'
+                ? 'bg-blue-500 text-white'
+                : `${darkMode ? 'bg-dark-gray-200 text-dark-white' : 'bg-light-cyan text-gray-800'}`
+            }`}
+          >
+            Reset Password
+          </button>
+        </div>
+        <div className="flex justify-center mt-4">
+          {activeForm === 'editProfile' && (
+            <form onSubmit={handleProfileUpdate} className={`w-1/2 mt-4 ${darkMode ? 'bg-dark-gray-200 text-black' : 'bg-light-darkcyan'} p-6 rounded-lg shadow`}>
+              <div className="mb-4">
+                <label className="block mb-2">Username</label>
+                <input type="text" name="username" value={profileData.username} onChange={handleInputChange} className="w-full p-2 border rounded" />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-2">Email</label>
+                <input type="email" name="email" value={profileData.email} onChange={handleInputChange} className="w-full p-2 border rounded" />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-2">Phone Number</label>
+                <input type="tel" name="phone_number" value={profileData.phone_number} onChange={handleInputChange} className="w-full p-2 border rounded" />
+              </div>
+              <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
+                Save Changes
+              </button>
+            </form>
+          )}
+          {activeForm === 'resetPassword' && (
+            <form className={`w-1/2 mt-4 ${darkMode ? 'bg-dark-gray-200' : 'bg-light-darkcyan'} p-6 rounded-lg shadow`}>
+              <div className="mb-4">
+                <label className="block mb-2">Old Password</label>
+                <input type="password" className="w-full p-2 border rounded" />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-2">New Password</label>
+                <input type="password" className="w-full p-2 border rounded" />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-2">Confirm New Password</label>
+                <input type="password" className="w-full p-2 border rounded" />
+              </div>
+              <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
+                Reset Password
+              </button>
+            </form>
+          )}
+        </div>
       </div>
-      {showOTPModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-    <div className={`bg-${darkMode ? 'dark-gray-200' : 'white'} p-6 rounded-lg shadow-lg relative`}>
-      <button 
-        onClick={() => setShowOTPModal(false)} 
-        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-      >
-        &times;
-      </button>
-      <h2 className="text-xl font-bold mb-4">Verify Your Email</h2>
-      <p>An OTP has been sent to your new email. Please enter it below:</p>
-      <input
-        type="text"
-        value={otp}
-        onChange={(e) => setOTP(e.target.value)}
-        className="w-full p-2 border rounded mt-2"
-        placeholder="Enter OTP"
-      />
-      <button
-        onClick={handleVerifyOTP}
-        className="bg-blue-500 text-white py-2 px-4 rounded mt-4"
-        disabled={loading}
-      >
-        {loading ? 'Verifying...' : 'Verify OTP'}
-      </button>
-      <button
-        onClick={handleResendOTP}
-        className="bg-gray-300 text-gray-700 py-2 px-4 rounded mt-4 ml-2"
-        disabled={loading}
-      >
-        {loading ? 'Sending...' : 'Resend OTP'}
-      </button>
     </div>
+    {showOTPModal && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className={`bg-${darkMode ? 'dark-gray-200' : 'white'} p-6 rounded-lg shadow-lg relative`}>
+          <button 
+            onClick={() => setShowOTPModal(false)} 
+            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          >
+            &times;
+          </button>
+          <h2 className="text-xl font-bold mb-4">Verify Your Email</h2>
+          <p>An OTP has been sent to your new email. Please enter it below:</p>
+          <input
+            type="text"
+            value={otp}
+            onChange={(e) => setOTP(e.target.value)}
+            className="w-full p-2 border rounded mt-2"
+            placeholder="Enter OTP"
+          />
+          <button
+            onClick={handleVerifyOTP}
+            className="bg-blue-500 text-white py-2 px-4 rounded mt-4"
+            disabled={loading}
+          >
+            {loading ? 'Verifying...' : 'Verify OTP'}
+          </button>
+          <button
+            onClick={handleResendOTP}
+            className="bg-gray-300 text-gray-700 py-2 px-4 rounded mt-4 ml-2"
+            disabled={loading}
+          >
+            {loading ? 'Sending...' : 'Resend OTP'}
+          </button>
+        </div>
+      </div>
+    )}
   </div>
-)}
-    
-    </>
-  );
+);
 };
-
 export default StudentProfile;

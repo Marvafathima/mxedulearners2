@@ -22,7 +22,7 @@ const Navbar = ({user}) => {
   const { count } = useSelector((state) => state.cart);
   const cartcount=JSON.parse(localStorage.getItem('cartCount'))
   return (
-    <nav className={`${darkMode ? 'bg-dark-gray-200' : 'bg-light-blueberry'} p-4`}>
+    <nav className={`${darkMode ? 'bg-dark-gray-200' : 'bg-light-blueberry'}  p-4 fixed top-0 left-0 right-0 z-50`}>
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <Link to="/" className="text-xl font-bold text-white">MXEduLearners</Link>

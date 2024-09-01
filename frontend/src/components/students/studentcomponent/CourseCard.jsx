@@ -14,9 +14,8 @@ const CourseCard = ({ course }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
   const thumbnailURL = useMemo(() => {
-    const backendURL = import.meta.env.VITE_API_URL || '';
     const thumbnailPath = course.thumbnail;
-    return `${backendURL}${thumbnailPath}`;
+    return `${thumbnailPath}`;
   }, [course.thumbnail]);
 
   const handleViewDetails = () => {
