@@ -29,7 +29,7 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { encryptTransform } from 'redux-persist-transform-encrypt';
-
+import userProgressReducer from './userProgressSlice'
 import authReducer from './authSlice';
 import adminAuthReducer from './adminAuthSlice';
 import userManagementReducer from './userManagementSlice';
@@ -61,7 +61,8 @@ const rootReducer = combineReducers({
   tutors: tutorsReducer,
   students: studentsReducer,
   quizzes: quizReducer,
-  cart: cartReducer
+  cart: cartReducer,
+  userProgress: userProgressReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -1,111 +1,88 @@
-import React, { useEffect } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FaHeart, FaChevronDown } from 'react-icons/fa';
-import Navbar from './Navbar';
-import Subnavbar from './SubNavbar';
-import Footer from './Footer';
-import { fetchStudentDetails } from '../../../store/authSlice';
+import { FaCheckCircle } from 'react-icons/fa';
 import { fetchCourseDetail } from '../../../store/courseSlice';
-import { addToCart } from '../../../store/cartSlice';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { fetchUserProgress, updateUserProgress } from '../../../store/userProgressSlice';
 import Layout from './Layout';
+import VideoPlayer from './VideoPlayer';
+import { getFullImageUrl } from '../../ProfileImage';
 const MycourseDetail = () => {
-    const { id } = useParams();
+  const { id } = useParams();
   const dispatch = useDispatch();
-  const navigate=useNavigate();
   const { currentCourse, status, error } = useSelector(state => state.courses);
-  const { user,loading,usererror } = useSelector((state) => state.auth);
-  
-
+  const { user } = useSelector((state) => state.auth);
+  const { userProgress } = useSelector((state) => state.userProgress);
+  const [currentLesson, setCurrentLesson] = useState(null);
 
   useEffect(() => {
     if (id) {
       dispatch(fetchCourseDetail(id));
+      dispatch(fetchUserProgress(id));
     }
   }, [dispatch, id]);
 
+  useEffect(() => {
+    if (currentCourse && currentCourse.lessons.length > 0) {
+      setCurrentLesson(currentCourse.lessons[0]);
+    }
+  }, [currentCourse]);
+
+  const handleLessonChange = (lesson) => {
+    setCurrentLesson(lesson);
+  };
+
+  const handleProgressUpdate = (lessonId, progress) => {
+    dispatch(updateUserProgress({
+      courseId: id,
+      lessonId,
+      progress
+    }));
+  };
+
   if (status === 'loading') return <div>Loading...</div>;
   if (status === 'failed') return <div>Error: {error}</div>;
-  if (! currentCourse) return null;
-
+  if (!currentCourse) return null;
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-       {/* <Navbar 
-      user={user}
-       />
-     <Subnavbar/> */}
-      {/* Hero Section */}
-      <Layout>
-      <div className="relative h-96">
-        <img 
-          src={`${ currentCourse.thumbnail}`} 
-          alt={ currentCourse.name} 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center px-8">
-          <h1 className="text-4xl font-bold text-white mb-4">{ currentCourse.name}</h1>
-          <p className="text-xl text-white">{ currentCourse.description}</p>
-        </div>
-      </div>
-
-      {/* Course Info */}
+    <Layout>
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <p className="text-gray-600">Created at: {new Date( currentCourse.created_at).toLocaleDateString()}</p>
-            <p className="text-gray-600">Creator: { currentCourse.user.username}</p>
+        <h1 className="text-4xl font-bold mb-8">{currentCourse.name}</h1>
+        
+        <div className="flex">
+          <div className="w-3/4 pr-8">
+            {currentLesson && (
+              <VideoPlayer
+                lessonId={currentLesson.id}
+                videoUrl={getFullImageUrl(currentLesson.video)}
+                thumbnailUrl={getFullImageUrl(currentLesson.thumbnail)}
+                onProgressUpdate={handleProgressUpdate}
+                initialProgress={userProgress[currentLesson.id]?.last_watched_position || 0}
+              />
+            )}
           </div>
-          <div className="flex items-center">
-           
-          </div>
-        </div>
-
-        {/* Curriculum */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Curriculum</h2>
-          { currentCourse.lessons.map((lesson, index) => (
-            <div key={lesson.id} className="bg-white rounded-lg shadow-md p-4 mb-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">{index + 1}. {lesson.title}</h3>
-                <FaChevronDown />
+          
+          <div className="w-1/4">
+            <h2 className="text-2xl font-bold mb-4">Lessons</h2>
+            {currentCourse.lessons.map((lesson) => (
+              <div
+                key={lesson.id}
+                className={`flex items-center justify-between p-2 mb-2 cursor-pointer ${
+                  currentLesson?.id === lesson.id ? 'bg-blue-100' : ''
+                }`}
+                onClick={() => handleLessonChange(lesson)}
+              >
+                <span>{lesson.title}</span>
+                {userProgress[lesson.id]?.is_completed && (
+                  <FaCheckCircle className="text-green-500" />
+                )}
               </div>
-              <p className="text-gray-600 mt-2">{lesson.description}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Course Features */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-bold mb-4">Course Features</h2>
-          <ul className="list-disc list-inside">
-            <li>Total Lessons: { currentCourse.lessons.length}</li>
-           
-            <li>Rating: { currentCourse.rating}</li>
-            <li>Points: { currentCourse.points}</li>
-          </ul>
-        </div>
-
-        {/* Mentor */}
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-4">Mentor</h2>
-          <div className="bg-white rounded-lg shadow-md p-6 flex items-center">
-            <img 
-              src={`${ currentCourse.user.profile_pic}`} 
-              alt={ currentCourse.user.username} 
-              className="w-20 h-20 rounded-full mr-4"
-            />
-            <div>
-              <h3 className="text-xl font-semibold">{ currentCourse.user.username}</h3>
-              <p className="text-gray-600">{ currentCourse.user.bio}</p>
-            </div>
+            ))}
           </div>
         </div>
       </div>
-      </Layout>
-    </div>
+    </Layout>
   );
 };
 

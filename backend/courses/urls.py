@@ -18,7 +18,7 @@ from rest_framework.routers import DefaultRouter
 
 
 router = DefaultRouter()
-router.register(r'user-progress', UserProgressViewSet)
+# router.register(r'user-progress', UserProgressViewSet)
 
 urlpatterns = [
     path('courses/',CourseCreateView.as_view(), name='create_course'),
@@ -26,6 +26,8 @@ urlpatterns = [
     path('courses_fetch_purchased/', PurchasedCoursesView.as_view(), name='purchased_courses'),
     path('tutor-courses/', TutorCoursesView.as_view(), name='tutor-courses'),
     path('courses/<int:pk>/', CourseDetailView.as_view(), name='course-detail'),
-     path('', include(router.urls)),
+    #  path('', include(router.urls)),
+    path('user-progress/<int:course_id>/', UserProgressView.as_view(), name='user-progress'),
+
 
 ]
