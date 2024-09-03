@@ -17,7 +17,7 @@ const LessonForm = ({ onSave, onCancel, lessonNumber, initialData = null }) => {
   const [lessonData, setLessonData] = useState(initialData || {
     title: '',
     description: '',
-    duration: '',
+    // duration: '',
     video: null,
     thumbnail: null,
     points: 0
@@ -98,7 +98,7 @@ const LessonForm = ({ onSave, onCancel, lessonNumber, initialData = null }) => {
           rows={4}
           required
         />
-        <TextField
+        {/* <TextField
           fullWidth
           label="Duration (HH:MM:SS)"
           name="duration"
@@ -110,7 +110,7 @@ const LessonForm = ({ onSave, onCancel, lessonNumber, initialData = null }) => {
             pattern: "[0-9]{2}:[0-9]{2}:[0-9]{2}",
           }}
           required
-        />
+        /> */}
         <Box sx={{ mt: 2, mb: 2 }}>
           <input
             type="file"

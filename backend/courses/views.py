@@ -66,6 +66,7 @@ class CourseCreateView(APIView):
 
             for lesson_data in lessons_data:
                 lesson_data['course'] = course.id
+                
                 logger.info(f"Lesson data before serialization: {lesson_data}")
                 lesson_serializer = LessonSerializer(data=lesson_data)
                 if lesson_serializer.is_valid():

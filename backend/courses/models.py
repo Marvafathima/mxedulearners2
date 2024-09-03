@@ -2,6 +2,8 @@ from django.db import models
 from api.models import CustomUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import timedelta
+import ffmpeg
+from django.core.files.temp import NamedTemporaryFile
 # Create your models here.
 class Courses(models.Model):
     name = models.CharField(max_length=50)
@@ -30,12 +32,27 @@ class Lesson(models.Model):
     course = models.ForeignKey(Courses, related_name='lessons', on_delete=models.CASCADE)
     title = models.CharField(max_length=1000)
     description = models.TextField(max_length=1500)
-    duration = models.DurationField()  # This allows you to store time in hours, minutes, and seconds
+    # duration = models.DurationField()  # This allows you to store time in hours, minutes, and seconds
     lesson_number = models.PositiveIntegerField()
     thumbnail = models.ImageField(upload_to='lesson_thumbnails/', null=True, blank=True)
     video = models.FileField(upload_to='lesson_videos/',default="",null=False, blank=False)  # New field for video file
     points = models.PositiveIntegerField(default=0)  # Points for individual lesson
+    duration = models.DurationField(blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        if self.video and not self.duration:
+            # Create a temporary file to handle the video content
+            with NamedTemporaryFile(delete=True) as temp_file:
+                # Write video content to the temporary file
+                temp_file.write(self.video.read())
+                temp_file.flush()
+                
+                # Probe the temporary file using ffmpeg
+                probe = ffmpeg.probe(temp_file.name)
+                duration = float(probe['format']['duration'])
+                self.duration = timedelta(seconds=duration)
+
+        super().save(*args, **kwargs)
     def __str__(self):
         return f"{self.course.name} - Lesson {self.lesson_number}: {self.title}"
 

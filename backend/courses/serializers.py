@@ -32,7 +32,9 @@ class LessonSerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     thumbnail = serializers.ImageField(required=False)
     lessons = LessonSerializer(many=True, read_only=True)
-    user=UserSerializer(read_only=True)
+    # user=UserSerializer(required=False)
+    user = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), required=False)
+
     class Meta:
         model = Courses
         fields = ['id','name', 'user', 'category', 'price', 'offer_percentage', 'description', 'thumbnail', 'points', 'rating', 'lessons']
