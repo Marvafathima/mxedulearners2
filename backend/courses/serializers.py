@@ -21,14 +21,14 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProgressSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProgress
-        fields = ['user', 'course', 'lesson', 'last_watched_position', 'is_completed', 'progress_percentage']
+        fields = ['id','user', 'course', 'lesson', 'last_watched_position', 'is_completed', 'progress_percentage']
 class LessonSerializer(serializers.ModelSerializer):
     thumbnail = serializers.ImageField(required=False, allow_null=True)
     course = serializers.PrimaryKeyRelatedField(queryset=Courses.objects.all())
     video = serializers.FileField(required=False, allow_null=True)
     class Meta:
         model = Lesson
-        fields = ['course', 'title', 'description', 'duration', 'video', 'lesson_number', 'thumbnail', 'points']       
+        fields = ['id','course', 'title', 'description', 'duration', 'video', 'lesson_number', 'thumbnail', 'points']       
 class CourseSerializer(serializers.ModelSerializer):
     thumbnail = serializers.ImageField(required=False)
     lessons = LessonSerializer(many=True, read_only=True)

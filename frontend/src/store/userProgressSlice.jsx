@@ -1,7 +1,27 @@
 // userProgressSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { userInstance as axios} from '../api/axios'
-
+export const fetchCourseDetail = createAsyncThunk(
+    'courses/fetchCourseDetail',
+    async (courseId, { getState, rejectWithValue }) => {
+      try {
+        const { user } = getState().auth;
+        const accessToken = localStorage.getItem(`${user.email}_access_token`);
+        if (!accessToken) {
+          throw new Error('No access token available');
+        }
+  
+        const response = await userInstance.get(`/coursemanagement/courses/${courseId}/`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        return rejectWithValue(error.response ? error.response.data : { message: error.message });
+      }
+    }
+  );
 export const fetchUserProgress = createAsyncThunk(
   'userProgress/fetchUserProgress',
   async (courseId, { rejectWithValue }) => {
@@ -38,12 +58,26 @@ const userProgressSlice = createSlice({
   name: 'userProgress',
   initialState: {
     userProgress: {},
+    currentCourse:null,
+    lessons:[],
     status: 'idle',
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
+    .addCase(fetchCourseDetail.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchCourseDetail.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.currentCourse = action.payload.course;
+        state.lessons = action.payload.lessons;
+      })
+      .addCase(fetchCourseDetail.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
       .addCase(fetchUserProgress.pending, (state) => {
         state.status = 'loading';
       })

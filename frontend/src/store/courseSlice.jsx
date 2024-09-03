@@ -165,6 +165,7 @@ export const fetchCourseDetail = createAsyncThunk(
           'Authorization': `Bearer ${accessToken}`,
         },
       });
+      console.log("the response data we get from course detail is",response.data,)
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response ? error.response.data : { message: error.message });
@@ -234,6 +235,7 @@ const courseSlice = createSlice({
       .addCase(fetchCourseDetail.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.currentCourse = action.payload;
+        // state.lessons = action.payload.lessons;
       })
       .addCase(fetchCourseDetail.rejected, (state, action) => {
         state.status = 'failed';

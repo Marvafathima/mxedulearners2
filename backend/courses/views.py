@@ -203,7 +203,7 @@ from .serializers import UserProgressSerializer
 #         serializer = self.get_serializer(progress)
 #         return Response(serializer.data)
 
-
+from datetime import timedelta
 class UserProgressView(generics.RetrieveUpdateAPIView):
     serializer_class = UserProgressSerializer
 
@@ -223,9 +223,62 @@ class UserProgressView(generics.RetrieveUpdateAPIView):
             lesson_id=lesson_id
         )
 
-        user_progress.last_watched_position = progress
-        user_progress.is_completed = progress >= user_progress.lesson.duration.total_seconds()
-        user_progress.progress_percentage = (progress / user_progress.lesson.duration.total_seconds()) * 100
+        # user_progress.last_watched_position = progress['last_watched_position']
+         # Convert the numeric value to a timedelta object
+        last_watched_seconds = float(progress['last_watched_position'])
+        user_progress.last_watched_position = timedelta(seconds=last_watched_seconds)
+        
+        user_progress.is_completed = progress['is_completed']
+        user_progress.progress_percentage = progress['progress_percentage']
         user_progress.save()
 
         return Response(self.get_serializer(user_progress).data)
+    
+# from rest_framework import generics, status
+# from rest_framework.response import Response
+# from .models import UserProgress,Lesson
+# from razorpay_backend.models import OrdersItem
+# from .serializers import UserProgressSerializer, PurchasedCoursesSerializer, PurchasedLessonSerializer
+
+# class UserProgressView(generics.RetrieveUpdateAPIView):
+#     def get_serializer_class(self):
+#         if self.request.method == 'GET':
+#             return PurchasedCoursesSerializer
+#         return UserProgressSerializer
+
+#     def get_object(self):
+#         course_id = self.kwargs['course_id']
+#         return OrdersItem.objects.get(user=self.request.user, course_id=course_id)
+
+#     def retrieve(self, request, *args, **kwargs):
+#         instance = self.get_object()
+#         serializer = self.get_serializer(instance)
+#         course_data = serializer.data['course']
+        
+#         lessons = Lesson.objects.filter(course_id=course_data['id'])
+#         lesson_serializer = PurchasedLessonSerializer(lessons, many=True, context={'request': request})
+        
+#         response_data = {
+#             'course': course_data,
+#             'lessons': lesson_serializer.data
+#         }
+#         return Response(response_data)
+
+#     def update(self, request, *args, **kwargs):
+#         course_id = kwargs['course_id']
+#         lesson_id = request.data.get('lesson_id')
+#         progress = request.data.get('progress')
+
+#         user_progress, created = UserProgress.objects.get_or_create(
+#             user=request.user,
+#             course_id=course_id,
+#             lesson_id=lesson_id
+#         )
+
+#         user_progress.last_watched_position = progress['last_watched_position']
+#         user_progress.is_completed = progress['is_completed']
+#         user_progress.progress_percentage = progress['progress_percentage']
+#         user_progress.save()
+
+#         serializer = UserProgressSerializer(user_progress)
+#         return Response(serializer.data)
