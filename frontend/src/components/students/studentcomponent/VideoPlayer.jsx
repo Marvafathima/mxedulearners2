@@ -5,10 +5,15 @@ const VideoPlayer = ({ lessonId, videoUrl, thumbnailUrl, onProgressUpdate, initi
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    if (videoRef.current) {
+    if (videoRef.current && !isNaN(initialProgress) && isFinite(initialProgress)) {
       videoRef.current.currentTime = initialProgress;
     }
   }, [initialProgress]);
+//   useEffect(() => {
+//     if (videoRef.current) {
+//       videoRef.current.currentTime = initialProgress;
+//     }
+//   }, [initialProgress]);
 
   useEffect(() => {
     const video = videoRef.current;
