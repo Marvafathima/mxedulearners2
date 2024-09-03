@@ -1,6 +1,7 @@
 from django.db import models
 from api.models import CustomUser
 from django.core.validators import MinValueValidator, MaxValueValidator
+from datetime import timedelta
 # Create your models here.
 class Courses(models.Model):
     name = models.CharField(max_length=50)
@@ -38,22 +39,19 @@ class Lesson(models.Model):
     def __str__(self):
         return f"{self.course.name} - Lesson {self.lesson_number}: {self.title}"
 
-class LessonProgress(models.Model):
+
+class UserProgress(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    last_watched_position = models.DurationField(default=timedelta())
     is_completed = models.BooleanField(default=False)
-    progress_percentage = models.FloatField(
-        default=0,
-        validators=[MinValueValidator(0), MaxValueValidator(100)]
-    )
-    last_watched_position = models.DurationField(default=0)  # To store where the user left off
+    progress_percentage = models.FloatField(default=0.0)
 
     class Meta:
-        unique_together = ['user', 'lesson']
+        unique_together = ['user', 'course', 'lesson']
 
     def __str__(self):
-        return f"{self.user.username} - {self.lesson.title} Progress"
-
-
+        return f"{self.user.username} - {self.course.name} - Lesson {self.lesson.lesson_number}"
 
 

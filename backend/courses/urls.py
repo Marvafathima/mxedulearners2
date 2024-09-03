@@ -12,8 +12,13 @@
 #     path('register', RegisterView.as_view(), name='register'),
 #     path('admin/login', AdminLoginView.as_view(), name='admin_login'),
 # ]
-from django.urls import path
+from django.urls import path,include
 from .views import *
+from rest_framework.routers import DefaultRouter
+
+
+router = DefaultRouter()
+router.register(r'user-progress', UserProgressViewSet)
 
 urlpatterns = [
     path('courses/',CourseCreateView.as_view(), name='create_course'),
@@ -21,5 +26,6 @@ urlpatterns = [
     path('courses_fetch_purchased/', PurchasedCoursesView.as_view(), name='purchased_courses'),
     path('tutor-courses/', TutorCoursesView.as_view(), name='tutor-courses'),
     path('courses/<int:pk>/', CourseDetailView.as_view(), name='course-detail'),
+     path('', include(router.urls)),
 
 ]

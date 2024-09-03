@@ -107,32 +107,41 @@ class AllCoursesView(APIView):
         serializer = FetchCourseSerializer(courses, many=True)
        
         return Response(serializer.data)
+# class PurchasedCoursesView(APIView):
+#     def get(self, request):
+#         user = request.user
+
+#         # Create a subquery to check if the course exists in user's OrdersItem
+#         purchased_courses = OrdersItem.objects.filter(
+#             order__user=user,
+#             course=OuterRef('pk')
+#         )
+
+#         # Fetch all courses that the user has purchased
+#         courses = Courses.objects.annotate(
+#             is_purchased=Exists(purchased_courses)
+#         ).filter(
+#             is_purchased=True
+#         ).select_related('user').prefetch_related(
+#             Prefetch('user__tutorapplication', queryset=TutorApplication.objects.all(), to_attr='tutor_info')
+#         )
+
+#         # You can keep this for debugging, but remember to remove it in production
+#         for course in courses:
+#             print(f"Purchased course: {course.name} by {course.user.username}")
+
+#         serializer = FetchCourseSerializer(courses, many=True)
+       
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+from .serializers import PurchasedCoursesSerializer
+
 class PurchasedCoursesView(APIView):
     def get(self, request):
         user = request.user
-
-        # Create a subquery to check if the course exists in user's OrdersItem
-        purchased_courses = OrdersItem.objects.filter(
-            order__user=user,
-            course=OuterRef('pk')
-        )
-
-        # Fetch all courses that the user has purchased
-        courses = Courses.objects.annotate(
-            is_purchased=Exists(purchased_courses)
-        ).filter(
-            is_purchased=True
-        ).select_related('user').prefetch_related(
-            Prefetch('user__tutorapplication', queryset=TutorApplication.objects.all(), to_attr='tutor_info')
-        )
-
-        # You can keep this for debugging, but remember to remove it in production
-        for course in courses:
-            print(f"Purchased course: {course.name} by {course.user.username}")
-
-        serializer = FetchCourseSerializer(courses, many=True)
-       
+        purchased_items = OrdersItem.objects.filter(user=user).select_related('course')
+        serializer = PurchasedCoursesSerializer(purchased_items, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
 from rest_framework import generics
 class TutorCoursesView(generics.ListAPIView):
     serializer_class = CourseSerializer
@@ -144,3 +153,52 @@ class CourseDetailView(generics.RetrieveAPIView):
     queryset = Courses.objects.all()
     serializer_class = CourseDetailSerializer
     lookup_field = 'pk'
+
+
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from .models import UserProgress
+from .serializers import UserProgressSerializer
+
+class UserProgressViewSet(viewsets.ModelViewSet):
+    queryset = UserProgress.objects.all()
+    serializer_class = UserProgressSerializer
+
+    def get_queryset(self):
+        return UserProgress.objects.filter(user=self.request.user)
+
+    @action(detail=False, methods=['GET'])
+    def course_progress(self, request):
+        course_id = request.query_params.get('course_id')
+        progress = UserProgress.objects.filter(user=request.user, course_id=course_id)
+        serializer = self.get_serializer(progress, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['POST'])
+    def update_progress(self, request):
+        course_id = request.data.get('course_id')
+        lesson_id = request.data.get('lesson_id')
+        last_watched_position = request.data.get('last_watched_position')
+        is_completed = request.data.get('is_completed', False)
+        progress_percentage = request.data.get('progress_percentage', 0.0)
+
+        progress, created = UserProgress.objects.get_or_create(
+            user=request.user,
+            course_id=course_id,
+            lesson_id=lesson_id,
+            defaults={
+                'last_watched_position': last_watched_position,
+                'is_completed': is_completed,
+                'progress_percentage': progress_percentage
+            }
+        )
+
+        if not created:
+            progress.last_watched_position = last_watched_position
+            progress.is_completed = is_completed
+            progress.progress_percentage = progress_percentage
+            progress.save()
+
+        serializer = self.get_serializer(progress)
+        return Response(serializer.data)

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-
+import Skeleton from '@mui/material/Skeleton';
 import { fetchAllCourses } from '../../../store/courseSlice';
 import CourseCard from './CourseCard';
 
@@ -15,7 +15,7 @@ const CourseCards = () => {
   }, [status, dispatch]);
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <div>  <Skeleton variant="rectangular" width={210} height={118} /></div>;
   }
 
   if (status === 'failed') {

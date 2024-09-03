@@ -6,7 +6,7 @@ import Subnavbar from '../studentcomponent/SubNavbar';
 import Navbar from '../studentcomponent/Navbar';
 import { useSelector,useDispatch} from 'react-redux';
 import { fetchStudentDetails } from '../../../store/authSlice'
-
+import { Skeleton } from '@mui/material';
 const StudentHomepage = () => {
   const { darkMode } = useContext(ThemeContext);
   const dispatch = useDispatch();
@@ -16,7 +16,7 @@ const StudentHomepage = () => {
     dispatch(fetchStudentDetails());
   }, [dispatch]);
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>  <Skeleton variant="rectangular" width={210} height={118} /></div>;
   }
 
   if (error) {

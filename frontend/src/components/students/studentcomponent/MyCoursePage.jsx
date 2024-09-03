@@ -5,17 +5,13 @@ import Navbar from './Navbar'; // Assuming you have this component
 import Footer from './Footer'; // Assuming you have this component
 import { useDispatch, useSelector } from 'react-redux';
 import ProfileSidebar from './ProfileSidebar';
-import { fetchPurchasedCourses } from '../../../store/courseSlice';
+import { fetchPurchasedCourses,fetchCourseDetail } from '../../../store/courseSlice';
 import Layout from './Layout';
+import { useNavigate } from 'react-router-dom';
 const MyCoursesPage = () => {
-//   const courses = [
-//     { id: 1, title: 'Basic of English Language', progress: 30, completed: false },
-//     { id: 2, title: 'Introduction the web development', progress: 0, completed: false },
-//     { id: 3, title: 'Basic data-structure and algorithm', progress: 100, completed: true },
-//     { id: 4, title: 'Lorem ipsum dolor in nulla noslstid', progress: 50, completed: false },
-//   ];
+
   const{user} =useSelector((state)=>state.auth);
-  
+  const navigate=useNavigate();
   const dispatch=useDispatch();
  useEffect(()=>{
     console.log("dispatching this action")
@@ -23,6 +19,10 @@ const MyCoursesPage = () => {
  },[dispatch]);
  
  const {courses,loading,error}=useSelector((state)=>state.courses)
+ const handleViewDetails = (id) => {
+  dispatch(fetchCourseDetail(id));
+  navigate(`/mycourse/${id}`);
+};
  if (loading){
     return <div>Loading....</div>
  }
@@ -75,41 +75,46 @@ const MyCoursesPage = () => {
           Course Catalog
         </Button>
 
-         <Grid container spacing={3}>
-          {courses.map((course) => (
-            <Grid item xs={12} key={course.id}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {course.name}
-                  </Typography> 
-                  {/* {course.completed ? (
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                      <Typography color="success.main" sx={{ display: 'flex', alignItems: 'center' }}>
-                        <CheckCircle sx={{ mr: 1 }} /> Completed
-                      </Typography>
-                      <Button variant="outlined" color="primary">
-                        View Certificate
-                      </Button>
-                    </Box>
-                  ) : (
-                    <>
-                      <LinearProgress variant="determinate" value={course.progress} sx={{ mb: 1 }} />
+        <Grid container spacing={3}>
+            {courses.map((item) => (
+              <Grid item xs={12} key={item.id}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      {item.course.name}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>
+                      Creator: {item.course.user ? item.course.user.username : 'Unknown'}
+                    </Typography>
+                    {item.iscomplete ? (
                       <Box display="flex" justifyContent="space-between" alignItems="center">
-                        <Typography variant="body2">
-                          {course.progress === 0 ? 'Not started' : `${course.progress}% complete`}
+                        <Typography color="success.main" sx={{ display: 'flex', alignItems: 'center' }}>
+                          <CheckCircle sx={{ mr: 1 }} /> Completed
                         </Typography>
-                        <Button variant="contained" color="primary">
-                          {course.progress === 0 ? 'Start' : 'Continue'}
+                        <Button variant="outlined" color="primary">
+                          View Certificate
                         </Button>
                       </Box>
-                    </>
-                  )} */}
-                 </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid> 
+                    ) : (
+                      <Box display="flex" justifyContent="space-between" alignItems="center">
+                        <Typography variant="body2">
+                          {item.isstart ? 'In Progress' : 'Not Started'}
+                        </Typography>
+                        <Button 
+                          variant="contained" 
+                          color="primary"
+                          onClick={() => handleViewDetails(item.course.id)}
+                        >
+                          {item.isstart ? 'Continue' : 'Start'}
+                        </Button>
+                      </Box>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+      
       </Container>
      
 

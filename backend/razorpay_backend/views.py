@@ -7,8 +7,8 @@ from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
 from .models import Orders, OrdersItem
+from courses.models import UserProgress,Courses,Lesson
 from .serializers import OrderSerializer
 
 # Load Razorpay credentials from project root .env file
@@ -39,10 +39,18 @@ def start_payment(request):
 
     for item in items:
         OrdersItem.objects.create(
+            user=request.user,
             order=order,
             course_id=item['course_id'],
             price=item['price']
         )
+        course=Courses.objects.get(id=item['course_id'])
+        lessons=Lesson.objects.filter(course=course)
+        print(lessons,"these are the filtered lessons")
+        for lesson in lessons:
+            UserProgress.objects.create(
+                course=course,lesson=lesson,user=request.user
+            )
 
     serializer = OrderSerializer(order)
 

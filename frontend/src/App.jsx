@@ -30,7 +30,7 @@ import QuizCreationForm from './components/tutor/QuizCreationForm';
 import CourseDetail from './components/students/studentcomponent/CourseDetail';
 import CartPage from './components/students/studentcomponent/CartPage';
 import CheckoutPage from './components/students/studentcomponent/CheckoutPage';
-
+import MycourseDetail from './components/students/studentcomponent/MycourseDetail';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '../src/store/store';
 import MyCoursesPage from './components/students/studentcomponent/MyCoursePage';
@@ -66,6 +66,7 @@ function App() {
           <Route path='/cart'element={<CartPage />} />
           <Route path='/checkout'element={<CheckoutPage />} />
           <Route path='/my_courses'element={<MyCoursesPage />} />
+          <Route path='/mycourse/:id'element={<MycourseDetail/>} />
         </Route>
 
             <Route path="/admin/dashboard"  
