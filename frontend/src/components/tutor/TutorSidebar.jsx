@@ -70,12 +70,16 @@ import React, { useContext, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { getFullImageUrl } from '../../utils/auth';
-
+import {  useDispatch, useSelector } from 'react-redux';
+import { logoutUser } from '../../store/authSlice';
+import { useNavigate } from 'react-router-dom';
 const TutorSidebar = ({ user }) => {
   const { darkMode } = useContext(ThemeContext);
   const location = useLocation();
   const [coursesOpen, setCoursesOpen] = useState(false);
-
+  const navigate=useNavigate()
+  const dispatch=useDispatch()
+ 
   const sidebarItems = [
     { name: 'Dashboard', icon: 'fas fa-tachometer-alt', path: '/tutor-home' },
     { name: 'My Profile', icon: 'fas fa-user', path: '/tutor-home' },
@@ -97,7 +101,8 @@ const TutorSidebar = ({ user }) => {
   ];
 
   const handleLogout = () => {
-    // Implement logout logic
+    dispatch(logoutUser());
+    navigate('/landing-page');
   };
 
   const isActive = (path) => {

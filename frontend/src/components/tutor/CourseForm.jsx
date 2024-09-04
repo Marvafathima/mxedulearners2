@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addCourse } from '../../store/courseSlice';
 import LessonForm from './LessonForm';
 import TutorSidebar from './TutorSidebar';
+
 import { 
   Button, 
   TextField, 
@@ -17,7 +18,8 @@ import {
   Typography, 
   Skeleton,
   Snackbar,
-  Alert
+  Alert,
+ 
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
@@ -105,11 +107,11 @@ const CourseForm = () => {
   }
 
   return (
-    <div className="flex">
-      <div className="fixed h-screen">
+    <div className={`flex ${darkMode ? 'bg-gray-600 text-white' : 'bg-white text-black'}`}>
+      <div className={`fixed h-screen ${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
         <TutorSidebar user={user} />
       </div>
-      <div className="flex-grow ml-64 p-6 overflow-y-auto">
+      <div className={`flex-grow ml-64 p-6 overflow-y-auto ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
         <Box sx={{ maxWidth: '800px', margin: 'auto' }}>
           <Typography variant="h4" gutterBottom>
             Create New Course
@@ -123,14 +125,21 @@ const CourseForm = () => {
               onChange={handleChange}
               margin="normal"
               required
+              InputProps={{
+                className: `${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'} border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`
+              }}
+              InputLabelProps={{
+                className: `${darkMode ? 'text-gray-300' : 'text-gray-700'}`
+              }}
             />
             <FormControl fullWidth margin="normal">
-              <InputLabel>Category</InputLabel>
+              <InputLabel className={darkMode ? 'text-gray-300' : 'text-gray-700'}>Category</InputLabel>
               <Select
                 name="category"
                 value={courseData.category}
                 onChange={handleChange}
                 required
+                className={`${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'} border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}
               >
                
                 <MenuItem value="Frontend">Frontend</MenuItem>
@@ -154,6 +163,9 @@ const CourseForm = () => {
               onChange={handleChange}
               margin="normal"
               required
+              InputProps={{
+                className: `${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'} border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`
+              }}
             />
             <TextField
               fullWidth
@@ -163,6 +175,9 @@ const CourseForm = () => {
               value={courseData.offer_percentage}
               onChange={handleChange}
               margin="normal"
+              InputProps={{
+                className: `${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'} border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`
+              }}
             />
             <TextField
               fullWidth
@@ -174,6 +189,9 @@ const CourseForm = () => {
               onChange={handleChange}
               margin="normal"
               required
+              InputProps={{
+                className: `${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'} border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`
+              }}
             />
             <input
               type="file"
@@ -199,6 +217,9 @@ const CourseForm = () => {
               value={courseData.points}
               onChange={handleChange}
               margin="normal"
+              InputProps={{
+                className: `${darkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'} border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`
+              }}
             />
             <Button
               variant="contained"
