@@ -24,9 +24,18 @@ export const fetchCourseDetail = createAsyncThunk(
   );
 export const fetchUserProgress = createAsyncThunk(
   'userProgress/fetchUserProgress',
-  async (courseId, { rejectWithValue }) => {
+  async (courseId, { getState,rejectWithValue }) => {
     try{
-        const response = await axios.get(`/coursemanagement/user-progress/${courseId}/`);
+      const {user}=getState().auth;
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      if (!accessToken) {
+        throw new Error('No access token available');
+      }
+        const response = await axios.get(`/coursemanagement/user-progress-list/${courseId}/`,{
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
         return response.data;
     }
     catch(error){
@@ -41,7 +50,7 @@ export const updateUserProgress = createAsyncThunk(
   'userProgress/updateUserProgress',
   async ({ courseId, lessonId, progress }, { rejectWithValue }) => {
     try{
-        const response = await axios.put(`/coursemanagement/user-progress/${courseId}/`, {
+        const response = await axios.put(`/coursemanagement/user-progress/${courseId}/${lessonId}/`, {
             lesson_id: lessonId,
             progress,
           });

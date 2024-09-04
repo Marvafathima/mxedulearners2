@@ -26,8 +26,9 @@ urlpatterns = [
     path('courses_fetch_purchased/', PurchasedCoursesView.as_view(), name='purchased_courses'),
     path('tutor-courses/', TutorCoursesView.as_view(), name='tutor-courses'),
     path('courses/<int:pk>/', CourseDetailView.as_view(), name='course-detail'),
+    path('orderstatuschange/<int:course_id>/', OrderStatusUpdateView.as_view(), name='order_status_change'),
     #  path('', include(router.urls)),
-    path('user-progress/<int:course_id>/', UserProgressView.as_view(), name='user-progress'),
-
+    path('user-progress/<int:course_id>/<int:lesson_id>/', UserProgressView.as_view(), name='user-progress'),
+    path('user-progress-list/<int:course_id>/', UserProgressListView.as_view(), name='user-progress-list'),
 
 ]

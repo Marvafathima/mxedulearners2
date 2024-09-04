@@ -29,26 +29,10 @@ const MycourseDetail = () => {
   }, [currentCourse]);
 
   const handleLessonChange = (lesson) => {
-    // if (currentLesson) {
-    //   // Update progress when changing lessons
-    //   console.log(`lesson id is ${currentLesson.id}`)
-    //   handleProgressUpdate(currentLesson.id, {
-    //     last_watched_position: videoRef.current.currentTime,
-    //     is_completed: videoRef.current.currentTime >= currentLesson.duration,
-    //     progress_percentage: (videoRef.current.currentTime / currentLesson.duration) * 100
-    //   });
-    // }
+  
     setCurrentLesson(lesson);
   };
 
-//   const handleProgressUpdate = (lessonId, progress) => {
-//     console.log("lesson id:",lessonId)
-//     dispatch(updateUserProgress({
-//       courseId: id,
-//       lessonId,
-//       progress
-//     }));
-//   };
 const handleProgressUpdate = (lessonId, currentTime) => {
     const lesson = currentCourse.lessons.find(l => l.id === lessonId);
     if (lesson) {

@@ -5,7 +5,7 @@ import Navbar from './Navbar'; // Assuming you have this component
 import Footer from './Footer'; // Assuming you have this component
 import { useDispatch, useSelector } from 'react-redux';
 import ProfileSidebar from './ProfileSidebar';
-import { fetchPurchasedCourses,fetchCourseDetail } from '../../../store/courseSlice';
+import { fetchPurchasedCourses,fetchCourseDetail,orderStatusChange } from '../../../store/courseSlice';
 import Layout from './Layout';
 import { useNavigate } from 'react-router-dom';
 const MyCoursesPage = () => {
@@ -21,6 +21,7 @@ const MyCoursesPage = () => {
  const {courses,loading,error}=useSelector((state)=>state.courses)
  const handleViewDetails = (id) => {
   dispatch(fetchCourseDetail(id));
+  dispatch(orderStatusChange(id));
   navigate(`/mycourse/${id}`);
 };
  if (loading){

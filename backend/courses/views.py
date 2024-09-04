@@ -205,48 +205,28 @@ from .serializers import UserProgressSerializer
 #         return Response(serializer.data)
 
 from datetime import timedelta
+class UserProgressListView(generics.ListAPIView):
+    serializer_class = UserProgressSerializer
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        course_id = self.kwargs['course_id']
+        user = self.request.user
+        print("userprogrsslist view fethe or cadleed /n/n/n/n/n/n")
+        return UserProgress.objects.filter(user=user, course_id=course_id).select_related('lesson')
+
 class UserProgressView(generics.RetrieveUpdateAPIView):
     serializer_class = UserProgressSerializer
 
+    # def get_object(self):
+    #     course_id = self.kwargs['course_id']
+    #     user = self.request.user
+    #     return UserProgress.objects.filter(user=user, course_id=course_id)
     def get_object(self):
         course_id = self.kwargs['course_id']
+        lesson_id = self.kwargs['lesson_id']
         user = self.request.user
-        return UserProgress.objects.filter(user=user, course_id=course_id)
-    # def update(self, request, *args, **kwargs):
-    #     course_id = kwargs['course_id']
-    #     lesson_id = request.data.get('lesson_id')
-    #     progress = request.data.get('progress')
+        return UserProgress.objects.get(user=user, course_id=course_id, lesson_id=lesson_id)
 
-    #     logger.info(f"Update request received for course_id: {course_id}, lesson_id: {lesson_id}")
-    #     logger.info(f"Progress data received: {progress}")
-
-    #     user_progress, created = UserProgress.objects.get_or_create(
-    #         user=request.user,
-    #         course_id=course_id,
-    #         lesson_id=lesson_id
-    #     )
-
-    #     logger.info(f"UserProgress instance - Created: {created}, Data: {user_progress}")
-
-    #     # Convert the numeric value to a timedelta object
-    #     last_watched_seconds = float(progress['last_watched_position'])
-    #     user_progress.last_watched_position = timedelta(seconds=last_watched_seconds)
-
-    #     logger.info(f"Last watched position (in seconds): {last_watched_seconds}")
-
-    #     # Calculate the progress percentage based on total duration
-    #     total_duration_seconds = user_progress.lesson.duration.total_seconds()
-    #     user_progress.progress_percentage = (last_watched_seconds / total_duration_seconds) * 100
-
-    #     logger.info(f"Total duration (in seconds): {total_duration_seconds}")
-    #     logger.info(f"Calculated progress percentage: {user_progress.progress_percentage}%")
-
-    #     user_progress.is_completed = progress['is_completed']
-    #     user_progress.save()
-
-    #     logger.info(f"UserProgress saved successfully: {user_progress}")
-
-    #     return Response(self.get_serializer(user_progress).data)
     def update(self, request, *args, **kwargs):
         course_id = kwargs['course_id']
         lesson_id = request.data.get('lesson_id')
@@ -275,3 +255,33 @@ class UserProgressView(generics.RetrieveUpdateAPIView):
         return Response(self.get_serializer(user_progress).data)
     
 
+from razorpay_backend.serializers import OrdersItemSerializer
+from rest_framework.generics import UpdateAPIView
+class OrderStatusUpdateView(UpdateAPIView):
+    queryset = OrdersItem.objects.all()
+    serializer_class = OrdersItemSerializer
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        course_id = kwargs.get('course_id')
+        user = request.user
+
+        try:
+            order_item = OrdersItem.objects.get(course_id=course_id, user=user)
+            order_item.isstart = True  # Set the order as started
+            order_item.save()
+            print("our order_item staus",order_item.isstart)
+            # Check if all lessons in the course are completed by the user
+            lessons = Lesson.objects.filter(course_id=course_id)
+            user_progress = UserProgress.objects.filter(user=user, course_id=course_id)
+
+            if all(progress.is_completed for progress in user_progress) and len(user_progress) == len(lessons):
+                order_item.iscomplete = True  # Set the order as complete if all lessons are completed
+            else:
+                order_item.iscomplete = False  # Otherwise, ensure it's marked as incomplete
+            print("our order_item staus",order_item.iscomplete)
+            order_item.save()
+
+            return Response({"status": "success", "iscomplete": order_item.iscomplete}, status=status.HTTP_200_OK)
+        except OrdersItem.DoesNotExist:
+            return Response({"error": "Order item not found"}, status=status.HTTP_404_NOT_FOUND)
