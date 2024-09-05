@@ -33,7 +33,10 @@ const CourseCard = ({ course }) => {
       />
       <div className="p-4">
         <h3 className="font-bold text-lg mb-2 uppercase text-black">{course.name}</h3>
-        <p className="text-gray-600">{course.user.username}</p>
+        <p className="text-gray-600">
+          {course.user.username}
+        
+          </p>
         <div className="mt-2">
           <span className="text-yellow-500">{course.rating}</span>
           <span className="text-gray-500 ml-2">({course.lessons.length} lessons)</span>
