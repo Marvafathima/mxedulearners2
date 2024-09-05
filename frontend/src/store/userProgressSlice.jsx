@@ -36,6 +36,7 @@ export const fetchUserProgress = createAsyncThunk(
             'Authorization': `Bearer ${accessToken}`,
           },
         });
+        console.log("list of all courses lessson progress fetched",response.data)
         return response.data;
     }
     catch(error){

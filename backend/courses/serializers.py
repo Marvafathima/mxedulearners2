@@ -70,7 +70,7 @@ class PurchasedCoursesSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = OrdersItem
-        fields = ['id', 'course', 'price', 'iscomplete', 'isstart',]
+        fields = ['id', 'course', 'price', 'iscomplete', 'isstart','progress']
 
 
 

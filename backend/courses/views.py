@@ -162,47 +162,6 @@ from rest_framework.response import Response
 from .models import UserProgress
 from .serializers import UserProgressSerializer
 
-# class UserProgressViewSet(viewsets.ModelViewSet):
-#     queryset = UserProgress.objects.all()
-#     serializer_class = UserProgressSerializer
-
-#     def get_queryset(self):
-#         return UserProgress.objects.filter(user=self.request.user)
-
-#     @action(detail=False, methods=['GET'])
-#     def course_progress(self, request):
-#         course_id = request.query_params.get('course_id')
-#         progress = UserProgress.objects.filter(user=request.user, course_id=course_id)
-#         serializer = self.get_serializer(progress, many=True)
-#         return Response(serializer.data)
-
-#     @action(detail=False, methods=['POST'])
-#     def update_progress(self, request):
-#         course_id = request.data.get('course_id')
-#         lesson_id = request.data.get('lesson_id')
-#         last_watched_position = request.data.get('last_watched_position')
-#         is_completed = request.data.get('is_completed', False)
-#         progress_percentage = request.data.get('progress_percentage', 0.0)
-
-#         progress, created = UserProgress.objects.get_or_create(
-#             user=request.user,
-#             course_id=course_id,
-#             lesson_id=lesson_id,
-#             defaults={
-#                 'last_watched_position': last_watched_position,
-#                 'is_completed': is_completed,
-#                 'progress_percentage': progress_percentage
-#             }
-#         )
-
-#         if not created:
-#             progress.last_watched_position = last_watched_position
-#             progress.is_completed = is_completed
-#             progress.progress_percentage = progress_percentage
-#             progress.save()
-
-#         serializer = self.get_serializer(progress)
-#         return Response(serializer.data)
 
 from datetime import timedelta
 class UserProgressListView(generics.ListAPIView):
@@ -244,8 +203,10 @@ class UserProgressView(generics.RetrieveUpdateAPIView):
             # user_progress.progress_percentage = 0
             print("printing the toatla watched and duration",user_progress.last_watched_position,user_progress.lesson.duration)
             user_progress.progress_percentage = (float(last_watched_seconds) / float(total_duration_seconds)) * 100
+            print("\n\n\n\n\n\n\n\n",user_progress.progress_percentage)
             if user_progress.last_watched_position>=user_progress.lesson.duration:
                 user_progress.is_completed=True
+                user_progress.progress_percentage=100
             else:
                 user_progress.is_completed = progress['is_completed']
             print(user_progress.progress_percentage,user_progress.is_completed,"this is the progress percentage ")
@@ -274,7 +235,12 @@ class OrderStatusUpdateView(UpdateAPIView):
             # Check if all lessons in the course are completed by the user
             lessons = Lesson.objects.filter(course_id=course_id)
             user_progress = UserProgress.objects.filter(user=user, course_id=course_id)
-
+            total_progress=0
+            for u in user_progress:
+                total_progress+=u.progress_percentage
+            if total_progress>=100:
+                total_progress=100
+            order_item.progress=total_progress
             if all(progress.is_completed for progress in user_progress) and len(user_progress) == len(lessons):
                 order_item.iscomplete = True  # Set the order as complete if all lessons are completed
             else:
