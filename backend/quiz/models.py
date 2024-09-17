@@ -40,3 +40,15 @@ class Answer(models.Model):
 
     def __str__(self):
         return f"{self.question.text[:30]} - {'Correct' if self.is_correct else 'Incorrect'}"
+User = get_user_model()
+
+class UserQuizAttempt(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_attempts')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='attempts')
+    score = models.FloatField()
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username}'s attempt on {self.quiz.title}"

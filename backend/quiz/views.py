@@ -4,13 +4,13 @@ from datetime import timedelta
 from courses.models import Courses
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from .models import Quiz,Answer,Question
-from .serializers import QuizSerializer
+from .models import Quiz,Answer,Question,UserQuizAttempt
+from .serializers import *
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework import generics
 from django.shortcuts import get_object_or_404
-
+from rest_framework.decorators import action
 
 
 class QuizViewSet(viewsets.ModelViewSet):
@@ -21,8 +21,8 @@ class QuizViewSet(viewsets.ModelViewSet):
         data = request.data
 
         # Handle course
-        course_name = data.get('courseId')
-        course = get_object_or_404(Courses, name=course_name)
+        course_id = data.get('courseId')
+        course = get_object_or_404(Courses, id=course_id)
 
         # Handle time limit
         hours = int(data.get('timeLimit[hours]', 0))
@@ -73,3 +73,60 @@ class QuizViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(quiz)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=True, methods=['post'])
+    def start(self, request, pk=None):
+        quiz = self.get_object()
+        attempt = UserQuizAttempt.objects.create(
+            user=request.user,
+            quiz=quiz,
+            score=0
+        )
+        return Response(UserQuizAttemptSerializer(attempt).data)
+
+    @action(detail=True, methods=['post'])
+    def submit(self, request, pk=None):
+        quiz = self.get_object()
+        answers = request.data.get('answers', {})
+        
+        # Calculate score
+        score = 0
+        for question in quiz.questions.all():
+            if str(question.id) in answers:
+                answer = Answer.objects.get(id=answers[str(question.id)])
+                if answer.is_correct:
+                    score += question.marks
+                else:
+                    score -= question.negative_marks
+
+        # You might want to save this score to a UserQuizAttempt model
+        return Response({'score': score}, status=status.HTTP_200_OK)
+
+from rest_framework.viewsets import ModelViewSet
+
+
+class QuestionViewSet(ModelViewSet):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+
+    @action(detail=True, methods=['post'])
+    def answer(self, request, pk=None):
+        question = self.get_object()
+        answer_id = request.data.get('answerId')
+        
+        try:
+            answer = Answer.objects.get(id=answer_id, question=question)
+            return Response({
+                'questionId': question.id,
+                'answerId': answer.id,
+                'isCorrect': answer.is_correct
+            })
+        except Answer.DoesNotExist:
+            return Response({'error': 'Invalid answer'}, status=status.HTTP_400_BAD_REQUEST)
+class CourseQuizzesView(generics.ListAPIView):
+    serializer_class = QuizSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        course_id = self.kwargs['course_id']
+        return Quiz.objects.filter(course_id=course_id)

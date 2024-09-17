@@ -16,10 +16,7 @@ export const getCurrentUserTokens = () => {
 
 export const BASE_URL = 'http://127.0.0.1:8000/'; // Replace with your actual backend URL
 
-//  export function getFullImageUrl(relativePath) {
-//   if (!relativePath) return null;
-//   return `${BASE_URL}${relativePath}`;
-// }
+
 
 export const AWS_BUCKET ='https://mxedulearnerbucket.s3.ap-south-1.amazonaws.com/';
 export function getFullImageUrl(relativePath){

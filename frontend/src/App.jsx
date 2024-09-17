@@ -34,6 +34,7 @@ import MycourseDetail from './components/students/studentcomponent/MycourseDetai
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '../src/store/store';
 import MyCoursesPage from './components/students/studentcomponent/MyCoursePage';
+import QuizComponent from './components/students/studentcomponent/QuizComponent';
 function App() {
   // const { darkMode } = useContext(ThemeContext);
   return (
@@ -67,6 +68,7 @@ function App() {
           <Route path='/checkout'element={<CheckoutPage />} />
           <Route path='/my_courses'element={<MyCoursesPage />} />
           <Route path='/mycourse/:id'element={<MycourseDetail/>} />
+          <Route path='/quiz/:id'element={<QuizComponent/>} />
         </Route>
 
             <Route path="/admin/dashboard"  

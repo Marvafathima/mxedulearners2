@@ -72,6 +72,7 @@ const Login = (onError) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+    <label>Enter your email</label>
       <input
         type="email"
         name="email"
@@ -81,6 +82,7 @@ const Login = (onError) => {
         className="w-full p-2 border rounded"
         required
       />
+    <label>Enter your password</label>  
       <input
         type="password"
         name="password"

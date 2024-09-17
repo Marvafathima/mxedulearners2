@@ -105,18 +105,20 @@ import Layout from './Layout';
 import VideoPlayer from './VideoPlayer';
 import { getFullImageUrl } from '../../../components/ProfileImage';
 import { Button } from '@mui/material';
-
+import { fetchCourseQuizzes } from '../../../store/quizareaSlice';
 const MycourseDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { currentCourse, status, error } = useSelector(state => state.courses);
   const { userProgress } = useSelector((state) => state.userProgress);
   const [currentLesson, setCurrentLesson] = useState(null);
+  const { courseQuizzes, quizstatus, quizerror } = useSelector(state => state.quizarea);
 
   useEffect(() => {
     if (id) {
       dispatch(fetchCourseDetail(id));
       dispatch(fetchUserProgress(id));
+      dispatch(fetchCourseQuizzes(id));
     }
   }, [dispatch, id]);
 
@@ -141,6 +143,19 @@ const MycourseDetail = () => {
       dispatch(updateUserProgress({ courseId: id, lessonId, progress }));
     }
   };
+
+
+  const handleStartQuiz = (quizId) => {
+    navigate(`/quiz/${quizId}`);
+  };
+
+  if (quizstatus === 'loading') {
+    return <div>Loading quizzes...</div>;
+  }
+
+  if (quizstatus === 'failed') {
+    return <div>Error: {error}</div>;
+  }
 
   if (status === 'loading') return <div className="text-center py-4">Loading...</div>;
   if (status === 'failed') return <div className="text-center py-4 text-red-500">Error: {error}</div>;
@@ -174,7 +189,7 @@ const MycourseDetail = () => {
               onClick={() => handleLessonChange(lesson)}
             >
               <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-medium">{lesson.title}</h3>
+                <h3 className="text-lg text-gray-400 font-medium">{lesson.title}</h3>
                 {userProgress[lesson.id]?.is_completed && (
                   <FaCheckCircle className="text-green-500" />
                 )}
@@ -194,9 +209,20 @@ const MycourseDetail = () => {
              
             </div>
           ))}
-         <Button variant="contained"  color="success" >
+
+          {courseQuizzes.map(quiz=>(
+
+          <Button variant="contained"  color="success"
+          key={quiz.id} 
+          onClick={() => handleStartQuiz(quiz.id)}
+          // className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-2"
+          >
+          Start: {quiz.title}
+          </Button> 
+          ))}
+         {/* <Button variant="contained"  color="success" >
            Start Quiz
-          </Button>
+          </Button> */}
         </div>
       </div>
     </Layout>

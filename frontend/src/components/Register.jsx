@@ -99,6 +99,7 @@ const Register = ({ onSuccess,onError }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <label>Enter your name</label>
       <input 
         type="text" 
         name="username" 
@@ -108,7 +109,7 @@ const Register = ({ onSuccess,onError }) => {
         className="w-full p-2 border rounded"
       />
       {formErrors.username && <p className="text-red-500">{formErrors.username}</p>}
-      
+      <label>Enter your email</label>
       <input 
         type="email" 
         name="email" 
@@ -118,7 +119,7 @@ const Register = ({ onSuccess,onError }) => {
         className="w-full p-2 border rounded"
       />
       {formErrors.email && <p className="text-red-500">{formErrors.email}</p>}
-      
+      <label>Enter your Phone Number</label> 
       <input 
         type="tel" 
         name="phone_number" 
@@ -128,7 +129,7 @@ const Register = ({ onSuccess,onError }) => {
         className="w-full p-2 border rounded"
       />
       {formErrors.phone_number && <p className="text-red-500">{formErrors.phone_number}</p>}
-      
+      <label>Enter your password</label>
       <input 
         type="password" 
         name="password" 
@@ -138,7 +139,7 @@ const Register = ({ onSuccess,onError }) => {
         className="w-full p-2 border rounded"
       />
       {formErrors.password && <p className="text-red-500">{formErrors.password}</p>}
-      
+      <label>Confirm Password</label>  
       <input 
         type="password" 
         name="confirm_password" 
@@ -148,7 +149,7 @@ const Register = ({ onSuccess,onError }) => {
         className="w-full p-2 border rounded"
       />
       {formErrors.confirm_password && <p className="text-red-500">{formErrors.confirm_password}</p>}
-      
+      <label>Enter your role</label> 
       <select 
         name="role" 
         value={formData.role} 

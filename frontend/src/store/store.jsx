@@ -1,30 +1,4 @@
 
-
-
-// import { configureStore } from '@reduxjs/toolkit';
-// import authReducer from './authSlice';
-// import adminAuthReducer from './adminAuthSlice'
-// import userManagementReducer from './userManagementSlice';
-// import coursesReducer from './courseSlice';
-// import tutorsReducer from './adminTutorSlice';
-// import studentsReducer from './adminStudentSlice';
-// import quizReducer from './quizSlice';
-// import cartReducer from './cartSlice';
-
-
-
-// export const store = configureStore({
-//   reducer: {
-//     auth: authReducer,
-//     adminAuth: adminAuthReducer,
-//     userManagement: userManagementReducer,
-//     courses:coursesReducer,
-//     tutors:tutorsReducer,
-//     students:studentsReducer,
-//     quizzes: quizReducer,
-//     cart:cartReducer
-//   },
-// });
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -38,7 +12,7 @@ import tutorsReducer from './adminTutorSlice';
 import studentsReducer from './adminStudentSlice';
 import quizReducer from './quizSlice';
 import cartReducer from './cartSlice';
-
+import quizareaReducer from './quizareaSlice'
 const encryptor = encryptTransform({
   secretKey: 'your-secret-key',
   onError: function(error) {
@@ -62,7 +36,8 @@ const rootReducer = combineReducers({
   students: studentsReducer,
   quizzes: quizReducer,
   cart: cartReducer,
-  userProgress: userProgressReducer
+  userProgress: userProgressReducer,
+  quizarea:quizareaReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
