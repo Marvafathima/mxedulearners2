@@ -19,8 +19,8 @@ const MyCoursesPage = () => {
     dispatch(fetchPurchasedCourses());
  },[dispatch]);
  
- const {courses,loading,error}=useSelector((state)=>state.courses)
- console.log(courses,"these are courses")
+ const {purchasedCourses,loading,error}=useSelector((state)=>state.courses)
+ console.log(purchasedCourses,"these are courses")
  const handleViewDetails = (id) => {
   dispatch(fetchCourseDetail(id));
   dispatch(orderStatusChange(id));
@@ -144,7 +144,7 @@ const MyCoursesPage = () => {
     </Box>
   </Layout> */}
    <Grid container spacing={3}>
-            {courses.map((item) => (
+            {purchasedCourses.map((item) => (
               <Grid item xs={12} key={item.id}>
                 <Card>
                   <CardContent>
@@ -162,7 +162,7 @@ const MyCoursesPage = () => {
                           {item.course ? item.course.name : 'Course name not available'}
                         </Typography>
                         <Typography variant="body2" color="textSecondary" gutterBottom>
-                          Creator: {item.course.user ? item.course.user.username : 'Unknown'}
+                          Creator: {item.course?.user ? item.course.user.username : 'Unknown'}
                         </Typography>
                         {item.iscomplete ? (
                           <Box display="flex" justifyContent="space-between" alignItems="center">

@@ -34,12 +34,12 @@ const CourseCard = ({ course }) => {
       <div className="p-4">
         <h3 className="font-bold text-lg mb-2 uppercase text-black">{course.name}</h3>
         <p className="text-gray-600">
-          {course.user.username}
+          {course.user?.username}
         
           </p>
         <div className="mt-2">
           <span className="text-yellow-500">{course.rating}</span>
-          <span className="text-gray-500 ml-2">({course.lessons.length} lessons)</span>
+          <span className="text-gray-500 ml-2">({course.lessons?.length} lessons)</span>
         </div>
         <div className="mt-2">
           {course.offer_percentage > 0 ? (
@@ -57,7 +57,7 @@ const CourseCard = ({ course }) => {
         <div className="p-4 overflow-y-auto flex-grow">
           <h3 className="font-bold text-lg mb-2 uppercase">{course.name}</h3>
           <p className="mb-2">{course.description}</p>
-          <p>Total lessons: {course.lessons.length}</p>
+          <p>Total lessons: {course.lessons?.length}</p>
         </div>
         <div className="p-4 mt-auto flex">
         <button onClick={handleViewDetails} className="flex-grow bg-purple-900 text-white px-4 py-2 mr-1 rounded">View Details</button>

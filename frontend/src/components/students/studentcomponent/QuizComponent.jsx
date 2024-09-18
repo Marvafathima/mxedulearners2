@@ -2,17 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, LinearProgress } from '@mui/material';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
+import { useParams } from 'react-router-dom';
 // Assume these action creators are defined in your Redux setup
 import { fetchQuiz, submitQuiz, setCurrentQuestion, answerQuestion } from '../../../store/quizareaSlice';
 
-const QuizComponent = ({ quizId }) => {
+const QuizComponent = () => {
   const dispatch = useDispatch();
+  const { quizId } = useParams(); 
   const quiz = useSelector(state => state.quizarea.currentQuiz);
   const currentQuestionIndex = useSelector(state => state.quizarea.currentQuestionIndex);
   const answers = useSelector(state => state.quizarea.answers);
   const [timeLeft, setTimeLeft] = useState(null);
-
+  console.log("quiz component mounted and quizid is",quizId)
   useEffect(() => {
     dispatch(fetchQuiz(quizId));
   }, [dispatch, quizId]);

@@ -9,10 +9,12 @@ const CourseCards = () => {
   const { courses, status, error } = useSelector((state) => state.courses);
 
   useEffect(() => {
-    if (status === 'idle') {
+    if (status === 'idle') 
+    {
       dispatch(fetchAllCourses());
     }
   }, [status, dispatch]);
+ 
 
   if (status === 'loading') {
     return <div>  <Skeleton variant="rectangular" width={210} height={118} /></div>;

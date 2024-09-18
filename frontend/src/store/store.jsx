@@ -50,6 +50,8 @@ export const store = configureStore({
         ignoredActions: ['persist/PERSIST'],
       },
     }),
+    devTools:true,
+    
 });
 
 export const persistor = persistStore(store);

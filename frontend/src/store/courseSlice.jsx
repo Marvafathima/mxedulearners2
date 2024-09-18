@@ -203,6 +203,7 @@ const courseSlice = createSlice({
   name: 'courses',
   initialState: {
     courses: [],
+    purchasedCourses:[],
     currentCourse:null,
     status: 'idle',
     error: null,
@@ -245,7 +246,7 @@ const courseSlice = createSlice({
       })
       .addCase(fetchPurchasedCourses.fulfilled,(state,action)=>{
         state.status='succeeded';
-        state.courses=action.payload;
+        state.purchasedCourses=action.payload;
       })
       .addCase(fetchPurchasedCourses.pending,(state)=>{
         state.status="loading";

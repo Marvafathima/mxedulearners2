@@ -106,6 +106,7 @@ import VideoPlayer from './VideoPlayer';
 import { getFullImageUrl } from '../../../components/ProfileImage';
 import { Button } from '@mui/material';
 import { fetchCourseQuizzes } from '../../../store/quizareaSlice';
+import { useNavigate } from 'react-router-dom';
 const MycourseDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -113,7 +114,7 @@ const MycourseDetail = () => {
   const { userProgress } = useSelector((state) => state.userProgress);
   const [currentLesson, setCurrentLesson] = useState(null);
   const { courseQuizzes, quizstatus, quizerror } = useSelector(state => state.quizarea);
-
+  const navigate=useNavigate();
   useEffect(() => {
     if (id) {
       dispatch(fetchCourseDetail(id));
@@ -143,7 +144,7 @@ const MycourseDetail = () => {
       dispatch(updateUserProgress({ courseId: id, lessonId, progress }));
     }
   };
-
+  console.log("course quize detail fetched",courseQuizzes)
 
   const handleStartQuiz = (quizId) => {
     navigate(`/quiz/${quizId}`);

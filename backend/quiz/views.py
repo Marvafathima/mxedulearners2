@@ -16,7 +16,23 @@ from rest_framework.decorators import action
 class QuizViewSet(viewsets.ModelViewSet):
     queryset = Quiz.objects.all()
     serializer_class = QuizSerializer
-
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        
+        # Fetch questions and answers
+        questions = Question.objects.filter(quiz=instance).prefetch_related('answers')
+        question_data = []
+        for question in questions:
+            q_serializer = QuestionSerializer(question)
+            q_data = q_serializer.data
+            q_data['answers'] = [{'id': answer.id, 'text': answer.text} for answer in question.answers.all()]
+            question_data.append(q_data)
+        
+        data['questions'] = question_data
+        print(data,"this is the quiz data we are sending ")
+        return Response(data)
     def create(self, request, *args, **kwargs):
         data = request.data
 
@@ -73,7 +89,6 @@ class QuizViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(quiz)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
     @action(detail=True, methods=['post'])
     def start(self, request, pk=None):
         quiz = self.get_object()
@@ -87,6 +102,11 @@ class QuizViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def submit(self, request, pk=None):
         quiz = self.get_object()
+        attempt = UserQuizAttempt.objects.get(
+            user=request.user,
+            quiz=quiz,
+            completed=False
+        )
         answers = request.data.get('answers', {})
         
         # Calculate score
@@ -98,9 +118,40 @@ class QuizViewSet(viewsets.ModelViewSet):
                     score += question.marks
                 else:
                     score -= question.negative_marks
+        
+        # Update the attempt
+        attempt.score = score
+        attempt.completed = True
+        attempt.save()
 
-        # You might want to save this score to a UserQuizAttempt model
         return Response({'score': score}, status=status.HTTP_200_OK)
+    # @action(detail=True, methods=['post'])
+    # def start(self, request, pk=None):
+    #     quiz = self.get_object()
+    #     attempt = UserQuizAttempt.objects.create(
+    #         user=request.user,
+    #         quiz=quiz,
+    #         score=0
+    #     )
+    #     return Response(UserQuizAttemptSerializer(attempt).data)
+
+    # @action(detail=True, methods=['post'])
+    # def submit(self, request, pk=None):
+    #     quiz = self.get_object()
+    #     answers = request.data.get('answers', {})
+        
+    #     # Calculate score
+    #     score = 0
+    #     for question in quiz.questions.all():
+    #         if str(question.id) in answers:
+    #             answer = Answer.objects.get(id=answers[str(question.id)])
+    #             if answer.is_correct:
+    #                 score += question.marks
+    #             else:
+    #                 score -= question.negative_marks
+
+    #     # You might want to save this score to a UserQuizAttempt model
+    #     return Response({'score': score}, status=status.HTTP_200_OK)
 
 from rest_framework.viewsets import ModelViewSet
 

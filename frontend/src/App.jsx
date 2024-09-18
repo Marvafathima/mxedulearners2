@@ -68,7 +68,7 @@ function App() {
           <Route path='/checkout'element={<CheckoutPage />} />
           <Route path='/my_courses'element={<MyCoursesPage />} />
           <Route path='/mycourse/:id'element={<MycourseDetail/>} />
-          <Route path='/quiz/:id'element={<QuizComponent/>} />
+          <Route path='/quiz/:quizId'element={<QuizComponent/>} />
         </Route>
 
             <Route path="/admin/dashboard"  
