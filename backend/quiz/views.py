@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework import generics
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
-
+from django.db.models import Sum
 
 class QuizViewSet(viewsets.ModelViewSet):
     queryset = Quiz.objects.all()
@@ -31,7 +31,6 @@ class QuizViewSet(viewsets.ModelViewSet):
             question_data.append(q_data)
         
         data['questions'] = question_data
-        print(data,"this is the quiz data we are sending ")
         return Response(data)
     def create(self, request, *args, **kwargs):
         data = request.data
@@ -98,60 +97,95 @@ class QuizViewSet(viewsets.ModelViewSet):
             score=0
         )
         return Response(UserQuizAttemptSerializer(attempt).data)
-
     @action(detail=True, methods=['post'])
     def submit(self, request, pk=None):
+        print(request.data)
         quiz = self.get_object()
-        attempt = UserQuizAttempt.objects.get(
+        print(quiz.id)
+        attempt = UserQuizAttempt.objects.create(
             user=request.user,
             quiz=quiz,
-            completed=False
+            passed=False,
+            score=0
         )
-        answers = request.data.get('answers', {})
-        
-        # Calculate score
-        score = 0
-        for question in quiz.questions.all():
-            if str(question.id) in answers:
-                answer = Answer.objects.get(id=answers[str(question.id)])
-                if answer.is_correct:
-                    score += question.marks
+
+        # Loop through submitted answers
+        # for question_id, answer_id in request.data.items():
+            
+        #     try:
+        #         # Fetch question and correct answer
+        #         print("*****************************************",question_id,type(question_id),answer_id,type(answer_id))
+        #         question = Question.objects.get(id=int(question_id), quiz=quiz)
+        #         correct_answer = Answer.objects.get(question=question, is_correct=True)
+                
+        #         # Check if the submitted answer is correct
+        #         if correct_answer.id == int(answer_id):
+        #             attempt.score += question.marks
+        #         else:
+        #             attempt.score -= question.negative_marks
+        for quizzes,selecetedanswer in request.data.items():
+            selectedanswer=selecetedanswer
+        for question_id,answer_id in selecetedanswer.items():
+            try:
+            # Fetch question and correct answer
+                print("*****************************************",quiz,type(quiz),question_id,type(question_id),answer_id,type(answer_id))
+                question = Question.objects.get(id=int(question_id), quiz=quiz)
+                print("*****************************************",question_id,type(question_id),answer_id,type(answer_id))
+                
+                correct_answer = Answer.objects.get(question=question, is_correct=True)
+                print("*****************************************",question_id,type(question_id),answer_id,type(answer_id))
+                
+                print("\n\n\n\n\n\n\n\n",correct_answer)
+                print("****",answer_id)
+                # Check if the submitted answer is correct
+                if correct_answer.id == int(answer_id):
+                    attempt.score += question.marks
                 else:
-                    score -= question.negative_marks
-        
-        # Update the attempt
-        attempt.score = score
-        attempt.completed = True
+                    attempt.score -= question.negative_marks
+            except Question.DoesNotExist:
+                return Response({'error': f'Invalid question ID: {question_id}'}, status=status.HTTP_400_BAD_REQUEST)
+            except Answer.DoesNotExist:
+                return Response({'error': f'No correct answer found for question ID: {question_id}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Calculate total marks for the quiz
+        total_marks = Question.objects.filter(quiz=quiz).aggregate(total_marks=Sum('marks'))['total_marks']
+        attempt.percentage = (attempt.score / total_marks) * 100 if total_marks else 0
+
+        # Determine if the user passed
+        if attempt.percentage >= 40:
+            attempt.passed = True
+
+        # Save the final attempt
         attempt.save()
 
-        return Response({'score': score}, status=status.HTTP_200_OK)
+        return Response({'score': attempt.score, 'percentage': attempt.percentage}, status=status.HTTP_200_OK)
     # @action(detail=True, methods=['post'])
-    # def start(self, request, pk=None):
+    # def submit(self, request, pk=None):
     #     quiz = self.get_object()
     #     attempt = UserQuizAttempt.objects.create(
     #         user=request.user,
     #         quiz=quiz,
+    #         passed=False,
     #         score=0
     #     )
-    #     return Response(UserQuizAttemptSerializer(attempt).data)
+    #     for i,j in request.data.items():
+    #         question=i
+    #         answer=j
+    #         correctanswer=Answer.objects.get(question=question,is_correct=True)
+    #         quest=Question.objects.get(question=question)
+    #         if correctanswer.id==answer:
+    #             attempt.score+=quest.marks
+    #         else:
+    #             attempt.score-=quest.negative_marks
+    #         attempt.save()
+    #     total_marks = Question.objects.filter(quiz=quiz).aggregate(total_marks=Sum('marks'))['total_marks']
+    #     attempt.percentage=(attempt.score/total_marks) *100
+    #     if attempt.percentage>=40:
+    #         attempt.passed=True
+    #     attempt.save()
 
-    # @action(detail=True, methods=['post'])
-    # def submit(self, request, pk=None):
-    #     quiz = self.get_object()
-    #     answers = request.data.get('answers', {})
-        
-    #     # Calculate score
-    #     score = 0
-    #     for question in quiz.questions.all():
-    #         if str(question.id) in answers:
-    #             answer = Answer.objects.get(id=answers[str(question.id)])
-    #             if answer.is_correct:
-    #                 score += question.marks
-    #             else:
-    #                 score -= question.negative_marks
-
-    #     # You might want to save this score to a UserQuizAttempt model
-    #     return Response({'score': score}, status=status.HTTP_200_OK)
+    #     return Response({'score': attempt.score,'percentage':attempt.percentage}, status=status.HTTP_200_OK)
+    # 
 
 from rest_framework.viewsets import ModelViewSet
 

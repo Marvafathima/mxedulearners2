@@ -48,7 +48,7 @@ class UserQuizAttempt(models.Model):
     score = models.FloatField()
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True, blank=True)
-    completed = models.BooleanField(default=False)
-
+    passed = models.BooleanField(default=False)
+    percentage=models.FloatField(default=0)
     def __str__(self):
         return f"{self.user.username}'s attempt on {self.quiz.title}"

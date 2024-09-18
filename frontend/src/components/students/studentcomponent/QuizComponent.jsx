@@ -1,7 +1,10 @@
+
+
+
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, LinearProgress } from '@mui/material';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 // Assume these action creators are defined in your Redux setup
 import { fetchQuiz, submitQuiz, setCurrentQuestion, answerQuestion } from '../../../store/quizareaSlice';
@@ -13,9 +16,12 @@ const QuizComponent = () => {
   const currentQuestionIndex = useSelector(state => state.quizarea.currentQuestionIndex);
   const answers = useSelector(state => state.quizarea.answers);
   const [timeLeft, setTimeLeft] = useState(null);
-  console.log("quiz component mounted and quizid is",quizId)
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+
   useEffect(() => {
-    dispatch(fetchQuiz(quizId));
+  dispatch(fetchQuiz(quizId)).then(result => {
+    console.log("ther eusltu iudi",result.payload)
+  });
   }, [dispatch, quizId]);
 
   useEffect(() => {
@@ -24,7 +30,7 @@ const QuizComponent = () => {
         setTimeLeft(prevTime => {
           if (prevTime <= 0) {
             clearInterval(timer);
-            dispatch(submitQuiz());
+            handleSubmit();
             return 0;
           }
           return prevTime - 1;
@@ -35,8 +41,12 @@ const QuizComponent = () => {
     }
   }, [quiz, dispatch]);
 
-  const handleAnswer = (answerId) => {
-    dispatch(answerQuestion({ questionId: currentQuestion.id, answerId }));
+  const handleAnswer = (questionId, answerId) => {
+    setSelectedAnswers(prev => ({
+      ...prev,
+      [questionId]: answerId
+    }));
+    dispatch(answerQuestion({ questionId, answerId }));
   };
 
   const handleNext = () => {
@@ -48,7 +58,17 @@ const QuizComponent = () => {
   };
 
   const handleSubmit = () => {
-    dispatch(submitQuiz());
+    console.log(selectedAnswers,quizId)
+    dispatch(submitQuiz({selectedAnswers,quizId}))
+    .unwrap() // Unwrap the resolved or rejected action
+    .then((response) => {
+        // This runs if the action was fulfilled
+        alert(`Quiz submitted successfully! Your score: ${response.score}, Percentage: ${response.percentage}`);
+    })
+    .catch((error) => {
+        // This runs if the action was rejected
+        alert(`Error submitting quiz: ${error.message || 'Unknown error occurred'}`);
+    });;
   };
 
   if (!quiz) return <div>Loading...</div>;
@@ -65,11 +85,11 @@ const QuizComponent = () => {
             <button
               key={question.id}
               className={`w-10 h-10 rounded-md ${
-                answers[question.id] 
+                selectedAnswers[question.id] 
                   ? 'bg-green-500' 
                   : index === currentQuestionIndex 
                   ? 'bg-yellow-500'
-                  : 'bg-red-500'
+                  : 'bg-gray-300'
               }`}
               onClick={() => dispatch(setCurrentQuestion(index))}
             >
@@ -96,11 +116,18 @@ const QuizComponent = () => {
           {currentQuestion.answers.map(answer => (
             <Button
               key={answer.id}
-              variant={answers[currentQuestion.id] === answer.id ? "contained" : "outlined"}
-              className="block w-full mb-2 p-4 text-left"
-              onClick={() => handleAnswer(answer.id)}
+              variant={selectedAnswers[currentQuestion.id] === answer.id ? "contained" : "outlined"}
+              className={`block w-full mb-2 p-4 text-left ${
+                selectedAnswers[currentQuestion.id] === answer.id ? 'bg-blue-500 text-white' : ''
+              }`}
+              onClick={() => handleAnswer(currentQuestion.id, answer.id)}
             >
-              {answer.text}
+              <span className="flex items-center">
+                {selectedAnswers[currentQuestion.id] === answer.id && (
+                  <Check className="mr-2" size={20} />
+                )}
+                {answer.text}
+              </span>
             </Button>
           ))}
         </div>

@@ -8,14 +8,14 @@ from courses.models import Courses
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ['text', 'is_correct']
+        fields = ['id','text', 'is_correct']
 
 class QuestionSerializer(serializers.ModelSerializer):
     options = AnswerSerializer(many=True, source='answers', read_only=True)
     
     class Meta:
         model = Question
-        fields = ['text', 'marks', 'negative_marks', 'options']
+        fields = ['id','text', 'marks', 'negative_marks', 'options']
 
 class QuizSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, read_only=True)

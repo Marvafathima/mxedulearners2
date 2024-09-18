@@ -46,20 +46,31 @@ export const fetchQuiz = createAsyncThunk(
     }
   );
   
-  export const submitQuiz = createAsyncThunk(
+//   export const submitQuiz = createAsyncThunk(
+//     'quiz/submitQuiz',
+//     async (_, { getState, rejectWithValue }) => {
+//       try {
+//         const authorizedAxios = createAuthorizedAxios(getState);
+//         const { quiz, answers } = getState().quiz;
+//         const response = await authorizedAxios.post(`/quizmanagement/quizzes/${quiz.id}/submit/`, { answers });
+//         return response.data;
+//       } catch (error) {
+//         return rejectWithValue(error.response.data);
+//       }
+//     }
+//   );
+export const submitQuiz = createAsyncThunk(
     'quiz/submitQuiz',
-    async (_, { getState, rejectWithValue }) => {
+    async ({ selectedAnswers, quizId }, { getState, rejectWithValue }) => {
       try {
         const authorizedAxios = createAuthorizedAxios(getState);
-        const { quiz, answers } = getState().quiz;
-        const response = await authorizedAxios.post(`/quizmanagement/quizzes/${quiz.id}/submit/`, { answers });
+        const response = await authorizedAxios.post(`/quizmanagement/quizzes/${quizId}/submit/`, { answers: selectedAnswers });
         return response.data;
       } catch (error) {
         return rejectWithValue(error.response.data);
       }
     }
   );
-  
   export const answerQuestion = createAsyncThunk(
     'quiz/answerQuestion',
     async ({ questionId, answerId }, { getState, rejectWithValue }) => {
@@ -83,6 +94,8 @@ const quizareaSlice = createSlice({
     currentQuestionIndex: 0,
     courseQuizzes: [],
     answers: {},
+    score: 0,
+    percentage: 0,
     status: 'idle',
     error: null,
   },
@@ -117,8 +130,14 @@ const quizareaSlice = createSlice({
       })
       .addCase(submitQuiz.fulfilled, (state, action) => {
         state.status = 'submitted';
+        state.score = action.payload.score;
+        state.percentage = action.payload.percentage;
         // Handle the submitted quiz result here
       })
+      .addCase(submitQuiz.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+    })
       .addCase(answerQuestion.fulfilled, (state, action) => {
         const { questionId, answerId } = action.payload;
         state.answers[questionId] = answerId;
