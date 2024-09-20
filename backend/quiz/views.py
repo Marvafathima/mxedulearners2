@@ -102,90 +102,121 @@ class QuizViewSet(viewsets.ModelViewSet):
         print(request.data)
         quiz = self.get_object()
         print(quiz.id)
-        attempt = UserQuizAttempt.objects.create(
-            user=request.user,
-            quiz=quiz,
-            passed=False,
-            score=0
-        )
 
-        # Loop through submitted answers
-        # for question_id, answer_id in request.data.items():
-            
-        #     try:
-        #         # Fetch question and correct answer
-        #         print("*****************************************",question_id,type(question_id),answer_id,type(answer_id))
-        #         question = Question.objects.get(id=int(question_id), quiz=quiz)
-        #         correct_answer = Answer.objects.get(question=question, is_correct=True)
-                
-        #         # Check if the submitted answer is correct
-        #         if correct_answer.id == int(answer_id):
-        #             attempt.score += question.marks
-        #         else:
-        #             attempt.score -= question.negative_marks
-        for quizzes,selecetedanswer in request.data.items():
-            selectedanswer=selecetedanswer
-        for question_id,answer_id in selecetedanswer.items():
-            try:
-            # Fetch question and correct answer
-                print("*****************************************",quiz,type(quiz),question_id,type(question_id),answer_id,type(answer_id))
-                question = Question.objects.get(id=int(question_id), quiz=quiz)
-                print("*****************************************",question_id,type(question_id),answer_id,type(answer_id))
-                
-                correct_answer = Answer.objects.get(question=question, is_correct=True)
-                print("*****************************************",question_id,type(question_id),answer_id,type(answer_id))
-                
-                print("\n\n\n\n\n\n\n\n",correct_answer)
-                print("****",answer_id)
-                # Check if the submitted answer is correct
-                if correct_answer.id == int(answer_id):
-                    attempt.score += question.marks
-                else:
-                    attempt.score -= question.negative_marks
-            except Question.DoesNotExist:
-                return Response({'error': f'Invalid question ID: {question_id}'}, status=status.HTTP_400_BAD_REQUEST)
-            except Answer.DoesNotExist:
-                return Response({'error': f'No correct answer found for question ID: {question_id}'}, status=status.HTTP_400_BAD_REQUEST)
+        # Check if user already has an attempt for this quiz
+        attempt = UserQuizAttempt.objects.filter(user=request.user, quiz=quiz).first()
+
+        if attempt:
+            # Check if user has reached the maximum number of attempts or has already passed
+            if attempt.totalattempts >= 2:
+                return Response({'error': 'You have reached the maximum number of attempts for this quiz.'}, 
+                                status=status.HTTP_400_BAD_REQUEST)
+            if attempt.passed:
+                return Response({'error': 'You have already passed this quiz.'}, 
+                                status=status.HTTP_400_BAD_REQUEST)
+        
+
+        
+        else:
+            # Create a new attempt if one doesn't exist
+            attempt = UserQuizAttempt.objects.create(
+                user=request.user,
+                quiz=quiz,
+                passed=False,
+                score=0,
+                totalattempts=0
+            )
+
+        # Increment the total attempts
+        attempt.totalattempts += 1
+
+        new_score = 0
+        for quizzes, selected_answer in request.data.items():
+            for question_id, answer_id in selected_answer.items():
+                try:
+                    question = Question.objects.get(id=int(question_id), quiz=quiz)
+                    correct_answer = Answer.objects.get(question=question, is_correct=True)
+
+                    if correct_answer.id == int(answer_id):
+                        new_score += question.marks
+                    else:
+                        new_score -= question.negative_marks
+                except Question.DoesNotExist:
+                    return Response({'error': f'Invalid question ID: {question_id}'}, 
+                                    status=status.HTTP_400_BAD_REQUEST)
+                except Answer.DoesNotExist:
+                    return Response({'error': f'No correct answer found for question ID: {question_id}'}, 
+                                    status=status.HTTP_400_BAD_REQUEST)
 
         # Calculate total marks for the quiz
         total_marks = Question.objects.filter(quiz=quiz).aggregate(total_marks=Sum('marks'))['total_marks']
-        attempt.percentage = (attempt.score / total_marks) * 100 if total_marks else 0
+        new_percentage = (new_score / total_marks) * 100 if total_marks else 0
 
-        # Determine if the user passed
-        if attempt.percentage >= 40:
-            attempt.passed = True
+        # Update the attempt only if the new score is higher
+        if new_score > attempt.score:
+            attempt.score = new_score
+            attempt.percentage = new_percentage
+            attempt.passed = new_percentage >= 40
 
-        # Save the final attempt
+        # Save the attempt
         attempt.save()
 
-        return Response({'score': attempt.score, 'percentage': attempt.percentage}, status=status.HTTP_200_OK)
+        return Response({
+            'score': attempt.score, 
+            'percentage': attempt.percentage,
+            'attempts': attempt.totalattempts,
+            'passed': attempt.passed
+        }, status=status.HTTP_200_OK)
     # @action(detail=True, methods=['post'])
     # def submit(self, request, pk=None):
+    #     print(request.data)
     #     quiz = self.get_object()
+    #     print(quiz.id)
     #     attempt = UserQuizAttempt.objects.create(
     #         user=request.user,
     #         quiz=quiz,
     #         passed=False,
     #         score=0
     #     )
-    #     for i,j in request.data.items():
-    #         question=i
-    #         answer=j
-    #         correctanswer=Answer.objects.get(question=question,is_correct=True)
-    #         quest=Question.objects.get(question=question)
-    #         if correctanswer.id==answer:
-    #             attempt.score+=quest.marks
-    #         else:
-    #             attempt.score-=quest.negative_marks
-    #         attempt.save()
+
+       
+    #     for quizzes,selecetedanswer in request.data.items():
+    #         selectedanswer=selecetedanswer
+    #     for question_id,answer_id in selecetedanswer.items():
+    #         try:
+    #         # Fetch question and correct answer
+    #             print("*****************************************",quiz,type(quiz),question_id,type(question_id),answer_id,type(answer_id))
+    #             question = Question.objects.get(id=int(question_id), quiz=quiz)
+    #             print("*****************************************",question_id,type(question_id),answer_id,type(answer_id))
+                
+    #             correct_answer = Answer.objects.get(question=question, is_correct=True)
+    #             print("*****************************************",question_id,type(question_id),answer_id,type(answer_id))
+                
+    #             print("\n\n\n\n\n\n\n\n",correct_answer)
+    #             print("****",answer_id)
+    #             # Check if the submitted answer is correct
+    #             if correct_answer.id == int(answer_id):
+    #                 attempt.score += question.marks
+    #             else:
+    #                 attempt.score -= question.negative_marks
+    #         except Question.DoesNotExist:
+    #             return Response({'error': f'Invalid question ID: {question_id}'}, status=status.HTTP_400_BAD_REQUEST)
+    #         except Answer.DoesNotExist:
+    #             return Response({'error': f'No correct answer found for question ID: {question_id}'}, status=status.HTTP_400_BAD_REQUEST)
+
+    #     # Calculate total marks for the quiz
     #     total_marks = Question.objects.filter(quiz=quiz).aggregate(total_marks=Sum('marks'))['total_marks']
-    #     attempt.percentage=(attempt.score/total_marks) *100
-    #     if attempt.percentage>=40:
-    #         attempt.passed=True
+    #     attempt.percentage = (attempt.score / total_marks) * 100 if total_marks else 0
+
+    #     # Determine if the user passed
+    #     if attempt.percentage >= 40:
+    #         attempt.passed = True
+
+    #     # Save the final attempt
     #     attempt.save()
 
-    #     return Response({'score': attempt.score,'percentage':attempt.percentage}, status=status.HTTP_200_OK)
-    # 
+    #     return Response({'score': attempt.score, 'percentage': attempt.percentage}, status=status.HTTP_200_OK)
+   
 
 from rest_framework.viewsets import ModelViewSet
 
@@ -208,10 +239,60 @@ class QuestionViewSet(ModelViewSet):
             })
         except Answer.DoesNotExist:
             return Response({'error': 'Invalid answer'}, status=status.HTTP_400_BAD_REQUEST)
+# class CourseQuizzesView(generics.ListAPIView):
+#     serializer_class = QuizSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         course_id = self.kwargs['course_id']
+#         return Quiz.objects.filter(course_id=course_id)
+from django.db.models import Exists, OuterRef
+
 class CourseQuizzesView(generics.ListAPIView):
     serializer_class = QuizSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         course_id = self.kwargs['course_id']
-        return Quiz.objects.filter(course_id=course_id)
+        user = self.request.user
+
+        # Subquery to check if a UserQuizAttempt exists for each quiz
+        attempt_exists = UserQuizAttempt.objects.filter(
+            user=user,
+            quiz=OuterRef('pk')
+        )
+
+        # Get all quizzes for the course, annotated with attempt information
+        quizzes = Quiz.objects.filter(course_id=course_id).annotate(
+            has_attempt=Exists(attempt_exists),
+            attempt_count=Exists(attempt_exists.filter(totalattempts__gte=2)),
+            is_passed=Exists(attempt_exists.filter(passed=True))
+        )
+        print("\n\n\n\n777777777777777",quizzes)
+        return quizzes
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        result = []
+
+        for quiz in queryset:
+            if not quiz.has_attempt:
+                # Quiz hasn't been attempted yet
+                result.append(self.get_serializer(quiz).data)
+            elif quiz.is_passed:
+                result.append({
+                    'id': quiz.id,
+                    'title': quiz.title,
+                    'status': 'Quiz passed'
+                })
+            elif quiz.attempt_count:
+                result.append({
+                    'id': quiz.id,
+                    'title': quiz.title,
+                    'status': 'Quiz failed and attempt is over'
+                })
+            else:
+                # Quiz has been attempted but not passed and attempts remain
+                result.append(self.get_serializer(quiz).data)
+                print("\n\n\n\n777777777777777",result)
+        return Response(result)
