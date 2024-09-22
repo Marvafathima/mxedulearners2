@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from datetime import timedelta
-
+from django.http import HttpResponse
 from courses.models import Courses
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -12,6 +12,10 @@ from rest_framework import generics
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from django.db.models import Sum
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from io import BytesIO
+from .models import CourseCertificate, Courses, User
 
 class QuizViewSet(viewsets.ModelViewSet):
     queryset = Quiz.objects.all()
@@ -102,7 +106,7 @@ class QuizViewSet(viewsets.ModelViewSet):
         print(request.data)
         quiz = self.get_object()
         print(quiz.id)
-
+        print(quiz.course.name)
         # Check if user already has an attempt for this quiz
         attempt = UserQuizAttempt.objects.filter(user=request.user, quiz=quiz).first()
 
@@ -115,7 +119,44 @@ class QuizViewSet(viewsets.ModelViewSet):
                 return Response({'error': 'You have already passed this quiz.'}, 
                                 status=status.HTTP_400_BAD_REQUEST)
         
+            if attempt.totalattempts<2:
+                new_score = 0
+                for quizzes, selected_answer in request.data.items():
+                    for question_id, answer_id in selected_answer.items():
+                        try:
+                            question = Question.objects.get(id=int(question_id), quiz=quiz)
+                            correct_answer = Answer.objects.get(question=question, is_correct=True)
 
+                            if correct_answer.id == int(answer_id):
+                                new_score += question.marks
+                            else:
+                                new_score -= question.negative_marks
+                        except Question.DoesNotExist:
+                            return Response({'error': f'Invalid question ID: {question_id}'}, 
+                                            status=status.HTTP_400_BAD_REQUEST)
+                        except Answer.DoesNotExist:
+                            return Response({'error': f'No correct answer found for question ID: {question_id}'}, 
+                                            status=status.HTTP_400_BAD_REQUEST)
+
+                # Calculate total marks for the quiz
+                total_marks = Question.objects.filter(quiz=quiz).aggregate(total_marks=Sum('marks'))['total_marks']
+                new_percentage = (new_score / total_marks) * 100 if total_marks else 0
+
+                # Update the attempt only if the new score is higher
+                if new_score > attempt.score:
+                    attempt.score = new_score
+                    attempt.percentage = new_percentage
+                    attempt.passed = new_percentage >= 40
+
+                # Save the attempt
+                attempt.save()
+
+                return Response({
+                    'score': attempt.score, 
+                    'percentage': attempt.percentage,
+                    'attempts': attempt.totalattempts,
+                    'passed': attempt.passed
+                }, status=status.HTTP_200_OK)
         
         else:
             # Create a new attempt if one doesn't exist
@@ -160,6 +201,11 @@ class QuizViewSet(viewsets.ModelViewSet):
 
         # Save the attempt
         attempt.save()
+        if attempt.passed and not CourseCertificate.objects.filter(user=request.user, course=quiz.course).exists():
+            CourseCertificate.objects.create(user=request.user, course=quiz.course)
+            print(request.user,quiz.course.id)
+            # generate_certificate(request.user,quiz.course.id)
+        # You might want to call generate_certificate here or redirect to it
 
         return Response({
             'score': attempt.score, 
@@ -167,55 +213,6 @@ class QuizViewSet(viewsets.ModelViewSet):
             'attempts': attempt.totalattempts,
             'passed': attempt.passed
         }, status=status.HTTP_200_OK)
-    # @action(detail=True, methods=['post'])
-    # def submit(self, request, pk=None):
-    #     print(request.data)
-    #     quiz = self.get_object()
-    #     print(quiz.id)
-    #     attempt = UserQuizAttempt.objects.create(
-    #         user=request.user,
-    #         quiz=quiz,
-    #         passed=False,
-    #         score=0
-    #     )
-
-       
-    #     for quizzes,selecetedanswer in request.data.items():
-    #         selectedanswer=selecetedanswer
-    #     for question_id,answer_id in selecetedanswer.items():
-    #         try:
-    #         # Fetch question and correct answer
-    #             print("*****************************************",quiz,type(quiz),question_id,type(question_id),answer_id,type(answer_id))
-    #             question = Question.objects.get(id=int(question_id), quiz=quiz)
-    #             print("*****************************************",question_id,type(question_id),answer_id,type(answer_id))
-                
-    #             correct_answer = Answer.objects.get(question=question, is_correct=True)
-    #             print("*****************************************",question_id,type(question_id),answer_id,type(answer_id))
-                
-    #             print("\n\n\n\n\n\n\n\n",correct_answer)
-    #             print("****",answer_id)
-    #             # Check if the submitted answer is correct
-    #             if correct_answer.id == int(answer_id):
-    #                 attempt.score += question.marks
-    #             else:
-    #                 attempt.score -= question.negative_marks
-    #         except Question.DoesNotExist:
-    #             return Response({'error': f'Invalid question ID: {question_id}'}, status=status.HTTP_400_BAD_REQUEST)
-    #         except Answer.DoesNotExist:
-    #             return Response({'error': f'No correct answer found for question ID: {question_id}'}, status=status.HTTP_400_BAD_REQUEST)
-
-    #     # Calculate total marks for the quiz
-    #     total_marks = Question.objects.filter(quiz=quiz).aggregate(total_marks=Sum('marks'))['total_marks']
-    #     attempt.percentage = (attempt.score / total_marks) * 100 if total_marks else 0
-
-    #     # Determine if the user passed
-    #     if attempt.percentage >= 40:
-    #         attempt.passed = True
-
-    #     # Save the final attempt
-    #     attempt.save()
-
-    #     return Response({'score': attempt.score, 'percentage': attempt.percentage}, status=status.HTTP_200_OK)
    
 
 from rest_framework.viewsets import ModelViewSet
@@ -296,3 +293,41 @@ class CourseQuizzesView(generics.ListAPIView):
                 result.append(self.get_serializer(quiz).data)
                 print("\n\n\n\n777777777777777",result)
         return Response(result)
+def generate_certificate(request, user_id, course_id):
+    user = get_object_or_404(User, id=user_id)
+    print(user)
+    course = get_object_or_404(Courses, id=course_id)
+    print(course,"yses course fetched")
+    quiz=get_object_or_404(Quiz,course=course)
+    print("yes uiz fetched",quiz.id,user.id)
+    attempt=UserQuizAttempt.objects.get(user_id=user_id,quiz_id=quiz.id)
+    print("attempt is here",attempt.percentage,attempt.score)
+    # Check if certificate already exists
+    certificate, created = CourseCertificate.objects.get_or_create(
+        user=user,
+        course=course,
+        percentage_score=attempt.percentage
+    )
+
+    # Prepare context for the certificate template
+    context = {
+        'user_name': f"{user.username}",
+        'course_name': course.name,
+        'date': certificate.created_at.strftime("%B %d, %Y"),
+        'certificate_id': certificate.id
+    }
+
+    # Get the certificate template
+    template = get_template('certificate_template.html')
+    html = template.render(context)
+
+    # Create a PDF
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+
+    if not pdf.err:
+        response = HttpResponse(result.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="certificate_{user.id}_{course.id}.pdf"'
+        return response
+    else:
+        return HttpResponse('Error generating PDF', status=400)

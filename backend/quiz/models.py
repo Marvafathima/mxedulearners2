@@ -53,3 +53,11 @@ class UserQuizAttempt(models.Model):
     totalattempts=models.IntegerField(default=0)
     def __str__(self):
         return f"{self.user.username}'s attempt on {self.quiz.title}"
+class CourseCertificate(models.Model):
+    user=models.ForeignKey(User, on_delete=models.CASCADE, related_name='course_certificate')
+    course=models.ForeignKey(Courses, on_delete=models.CASCADE, related_name='certificate')
+    created_at=models.DateField(auto_now_add=True)
+    percentage_score = models.DecimalField(max_digits=5, decimal_places=2)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.course.title} Certificate"

@@ -116,8 +116,9 @@ const MycourseDetail = () => {
              
             </div>
           ))}
-          <QuizSection courseQuizzes={courseQuizzes} />
+          {/* <QuizSection courseQuizzes={courseQuizzes} /> */}
 
+          <QuizSection courseQuizzes={courseQuizzes} currentCourse={currentCourse} />
           {/* {courseQuizzes.map(quiz=>(
 
           <Button variant="contained"  color="success"
