@@ -13,7 +13,7 @@ class Orders(models.Model):
         return f"Order {self.id} by {self.user.username}"
 
 class OrdersItem(models.Model):
-    user=models.ForeignKey(CustomUser,on_delete=models.CASCADE)
+    user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name='purchased_courses')
     order = models.ForeignKey(Orders, related_name='items', on_delete=models.CASCADE)
     course = models.ForeignKey(Courses, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)

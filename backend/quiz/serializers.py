@@ -2,9 +2,9 @@
 from django.utils.duration import duration_string
 from datetime import timedelta
 from rest_framework import serializers
-from .models import Quiz, Question, Answer,UserQuizAttempt
+from .models import *
 from courses.models import Courses
-
+from courses.serializers import *
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
@@ -41,3 +41,11 @@ class UserQuizAttemptSerializer(serializers.ModelSerializer):
         model = UserQuizAttempt
         fields = ['id', 'user', 'quiz', 'score', 'start_time', 'end_time', 'completed']
         read_only_fields = ['start_time', 'end_time', 'completed']
+
+
+class CourseCertificateSerializer(serializers.ModelSerializer):
+    course = CourseSerializer()
+
+    class Meta:
+        model = CourseCertificate
+        fields = ['id', 'course', 'created_at', 'percentage_score']

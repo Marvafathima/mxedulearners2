@@ -6,12 +6,13 @@ import { Avatar, Button, Chip } from '@mui/material';
 import AdminSidebar from '../AdminSidebar';
 import AdminNavbar from '../AdminNavbar';
 import Swal from 'sweetalert2';
-import { fetchAllStudents, toggleStudentActive } from '../../../store/adminStudentSlice'
+import { fetchAllStudents, toggleStudentActive,adminfetchStudentDetail } from '../../../store/adminStudentSlice'
+import { useNavigate } from 'react-router-dom';
 
 const StudentList = () => {
   const dispatch = useDispatch();
   const { students, status } = useSelector((state) => state.students);
-
+  const navigate=useNavigate();
   useEffect(() => {
     if (status === 'idle') {
       dispatch(fetchAllStudents());
@@ -48,7 +49,19 @@ const StudentList = () => {
       }
     }
   };
+ const handleStudentViewDetails=async(id)=>{
+  try{
+    await dispatch(adminfetchStudentDetail(id))
+    .then(()=>{
+      navigate('/admin-student-detail')
+    }
+   
+    )
+  }
+  catch{
 
+  }
+ }
   const columns = [
     { field: 'id', headerName: 'Serial No.', width: 100 },
     {
@@ -95,7 +108,7 @@ const StudentList = () => {
             variant="contained"
             size="small"
             color="secondary"
-            onClick={() => {/* Implement view details logic */}}
+            onClick={() =>handleStudentViewDetails(params.row.id)}
           >
             View Details
           </Button>

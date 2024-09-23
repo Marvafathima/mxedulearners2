@@ -2,12 +2,13 @@ from django.shortcuts import render
 
 # Create your views here.
 from rest_framework.views import APIView
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from api.models import CustomUser
-from .serializers import StudentSerializer
-
+from .serializers import *
+from django.shortcuts import get_object_or_404
 class AllStudentsView(APIView):
     permission_classes = [IsAdminUser]
 
@@ -30,3 +31,13 @@ class StudentToggleActiveView(APIView):
 
         serializer = StudentSerializer(student)
         return Response(serializer.data)
+
+
+class CustomUserDetailView(RetrieveAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserDetailSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_object(self):
+        user_id = self.request.query_params.get('id')
+        return get_object_or_404(CustomUser, id=user_id)

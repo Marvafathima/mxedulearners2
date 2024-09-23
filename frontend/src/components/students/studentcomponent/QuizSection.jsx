@@ -5,7 +5,7 @@ import { userInstance as axios } from '../../../api/axios';
 import { useSelector } from 'react-redux';
 const QuizSection = ({ courseQuizzes,currentCourse }) => {
   const navigate = useNavigate();
-  const {user,status,error}=useSelector(state=>state.auth)
+  const {user}=useSelector(state=>state.auth)
 console.log(currentCourse?.id)
   const handleStartQuiz = (quizId) => {
     navigate(`/quiz/${quizId}`);
