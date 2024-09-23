@@ -49,19 +49,15 @@ const StudentList = () => {
       }
     }
   };
- const handleStudentViewDetails=async(id)=>{
-  try{
-    await dispatch(adminfetchStudentDetail(id))
-    .then(()=>{
-      navigate('/admin-student-detail')
+  const handleStudentViewDetails = async (id) => {
+    try {
+      await dispatch(adminfetchStudentDetail(id));
+      navigate('/admin/student-detail');
+    } catch (error) {
+      console.error("Error fetching student details:", error);
+      // Handle the error appropriately, e.g., show an error message to the user
     }
-   
-    )
-  }
-  catch{
-
-  }
- }
+  };
   const columns = [
     { field: 'id', headerName: 'Serial No.', width: 100 },
     {

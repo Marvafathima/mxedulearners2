@@ -35,6 +35,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '../src/store/store';
 import MyCoursesPage from './components/students/studentcomponent/MyCoursePage';
 import QuizComponent from './components/students/studentcomponent/QuizComponent';
+import StudentDetailPage from './components/admin/student/StudentDetailPage';
 function App() {
   // const { darkMode } = useContext(ThemeContext);
   return (
@@ -100,6 +101,13 @@ function App() {
               } 
             />
 
+<Route path="/admin/student-detail"  
+            element={
+                <ProtectedAdminRoute>
+                  <StudentDetailPage />
+                </ProtectedAdminRoute>
+              } 
+            />
 
 
 

@@ -34,10 +34,18 @@ class StudentToggleActiveView(APIView):
 
 
 class CustomUserDetailView(RetrieveAPIView):
+    print("customuserdetailvide reached")
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserDetailSerializer
     permission_classes = [IsAdminUser]
+    lookup_field = 'id'
+    lookup_url_kwarg = 'studentid'
 
-    def get_object(self):
-        user_id = self.request.query_params.get('id')
-        return get_object_or_404(CustomUser, id=user_id)
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+    # def get_object(self):
+    #     user_id = self.request.query_params.get('id')
+        
+        # return get_object_or_404(CustomUser, id=user_id)

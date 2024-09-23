@@ -18,7 +18,7 @@ export const adminfetchStudentDetail = createAsyncThunk(
   'students/fetchOne',
   async (studentId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`/adminstudent/current_student/${studentId}`);
+      const response = await axios.get(`/adminstudent/current_student/${studentId}/`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);

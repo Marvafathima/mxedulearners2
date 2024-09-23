@@ -39,8 +39,8 @@ class UserQuizAttemptSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserQuizAttempt
-        fields = ['id', 'user', 'quiz', 'score', 'start_time', 'end_time', 'completed']
-        read_only_fields = ['start_time', 'end_time', 'completed']
+        fields = ['id', 'user', 'quiz', 'score', 'start_time', 'end_time','passed','totalattempts','percentage']
+        read_only_fields = ['start_time', 'end_time','passed']
 
 
 class CourseCertificateSerializer(serializers.ModelSerializer):
