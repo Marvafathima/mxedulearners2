@@ -236,13 +236,7 @@ class QuestionViewSet(ModelViewSet):
             })
         except Answer.DoesNotExist:
             return Response({'error': 'Invalid answer'}, status=status.HTTP_400_BAD_REQUEST)
-# class CourseQuizzesView(generics.ListAPIView):
-#     serializer_class = QuizSerializer
-#     permission_classes = [IsAuthenticated]
 
-#     def get_queryset(self):
-#         course_id = self.kwargs['course_id']
-#         return Quiz.objects.filter(course_id=course_id)
 from django.db.models import Exists, OuterRef
 
 class CourseQuizzesView(generics.ListAPIView):
@@ -331,3 +325,17 @@ def generate_certificate(request, user_id, course_id):
         return response
     else:
         return HttpResponse('Error generating PDF', status=400)
+
+
+class QuizListView(generics.ListAPIView):
+    serializer_class = QuizSerializer
+    permission_classes=[IsAuthenticated]
+    def get_queryset(self):
+        # Get the current user
+        user = self.request.user
+
+        # Get the courses created by the current user
+        courses = Courses.objects.filter(user=user)
+
+        # Filter the quizzes based on the courses created by the user
+        return Quiz.objects.filter(course__in=courses)

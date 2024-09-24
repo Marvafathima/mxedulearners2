@@ -9,6 +9,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('courses/<int:course_id>/quizzes/', CourseQuizzesView.as_view(), name='course-quizzes'),
     path('generate-certificate/<int:user_id>/<int:course_id>/', generate_certificate, name='generate_certificate'),
+    path('quiz_list/',QuizListView.as_view(),name='quiz_list')
 ]
 
 

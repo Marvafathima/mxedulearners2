@@ -5,12 +5,12 @@ import TutorSidebar from './TutorSidebar';
 // Assume you have actions for fetching courses and saving quizzes
 import { fetchTutorCourses } from '../../store/courseSlice';
 import { fetchQuizzes, addQuiz, updateQuiz, deleteQuiz  } from '../../store/quizSlice';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 const QuizCreationForm = () => {
   const dispatch = useDispatch();
   const { courses, coursestatus, courseerror } = useSelector(state => state.courses);
- 
- 
-
+  const navigate=useNavigate();
   const user = useSelector(state => state.auth.user);
   const { quizzes, status, error } = useSelector(state => state.quizzes);
   const [quizData, setQuizData] = useState({
@@ -127,8 +127,16 @@ const QuizCreationForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(addQuiz(quizData));
-    // Reset form or navigate to quiz list
+    try{
+      dispatch(addQuiz(quizData)).unwrap();
+      toast.success("Quiz created Successfully")
+      navigate('tutor/quiz_list/')
+    }
+    catch(error){
+     toast.error(`Error in creating Quiz.${error}`)
+    }
+   
+    
   };
 
   return (
