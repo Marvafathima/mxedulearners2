@@ -7,7 +7,7 @@ from api.models import CustomUser
 from .serializers import *
 from rest_framework.permissions import IsAdminUser
 from rest_framework.generics import RetrieveAPIView
-
+from courses.serializers import FetchCourseSerializer
 
 class ApprovedTutorListView(APIView):
     def get(self, request):
@@ -42,3 +42,16 @@ class CustomTutorDetailView(RetrieveAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+    
+
+from rest_framework import generics
+
+class AdminCourseListView(generics.ListAPIView):
+    queryset = Courses.objects.all()
+    serializer_class = FetchCourseSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # You can add additional filtering here if needed
+        return queryset.select_related('user').prefetch_related('lessons')

@@ -42,7 +42,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     def get_tutor_application(self, obj):
         try:
-            tutor_application = obj.tutorapplication
+            tutor_application = obj.education
+           
             return TutorApplicationSerializer(tutor_application).data
         except TutorApplication.DoesNotExist:
             return None

@@ -26,7 +26,17 @@ export const adminfetchTutorDetail = createAsyncThunk(
   }
 );
 
-
+export const adminfetchCourseList = createAsyncThunk(
+  'admin/course/list',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`/admintutor/courses/`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 
 const tutorSlice = createSlice({
@@ -34,6 +44,7 @@ const tutorSlice = createSlice({
   initialState: {
     tutors: [],
     currentTutor:[],
+    courseList:[],
     status: 'idle',
     error: null,
   },
@@ -62,7 +73,17 @@ const tutorSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
-      
+      .addCase(adminfetchCourseList.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(adminfetchCourseList.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.courseList = action.payload;
+      })
+      .addCase(adminfetchCourseList.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
       
       
       ;
