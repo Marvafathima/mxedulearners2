@@ -127,7 +127,11 @@ import { DataGrid } from '@mui/x-data-grid';
 import AdminNavbar from '../AdminNavbar';
 import AdminSidebar from '../AdminSidebar';
 import { getFullImageUrl } from '../../../utils/auth';
-
+import { 
+  Box, 
+  CircularProgress,
+  Button 
+} from '@mui/material';
 const TutorDetailPage = () => {
   const {currentTutor} = useSelector((state) => state.tutors);
   
@@ -137,26 +141,9 @@ const TutorDetailPage = () => {
     { field: 'name', headerName: 'Course Name', width: 200 },
     { field: 'category', headerName: 'Category', width: 150 },
     { field: 'price', headerName: 'Price', width: 100 },
-    // { 
-    //   field: 'offerPrice', 
-    //   headerName: 'Offer Price', 
-    //   width: 120,
-    //   valueGetter: (params) => {
-    //     if (params?.row) {
-    //       const offerPercentage = params?.row?.offer_percentage;
-    //       const price = params?.row?.price;
-    //       return price - (price * offerPercentage / 100);
-    //     }
-    //     return '';
-    //   }
-    // },
+   
   ];
-  //       const offerPercentage = params.row.offer_percentage;
-  //       const price = params.row.price;
-  //       return price - (price * offerPercentage / 100);
-  //     }
-  //   },
-  // ];
+  
  
   
   return (
@@ -214,16 +201,20 @@ const TutorDetailPage = () => {
 
           <div className="bg-white p-6 rounded-lg shadow text-black">
             <h2 className="text-2xl font-bold mb-4">Courses</h2>
-            <div style={{ height: 400, width: '100%' }}>
-              <DataGrid
-                rows={currentTutor.courses}
-                columns={columns}
-                pageSize={5}
-                rowsPerPageOptions={[5]}
-                checkboxSelection
-                disableSelectionOnClick
-              />
-            </div>
+       <div style={{ height: 400, width: '100%' }}>
+        <DataGrid
+          rows={currentTutor.courses}
+          columns={columns}
+          pageSize={5}
+          rowsPerPageOptions={[5]}
+          checkboxSelection
+          disableSelectionOnClick
+        />
+      </div>
+       
+       
+      
+           
           </div>
           
         </main>

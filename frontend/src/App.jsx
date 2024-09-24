@@ -38,6 +38,8 @@ import QuizComponent from './components/students/studentcomponent/QuizComponent'
 import StudentDetailPage from './components/admin/student/StudentDetailPage';
 import  TutorDetailPage  from './components/admin/tutors/TutorDetailPage';
 import { AdminCourseList } from './components/admin/course/AdminCourseList';
+import AdminCourseDetailPage from './components/admin/course/AdminCourseDetailPage';
+
 function App() {
   // const { darkMode } = useContext(ThemeContext);
   return (
@@ -125,7 +127,13 @@ function App() {
                 </ProtectedAdminRoute>
               } 
             />
-
+<Route path="/admin/courses/course_detail/:courseId"  
+            element={
+                <ProtectedAdminRoute>
+                 <AdminCourseDetailPage/>
+                </ProtectedAdminRoute>
+              } 
+            />
           </Routes>
         </div>
       </Router>
