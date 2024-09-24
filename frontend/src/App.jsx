@@ -36,6 +36,8 @@ import { store, persistor } from '../src/store/store';
 import MyCoursesPage from './components/students/studentcomponent/MyCoursePage';
 import QuizComponent from './components/students/studentcomponent/QuizComponent';
 import StudentDetailPage from './components/admin/student/StudentDetailPage';
+import  TutorDetailPage  from './components/admin/tutors/TutorDetailPage';
+
 function App() {
   // const { darkMode } = useContext(ThemeContext);
   return (
@@ -109,7 +111,13 @@ function App() {
               } 
             />
 
-
+<Route path="/admin/tutor-detail"  
+            element={
+                <ProtectedAdminRoute>
+                 <TutorDetailPage/>
+                </ProtectedAdminRoute>
+              } 
+            />
 
 
           </Routes>

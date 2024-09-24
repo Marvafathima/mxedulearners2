@@ -4,8 +4,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from api.models import CustomUser
-from .serializers import TutorListSerializer,TutorToggleActiveSerializer
+from .serializers import *
 from rest_framework.permissions import IsAdminUser
+from rest_framework.generics import RetrieveAPIView
+
+
 class ApprovedTutorListView(APIView):
     def get(self, request):
         tutors = CustomUser.objects.filter(role='tutor', is_approved=True)
@@ -24,4 +27,18 @@ class TutorToggleActiveView(APIView):
         tutor.save()
 
         serializer = TutorToggleActiveSerializer(tutor)
+        return Response(serializer.data)
+
+
+class CustomTutorDetailView(RetrieveAPIView):
+    print("customuserdetailvide reached")
+    queryset = CustomUser.objects.all()
+    serializer_class =TutorDetailSerializer
+    permission_classes = [IsAdminUser]
+    lookup_field = 'id'
+    lookup_url_kwarg = 'tutorId'
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
         return Response(serializer.data)

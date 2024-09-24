@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { adminAxiosInstance as axios}  from '../../src/api/axios'
+import { fetchTutorDetail } from './userManagementSlice';
 
 export const fetchApprovedTutors = createAsyncThunk(
   'tutors/fetchApproved',
@@ -13,7 +14,17 @@ export const fetchApprovedTutors = createAsyncThunk(
   }
 );
 
-
+export const adminfetchTutorDetail = createAsyncThunk(
+  'tutors/fetchOne',
+  async (tutorId, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`/admintutor/current_tutor/${tutorId}/`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 
 
@@ -22,6 +33,7 @@ const tutorSlice = createSlice({
   name: 'tutors',
   initialState: {
     tutors: [],
+    currentTutor:[],
     status: 'idle',
     error: null,
   },
@@ -38,7 +50,22 @@ const tutorSlice = createSlice({
       .addCase(fetchApprovedTutors.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
-      });
+      })
+      .addCase(adminfetchTutorDetail.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(adminfetchTutorDetail.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.currentTutor = action.payload;
+      })
+      .addCase(adminfetchTutorDetail.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      
+      
+      
+      ;
   },
 });
 

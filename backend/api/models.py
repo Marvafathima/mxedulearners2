@@ -46,7 +46,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email if self.email else self.phone_number
 
 class TutorApplication(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE,related_name="education")
     education_qualification = models.TextField()
     certificate = models.FileField(upload_to='tutor_certificates/')
     job_experience = models.TextField(blank=True, null=True)

@@ -6,6 +6,9 @@ import { adminAxiosInstance as axios } from '../../../api/axios';
 import AdminSidebar from '../AdminSidebar';
 import AdminNavbar from '../AdminNavbar';
 import Swal from 'sweetalert2'; 
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { adminfetchTutorDetail } from '../../../store/adminTutorSlice';
 const TutorList = () => {
   const [tutors, setTutors] = useState([]);
 
@@ -54,39 +57,18 @@ const TutorList = () => {
       }
     }
   };
-
-//   const handleBlockUnblock = async (id, currentStatus) => {
-//     const action = currentStatus ? 'block' : 'unblock';
-//     const result = await Swal.fire({
-//       title: `Are you sure you want to ${action} this tutor?`,
-//       text: `This will ${action} the tutor's account.`,
-//       icon: 'warning',
-//       showCancelButton: true,
-//       confirmButtonColor: currentStatus ? '#d33' : '#3085d6',
-//       cancelButtonColor: '#d33',
-//       confirmButtonText: `Yes, ${action}!`
-//     });
-
-//     if (result.isConfirmed) {
-//       try {
-//         await axios.patch(`/admintutor/tutors/${id}/toggle-active/`);
-//         Swal.fire(
-//           `Tutor ${action}ed!`,
-//           `The tutor has been ${action}ed successfully.`,
-//           'success'
-//         );
-//         // fetchTutors(); // Refresh the tutor list
-//       } catch (error) {
-//         console.error(`Error ${action}ing tutor:`, error);
-//         Swal.fire(
-//           'Error',
-//           `Failed to ${action} the tutor. Please try again.`,
-//           'error'
-//         );
-//       }
-//     }
-//   };
-
+const dispatch=useDispatch();
+const navigate=useNavigate();
+  const handleViewDetails = async (id) => {
+    try {
+      const resp=await dispatch(adminfetchTutorDetail(id))
+      console.log(resp)
+      navigate('/admin/tutor-detail');
+    } catch (error) {
+      console.error("Error fetching student details:", error);
+      // Handle the error appropriately, e.g., show an error message to the user
+    }
+  };
 
   const columns = [
     { field: 'id', headerName: 'Serial No.', width: 100 },
@@ -134,7 +116,7 @@ const TutorList = () => {
             variant="contained"
             size="small"
             color="secondary"
-            onClick={() => {/* Implement view details logic */}}
+            onClick={() => handleViewDetails(params.row.id)}
           >
             View Details
           </Button>
