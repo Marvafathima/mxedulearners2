@@ -45,6 +45,10 @@ export const logoutAdmin = createAsyncThunk(
     try {
       const refreshToken = localStorage.getItem('adminRefreshToken');
       await adminAxiosInstance.post('/logout/', { refresh_token: refreshToken });
+      localStorage.removeItem(`adminRefreshToken`);
+      localStorage.removeItem(`adminToken`);
+      localStorage.removeItem(`adminUser`);
+     
       return;
     } catch (error) {
       return rejectWithValue(error.response?.data?.detail || 'Logout failed');
