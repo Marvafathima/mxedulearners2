@@ -8,13 +8,15 @@ import { getFullImageUrl } from '../../utils/auth';
 import TutorSidebar from './TutorSidebar';
 import TutorNavbar from './TutorNavbar';
 import { toast } from 'react-toastify';
-
+import { logoutUser } from '../../store/authSlice';
+import { useNavigate } from 'react-router-dom';
+import { CircularProgress ,Box} from '@mui/material';
 const TutorHome = () => {
   const { darkMode } = useContext(ThemeContext);
   const dispatch = useDispatch();
   const { user, loading, error } = useSelector((state) => state.auth);
   const effectRan = useRef(false);
-
+  const navigate=useNavigate();
   const [imageSrc, setImageSrc] = useState(() => getFullImageUrl(user.profile_pic));
   const [imgError, setImgError] = useState(false);
  
@@ -137,12 +139,17 @@ const TutorHome = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log("our password data:",passwordData)
       const resultAction = await dispatch(updatePassword(passwordData));
       if (updatePassword.fulfilled.match(resultAction)) {
         // Reset password fields and show success message
-        setPasswordData({ old_password: '', new_password: '', confirm_new_password: '' });
+        toast.success("password updated successfully.login again to continue")
+        dispatch(logoutUser())
+        navigate('/landing-page')
+        // setPasswordData({ old_password: '', new_password: '', confirm_new_password: '' });
         // Optionally, show a success message
       } else if (updatePassword.rejected.match(resultAction)) {
+        toast.error("Error updating Password.Please try again")
         console.error('Password update failed:', resultAction.error);
         // Optionally, show an error message
       }
@@ -160,7 +167,11 @@ const TutorHome = () => {
     setEditMode(false);
   };
   
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+  <CircularProgress />
+</Box>
+</div>;
   if (error) return <div>Error: {error}</div>;
   if (!user) return <div>No user data available</div>;
   const sidebarItems = [
@@ -353,10 +364,27 @@ const TutorHome = () => {
           {activeForm === 'password' && (
             <div className="mt-8">
               <h3 className={`text-xl font-semibold mb-4 ${darkMode ? 'text-dark-white' : 'text-light-blueberry'}`}>Change Password</h3>
-              <form className="space-y-4">
-                <input type="password" placeholder="Current Password" className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
-                <input type="password" placeholder="New Password" className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
-                <input type="password" placeholder="Confirm New Password" className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
+              <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                <input type="password"
+                 placeholder="Current Password" 
+                 name="old_password"
+                 value={passwordData.old_password}
+                 onChange={handlePasswordChange}
+                 className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
+                <input
+                 type="password"
+                 name="new_password"
+                 value={passwordData.new_password}
+                 onChange={handlePasswordChange}
+                 placeholder="New Password" 
+                 className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
+                <input 
+                type="password" 
+                name="confirm_new_password"
+                value={passwordData.confirm_new_password}
+                onChange={handlePasswordChange}
+                placeholder="Confirm New Password" 
+                className={`w-full p-2 border rounded ${darkMode ? 'bg-dark-gray-100 text-dark-white' : 'bg-white text-light-blueberry'}`} />
                 <div className="flex justify-end space-x-4">
                   <button
                     type="button"
@@ -366,6 +394,7 @@ const TutorHome = () => {
                   </button>
                   <button
                     type="submit"
+                    
                     className={`${darkMode ? 'bg-dark-gray-100 text-dark-white hover:bg-dark-gray-200' : 'bg-light-citrus text-white hover:bg-light-apricot'} px-4 py-2 rounded transition-colors`}
                   >
                     Save
