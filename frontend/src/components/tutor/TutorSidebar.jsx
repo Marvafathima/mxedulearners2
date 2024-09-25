@@ -80,6 +80,16 @@ const TutorSidebar = ({ user }) => {
   const navigate=useNavigate()
   const dispatch=useDispatch()
  
+  const [openItems, setOpenItems] = useState({});
+
+  const toggleItem = (itemName) => {
+    setOpenItems(prev => ({
+      ...prev,
+      [itemName]: !prev[itemName]
+    }));
+  };
+
+
   const sidebarItems = [
     { name: 'Dashboard', icon: 'fas fa-tachometer-alt', path: '/tutor-home' },
     { name: 'My Profile', icon: 'fas fa-user', path: '/tutor-home' },
@@ -95,7 +105,13 @@ const TutorSidebar = ({ user }) => {
     },
    
 
-    { name: 'Quiz', icon: 'fas fa-calendar-alt', path: '/tutor/create-quiz'},
+    { name: 'Quiz', icon: 'fas fa-calendar-alt', path: '/tutor/quiz',
+     subItems:[
+      {name:'Create Quiz',path:'/tutor/create-quiz'},
+      {name:'View Quizzes',path:'tutor/quiz_list/'}
+     ],
+  
+  },
     { name: 'Chat', icon: 'fas fa-comments', path: '/tutor/chat' },
     { name: 'Revenue', icon: 'fas fa-chart-line', path: '/tutor/revenue' },
   ];
@@ -113,7 +129,7 @@ const TutorSidebar = ({ user }) => {
     <div className={`w-64 ${darkMode ? 'bg-dark-gray-200' : 'bg-light-blueberry'} text-white p-4 flex flex-col h-screen`}>
       <div className="text-2xl font-bold mb-8">MXEduLearners</div>
       <nav className="flex-grow">
-        {sidebarItems.map((item, index) => (
+        {/* {sidebarItems.map((item, index) => (
           <div key={index}>
             {item.subItems ? (
               <div>
@@ -147,7 +163,42 @@ const TutorSidebar = ({ user }) => {
                   </div>
                 )}
               </div>
-            ) : (
+            ) :  */}
+            {sidebarItems.map((item, index) => (
+        <div key={index}>
+          {item.subItems ? (
+            <div>
+              <div
+                onClick={() => toggleItem(item.name)}
+                className={`flex items-center mb-2 cursor-pointer ${
+                  darkMode ? 'hover:bg-dark-gray-100' : 'hover:bg-light-apricot'
+                } p-2 rounded ${
+                  isActive(item.path) ? (darkMode ? 'bg-dark-gray-100' : 'bg-light-apricot') : ''
+                }`}
+              >
+                <i className={`${item.icon} mr-3`}></i>
+                <span>{item.name}</span>
+                <i className={`fas fa-chevron-${openItems[item.name] ? 'up' : 'down'} ml-auto`}></i>
+              </div>
+              {openItems[item.name] && (
+                <div className="ml-6">
+                  {item.subItems.map((subItem, subIndex) => (
+                    <Link
+                      key={subIndex}
+                      to={subItem.path}
+                      className={`flex items-center mb-2 cursor-pointer ${
+                        darkMode ? 'hover:bg-dark-gray-100' : 'hover:bg-light-apricot'
+                      } p-2 rounded ${
+                        isActive(subItem.path) ? (darkMode ? 'bg-dark-gray-100' : 'bg-light-apricot') : ''
+                      }`}
+                    >
+                      <span>{subItem.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) :  (
               <Link
                 to={item.path}
                 className={`flex items-center mb-4 cursor-pointer ${
