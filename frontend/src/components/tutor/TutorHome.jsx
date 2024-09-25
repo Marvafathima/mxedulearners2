@@ -21,7 +21,7 @@ const TutorHome = () => {
   const [imgError, setImgError] = useState(false);
  
   const handleImageError = () => {
-    if (!imgerror) {
+    if (!imgError) {
       setError(true);
       setImageSrc(getFullImageUrl('path/to/fallback/image.png')); // Make sure this fallback image exists in your S3 bucket
     }
@@ -66,22 +66,7 @@ const TutorHome = () => {
   }, [user]);
 
 
-  // const handleImageUpload = async (event) => {
-  //   const file = event.target.files[0];
-  //   if (file) {
-  //     const formData = new FormData();
-  //     formData.append('profile_pic', file);
-  //     try {
-  //       await dispatch(updateProfilePicture(formData));
-  //       toast.success('Profile picture updated successfully!');
-  //       setShowProfileOptions(false);
-        
-  //     } catch (error) {
-  //       toast.error('Failed to update profile picture. Please try again.');
-  //       console.error('Error updating profile picture:', error);
-  //     }
-  //   }
-  // };
+  
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {

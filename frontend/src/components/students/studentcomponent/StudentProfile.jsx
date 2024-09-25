@@ -2,29 +2,52 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ThemeContext } from '../../../contexts/ThemeContext';
-import { fetchStudentProfile,preupdateProfile,profileverifyOTP,profilesendVerificationOTP,updateProfilePicture,  } from '../../../store/authSlice';
+import { fetchStudentProfile,updateProfilePicture,updateProfile, updatePassword  } from '../../../store/authSlice';
+  // preupdateProfile,profileverifyOTP,profilesendVerificationOTP,
+  
 import ProfileSidebar from './ProfileSidebar';
 import Navbar from './Navbar';
 import { FaRankingStar, FaBookOpen, FaTrophy, FaPlus, FaTrash } from 'react-icons/fa6';
 import { FaQuestionCircle } from 'react-icons/fa';
 import { getFullImageUrl } from '../../../utils/auth';
 import { toast } from 'react-toastify';
-
+import { logoutUser } from '../../../store/authSlice';
+import { useNavigate } from 'react-router-dom';
+import { CircularProgress ,Box} from '@mui/material';
 const StudentProfile = () => {
   const { darkMode } = useContext(ThemeContext);
   const dispatch = useDispatch();
-  const { user, loading, error,otpSent, otpVerified } = useSelector((state) => state.auth);
-  const [activeForm, setActiveForm] = useState(null);
+  const navigate=useNavigate();
+  const { user, loading, error} = useSelector((state) => state.auth);
+  const [showProfileOptions, setShowProfileOptions] = useState(false);
+  const [imageSrc, setImageSrc] = useState(() => getFullImageUrl(user.profile_pic));const [activeForm, setActiveForm] = useState(null);
   const [profileData, setProfileData] = useState({
     username: '',
     email: '',
     phone_number: '',
   });
-  const [showOTPModal, setShowOTPModal] = useState(false);
-  const [otp, setOTP] = useState('');
-  const [newEmail,setNewEmail]=useState('');
-  const [timer, setTimer] = useState(60);
-  const [isResendActive, setIsResendActive] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    old_password: '',
+    new_password: '',
+    confirm_new_password: ''
+  });
+  const [imgError, setImgError] = useState(false);
+ 
+  const handleImageError = () => {
+    if (!imgError) {
+      setError(true);
+      setImageSrc(getFullImageUrl('path/to/fallback/image.png')); // Make sure this fallback image exists in your S3 bucket
+    }
+  };
+
+  // if (!imageSrc) {
+  //   return <div>No image available</div>;
+  // }
+  // const [showOTPModal, setShowOTPModal] = useState(false);
+  // const [otp, setOTP] = useState('');
+  // const [newEmail,setNewEmail]=useState('');
+  // const [timer, setTimer] = useState(60);
+  // const [isResendActive, setIsResendActive] = useState(false);
   const statsData = [
         { icon: <FaRankingStar />, label: 'Rank', value: '10' },
         { icon: <FaBookOpen />, label: 'Courses Purchased', value: '5' },
@@ -45,271 +68,206 @@ const StudentProfile = () => {
     }
   }, [user]);
 
-  useEffect(() => {
-    let interval;
-    if (showOTPModal && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1);
-      }, 1000);
-    } else if (timer === 0) {
-      setIsResendActive(true);
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('profile_pic', file);
+      try {
+        const resultAction = await dispatch(updateProfilePicture(formData));
+        if (updateProfilePicture.fulfilled.match(resultAction)) {
+          const newImageUrl = resultAction.payload.profile_pic;
+          setImageSrc(getFullImageUrl(newImageUrl));
+          setImgError(false);
+          toast.success('Profile picture updated successfully!');
+          setShowProfileOptions(false);
+        } else {
+          throw new Error('Failed to update profile picture');
+        }
+      } catch (error) {
+        toast.error('Failed to update profile picture. Please try again.');
+        console.error('Error updating profile picture:', error);
+      }
     }
-    return () => clearInterval(interval);
-  }, [showOTPModal, timer]);
+  };
+  const handleRemoveProfilePic = async () => {
+    await dispatch(updateProfilePicture(null));
+    setShowProfileOptions(false);
+  };
 
-  const handleInputChange = (e) => {
+
+
+
+  const handleProfileChange = (e) => {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
   };
 
-  const updateLocalStorageKeys = (oldEmail, newEmail) => {
-    // Get the current tokens
-    const accessToken = localStorage.getItem(`${oldEmail}access_token`);
-    const refreshToken = localStorage.getItem(`${oldEmail}refresh_token`);
-
-    // Remove old keys
-    localStorage.removeItem(`${oldEmail}access_token`);
-    localStorage.removeItem(`${oldEmail}refresh_token`);
-
-    // Set new keys with updated email
-    localStorage.setItem(`${newEmail}access_token`, accessToken);
-    localStorage.setItem(`${newEmail}refresh_token`, refreshToken);
+  const handlePasswordChange = (e) => {
+    setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
   };
 
-
-
-
-  const handleProfileUpdate = async (e) => {
+  const handleProfileSubmit = async (e) => {
     e.preventDefault();
-    if (profileData.email !== user.email) {
-      setNewEmail(profileData.email);
-      const response = await dispatch(profilesendVerificationOTP(profileData.email));
-      if (response.payload && !response.error) {
-        setShowOTPModal(true);
-        setTimer(60);
-        setIsResendActive(false);
-      } else {
-        toast.error(response.error || 'Failed to send OTP');
+    try {
+      const resultAction = await dispatch(updateProfile(profileData));
+      if (updateProfile.fulfilled.match(resultAction)) {
+        setEditMode(false);
+        // Optionally, show a success message
+      } else if (updateProfile.rejected.match(resultAction)) {
+        console.error('Update failed:', resultAction.error);
+       
       }
-    } else {
-      updateProfileData();
+    } catch (err) {
+      console.error('Failed to update profile:', err);
     }
   };
 
-  const handleVerifyOTP = async () => {
-    const response = await dispatch(profileverifyOTP({ email: newEmail, otp }));
-    if (response.payload && !response.error) {
-      setShowOTPModal(false);
-      setProfileData({ ...profileData, email: newEmail });
-      // updateLocalStorageKeys(user.email, newEmail);
-      updateProfileData();
-    } else {
-      toast.error('Invalid OTP. Please try again.');
-      setIsResendActive(true);
-    }
-  };
-
-  const updateProfileData = async () => {
-    console.log(profileData.email,profileData.phone_number,profileData.username)
-    const response = await dispatch(preupdateProfile(profileData));
-    if (response.payload && !response.error) {
-      toast.success('Profile updated successfully');
-      setActiveForm(null);
-      dispatch(fetchStudentProfile());
-      // updateLocalStorage();
-      const currentUser = localStorage.getItem('current_user');
-      if (currentUser !== profileData.email) {
-        const accessToken = localStorage.getItem(`${currentUser}_access_token`);
-        const refreshToken = localStorage.getItem(`${currentUser}_refresh_token`);
-        const role = localStorage.getItem(`${currentUser}_role`);
-        
-        localStorage.removeItem(`${currentUser}_access_token`);
-        localStorage.removeItem(`${currentUser}_refresh_token`);
-        localStorage.removeItem(`${currentUser}_role`);
-        
-        localStorage.setItem(`${profileData.email}_access_token`, accessToken);
-        localStorage.setItem(`${profileData.email}_refresh_token`, refreshToken);
-        localStorage.setItem(`${profileData.email}_role`, role);
-          localStorage.setItem('current_user', profileData.email);
-        }
-    } else {
-      if (response.error) {
-        if (response.error.email) {
-          toast.error(`Email error: ${response.error.email[0]}`);
-        }
-        if (response.error.phone_number) {
-          toast.error(`Phone number error: ${response.error.phone_number[0]}`);
-        }
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      console.log("our password data:",passwordData)
+      const resultAction = await dispatch(updatePassword(passwordData));
+      if (updatePassword.fulfilled.match(resultAction)) {
+        // Reset password fields and show success message
+        toast.success("password updated successfully.login again to continue")
+        dispatch(logoutUser())
+        navigate('/landing-page')
+        // setPasswordData({ old_password: '', new_password: '', confirm_new_password: '' });
+        // Optionally, show a success message
+      } else if (updatePassword.rejected.match(resultAction)) {
+        toast.error("Error updating Password.Please try again")
+        console.error('Password update failed:', resultAction.error);
+        // Optionally, show an error message
       }
+    } catch (err) {
+      console.error('Failed to update password:', err);
     }
   };
 
-
-
-  const handleResendOTP = async () => {
-    const response = await dispatch(sendVerificationOTP(profileData.email));
-    if (response.payload.success) {
-      setTimer(60);
-      setIsResendActive(false);
-      toast.success('OTP resent successfully');
-    } else {
-      toast.error(response.payload.error);
-    }
+  const handleCancelEdit = () => {
+    setProfileData({
+      username: user.username,
+      email: user.email,
+      phone_number: user.phone_number
+    });
+    setEditMode(false);
   };
 
-  // ... (rest of the component code remains the same)
+  // useEffect(() => {
+  //   let interval;
+  //   if (showOTPModal && timer > 0) {
+  //     interval = setInterval(() => {
+  //       setTimer((prevTimer) => prevTimer - 1);
+  //     }, 1000);
+  //   } else if (timer === 0) {
+  //     setIsResendActive(true);
+  //   }
+  //   return () => clearInterval(interval);
+  // }, [showOTPModal, timer]);
 
-//   return (
-//     <>
-//       <Navbar user={user} />
-//        <div className={`flex ${darkMode ? 'bg-dark-gray-300 text-dark-white' : 'bg-light-blueberry-100 text-gray-900'}`}>
-//          <ProfileSidebar />
-//          <div className="flex-grow p-8">
-//           <div className={`bg-${darkMode ? 'dark-gray-200' : 'light-blueberry'} rounded-lg shadow-md p-6`}>
-//              <div className={`flex items-center mb-6 ${darkMode ? 'text-dark-white' : 'text-white'}`}>
-//              <div className="relative">
-//                  <img
-//                   src={getFullImageUrl(user.profile_pic) || 'https://via.placeholder.com/150'}
-//                   alt={user.username}
-//                   className="w-24 h-24 rounded-full mr-6"
-//                 />
-//                 <label htmlFor="profile-pic-input" className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-1 cursor-pointer">
-//                   <FaPlus className="text-white" />
-//                 </label>
-//                 <input
-//                   id="profile-pic-input"
-//                   type="file"
-//                   accept="image/*"
-//                   className="hidden"
-//                   // onChange={handleProfilePictureChange}
-//                 />
-//                 {user.profile_pic && (
-//                   <button
-//                     // onClick={handleRemoveProfilePicture}
-//                     className="absolute top-0 right-0 bg-red-500 rounded-full p-1"
-//                   >
-//                     <FaTrash className="text-white" />
-//                   </button>
-//                 )}
-//               </div>
-//               <div>
-//                 <h2 className="text-2xl font-semibold">{user.username}</h2>
-//                 <p className={`${darkMode ? 'text-gray-400' : 'text-gray-200'}`}>{user.email}</p>
-//                 <h3 className="font-semibold mb-2">Phone: {user.phone_number}</h3>
-//               </div>
-//             </div>
-//             <div className="grid grid-cols-4 gap-4 mt-6">
-//               {statsData.map((stat, index) => (
-//                 <div key={index} className={`${darkMode ? 'bg-dark-gray-300' : 'bg-white'} p-4 rounded-lg shadow text-center`}>
-//                   <div className={`text-3xl mb-2 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`}>{stat.icon}</div>
-//                   <div className={`font-semibold ${darkMode ? 'text-dark-white' : 'text-gray-800'}`}>{stat.label}</div>
-//                   <div className={`text-lg ${darkMode ? 'text-blue-400' : 'text-blue-500'}`}>{stat.value}</div>
-//                 </div>
-//               ))}
-//             </div>
-//           </div>
-//           <div className="mt-8 flex space-x-4 justify-center">
-//             <button
-//               onClick={() => setActiveForm('editProfile')}
-//               className={`py-2 px-4 rounded ${
-//                 activeForm === 'editProfile'
-//                   ? 'bg-blue-500 text-white'
-//                   : `${darkMode ? 'bg-dark-gray-200 text-dark-white' : 'bg-light-cyan text-gray-800'}`
-//               }`}
-//             >
-//               Edit Profile
-//             </button>
-//             <button
-//               onClick={() => setActiveForm('resetPassword')}
-//               className={`py-2 px-4 rounded ${
-//                 activeForm === 'resetPassword'
-//                   ? 'bg-blue-500 text-white'
-//                   : `${darkMode ? 'bg-dark-gray-200 text-dark-white' : 'bg-light-cyan text-gray-800'}`
-//               }`}
-//             >
-//               Reset Password
-//             </button>
-//           </div>
-//           <div className="flex justify-center mt-4">
-//             {activeForm === 'editProfile' && (
-//               <form onSubmit={handleProfileUpdate} className={`w-1/2 mt-4 ${darkMode ? 'bg-dark-gray-200 text-black' : 'bg-light-darkcyan'} p-6 rounded-lg shadow`}>
-//                 <div className="mb-4">
-//                   <label className="block mb-2">Username</label>
-//                   <input type="text" name="username" value={profileData.username} onChange={handleInputChange} className="w-full p-2 border rounded" />
-//                 </div>
-//                 <div className="mb-4">
-//                   <label className="block mb-2">Email</label>
-//                   <input type="email" name="email" value={profileData.email} onChange={handleInputChange} className="w-full p-2 border rounded" />
-//                 </div>
-//                 <div className="mb-4">
-//                   <label className="block mb-2">Phone Number</label>
-//                   <input type="tel" name="phone_number" value={profileData.phone_number} onChange={handleInputChange} className="w-full p-2 border rounded" />
-//                 </div>
-//                 <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
-//                   Save Changes
-//                 </button>
-//               </form>
-//             )}
-//             {activeForm === 'resetPassword' && (
-//               <form className={`w-1/2 mt-4 ${darkMode ? 'bg-dark-gray-200' : 'bg-light-darkcyan'} p-6 rounded-lg shadow`}>
-//                 <div className="mb-4">
-//                   <label className="block mb-2">Old Password</label>
-//                   <input type="password" className="w-full p-2 border rounded" />
-//                 </div>
-//                 <div className="mb-4">
-//                   <label className="block mb-2">New Password</label>
-//                   <input type="password" className="w-full p-2 border rounded" />
-//                 </div>
-//                 <div className="mb-4">
-//                   <label className="block mb-2">Confirm New Password</label>
-//                   <input type="password" className="w-full p-2 border rounded" />
-//                 </div>
-//                 <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
-//                   Reset Password
-//                 </button>
-//               </form>
-//             )}
-//           </div>
-//         </div>
-//       </div>
-//       {showOTPModal && (
-//   <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-//     <div className={`bg-${darkMode ? 'dark-gray-200' : 'white'} p-6 rounded-lg shadow-lg relative`}>
-//       <button 
-//         onClick={() => setShowOTPModal(false)} 
-//         className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-//       >
-//         &times;
-//       </button>
-//       <h2 className="text-xl font-bold mb-4">Verify Your Email</h2>
-//       <p>An OTP has been sent to your new email. Please enter it below:</p>
-//       <input
-//         type="text"
-//         value={otp}
-//         onChange={(e) => setOTP(e.target.value)}
-//         className="w-full p-2 border rounded mt-2"
-//         placeholder="Enter OTP"
-//       />
-//       <button
-//         onClick={handleVerifyOTP}
-//         className="bg-blue-500 text-white py-2 px-4 rounded mt-4"
-//         disabled={loading}
-//       >
-//         {loading ? 'Verifying...' : 'Verify OTP'}
-//       </button>
-//       <button
-//         onClick={handleResendOTP}
-//         className="bg-gray-300 text-gray-700 py-2 px-4 rounded mt-4 ml-2"
-//         disabled={loading}
-//       >
-//         {loading ? 'Sending...' : 'Resend OTP'}
-//       </button>
-//     </div>
-//   </div>
-// )}
-    
-//     </>
-//   );
-// };
+  // const handleInputChange = (e) => {
+  //   setProfileData({ ...profileData, [e.target.name]: e.target.value });
+  // };
+
+  // const updateLocalStorageKeys = (oldEmail, newEmail) => {
+  //   // Get the current tokens
+  //   const accessToken = localStorage.getItem(`${oldEmail}access_token`);
+  //   const refreshToken = localStorage.getItem(`${oldEmail}refresh_token`);
+
+  //   // Remove old keys
+  //   localStorage.removeItem(`${oldEmail}access_token`);
+  //   localStorage.removeItem(`${oldEmail}refresh_token`);
+
+  //   // Set new keys with updated email
+  //   localStorage.setItem(`${newEmail}access_token`, accessToken);
+  //   localStorage.setItem(`${newEmail}refresh_token`, refreshToken);
+  // };
+
+
+
+
+  // const handleProfileUpdate = async (e) => {
+  //   e.preventDefault();
+  //   if (profileData.email !== user.email) {
+  //     setNewEmail(profileData.email);
+  //     const response = await dispatch(profilesendVerificationOTP(profileData.email));
+  //     if (response.payload && !response.error) {
+  //       setShowOTPModal(true);
+  //       setTimer(60);
+  //       setIsResendActive(false);
+  //     } else {
+  //       toast.error(response.error || 'Failed to send OTP');
+  //     }
+  //   } else {
+  //     updateProfileData();
+  //   }
+  // };
+
+  // const handleVerifyOTP = async () => {
+  //   const response = await dispatch(profileverifyOTP({ email: newEmail, otp }));
+  //   if (response.payload && !response.error) {
+  //     setShowOTPModal(false);
+  //     setProfileData({ ...profileData, email: newEmail });
+      
+  //     updateProfileData();
+  //   } else {
+  //     toast.error('Invalid OTP. Please try again.');
+  //     setIsResendActive(true);
+  //   }
+  // };
+
+  // const updateProfileData = async () => {
+  //   console.log(profileData.email,profileData.phone_number,profileData.username)
+  //   const response = await dispatch(preupdateProfile(profileData));
+  //   if (response.payload && !response.error) {
+  //     toast.success('Profile updated successfully');
+  //     setActiveForm(null);
+  //     dispatch(fetchStudentProfile());
+  //     // updateLocalStorage();
+  //     const currentUser = localStorage.getItem('current_user');
+  //     if (currentUser !== profileData.email) {
+  //       const accessToken = localStorage.getItem(`${currentUser}_access_token`);
+  //       const refreshToken = localStorage.getItem(`${currentUser}_refresh_token`);
+  //       const role = localStorage.getItem(`${currentUser}_role`);
+        
+  //       localStorage.removeItem(`${currentUser}_access_token`);
+  //       localStorage.removeItem(`${currentUser}_refresh_token`);
+  //       localStorage.removeItem(`${currentUser}_role`);
+        
+  //       localStorage.setItem(`${profileData.email}_access_token`, accessToken);
+  //       localStorage.setItem(`${profileData.email}_refresh_token`, refreshToken);
+  //       localStorage.setItem(`${profileData.email}_role`, role);
+  //         localStorage.setItem('current_user', profileData.email);
+  //       }
+  //   } else {
+  //     if (response.error) {
+  //       if (response.error.email) {
+  //         toast.error(`Email error: ${response.error.email[0]}`);
+  //       }
+  //       if (response.error.phone_number) {
+  //         toast.error(`Phone number error: ${response.error.phone_number[0]}`);
+  //       }
+  //     }
+  //   }
+  // };
+
+
+
+  // const handleResendOTP = async () => {
+  //   const response = await dispatch(sendVerificationOTP(profileData.email));
+  //   if (response.payload.success) {
+  //     setTimer(60);
+  //     setIsResendActive(false);
+  //     toast.success('OTP resent successfully');
+  //   } else {
+  //     toast.error(response.payload.error);
+  //   }
+  // };
+
+  if (loading) return <div>
+  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+<CircularProgress />
+</Box></div>;
 
 return (
   <div className="min-h-screen flex flex-col">
@@ -319,10 +277,11 @@ return (
       <div className="flex-1 ml-64 p-8 overflow-y-auto"> {/* Add left margin to account for Sidebar width */}
         <div className={`bg-${darkMode ? 'dark-gray-200' : 'light-blueberry'} rounded-lg shadow-md p-6`}>
           <div className={`flex items-center mb-6 ${darkMode ? 'text-dark-white' : 'text-white'}`}>
-            <div className="relative">
+            {/* <div className="relative">
               <img
                 src={getFullImageUrl(user.profile_pic) || 'https://via.placeholder.com/150'}
                 alt={user.username}
+                onError={handleImageError}
                 className="w-24 h-24 rounded-full mr-6"
               />
               <label htmlFor="profile-pic-input" className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-1 cursor-pointer">
@@ -343,7 +302,50 @@ return (
                   <FaTrash className="text-white" />
                 </button>
               )}
-            </div>
+            </div> */}
+              <div className="relative">
+  {user.profile_pic ? (
+   
+    <div className="w-24 h-24 rounded-full border-4 border-white overflow-hidden">
+    <img
+      // src={getFullImageUrl(user.profile_pic)}
+      src={imageSrc}
+      alt="Profile"
+      className="w-full h-full object-cover"
+      onError={handleImageError}
+  
+    />
+  </div>
+  ) : (
+    <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center">
+      <i className="fas fa-user text-4xl text-gray-400"></i>
+    </div>
+  )}
+  <button
+    onClick={() => setShowProfileOptions(!showProfileOptions)}
+    className={`absolute bottom-0 right-0 ${
+      darkMode ? 'bg-dark-gray-100' : 'bg-light-apricot'
+    } text-white rounded-full w-8 h-8 flex items-center justify-center`}
+  >
+    <i className="fas fa-plus"></i>
+                </button>
+                {showProfileOptions && (
+                  <div className={`absolute right-0 mt-2 w-48 ${darkMode ? 'bg-dark-gray-100' : 'bg-white'} rounded-md shadow-lg py-1 z-10`}>
+                    <label className={`block px-4 py-2 text-sm ${darkMode ? 'text-dark-white hover:bg-dark-gray-200' : 'text-gray-700 hover:bg-gray-100'} cursor-pointer`}>
+                      {user.profile_pic ? 'Change Profile Pic' : 'Add Profile Pic'}
+                      <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                    </label>
+                    {user.profile_pic && (
+                      <button
+                        onClick={handleRemoveProfilePic}
+                        className={`block w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-dark-white hover:bg-dark-gray-200' : 'text-gray-700 hover:bg-gray-100'}`}
+                      >
+                        Remove Profile Pic
+                      </button>
+                    )}
+                  </div>
+                )}
+                  </div>
             <div>
               <h2 className="text-2xl font-semibold">{user.username}</h2>
               <p className={`${darkMode ? 'text-gray-400' : 'text-gray-200'}`}>{user.email}</p>
@@ -384,37 +386,68 @@ return (
         </div>
         <div className="flex justify-center mt-4">
           {activeForm === 'editProfile' && (
-            <form onSubmit={handleProfileUpdate} className={`w-1/2 mt-4 ${darkMode ? 'bg-dark-gray-200 text-black' : 'bg-light-darkcyan'} p-6 rounded-lg shadow`}>
+            <form onSubmit={handleProfileSubmit} className={`w-1/2 mt-4 ${darkMode ? 'bg-dark-gray-200 text-black' : 'bg-light-darkcyan'} p-6 rounded-lg shadow`}>
               <div className="mb-4">
                 <label className="block mb-2">Username</label>
-                <input type="text" name="username" value={profileData.username} onChange={handleInputChange} className="w-full p-2 border rounded" />
+                <input 
+                type="text" 
+                name="username"
+                 value={profileData.username} 
+                 onChange={handleProfileChange} 
+                 className="w-full p-2 border rounded" />
               </div>
               <div className="mb-4">
                 <label className="block mb-2">Email</label>
-                <input type="email" name="email" value={profileData.email} onChange={handleInputChange} className="w-full p-2 border rounded" />
+                <input 
+                type="email" 
+                name="email" 
+                value={profileData.email} 
+                onChange={handleProfileChange} className="w-full p-2 border rounded" />
               </div>
               <div className="mb-4">
                 <label className="block mb-2">Phone Number</label>
-                <input type="tel" name="phone_number" value={profileData.phone_number} onChange={handleInputChange} className="w-full p-2 border rounded" />
+                <input type="tel" name="phone_number" 
+                value={profileData.phone_number} 
+                onChange={handleProfileChange} 
+                className="w-full p-2 border rounded" />
               </div>
-              <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
+              <button type="submit"
+               className="bg-blue-500 text-white py-2 px-4 rounded">
                 Save Changes
               </button>
             </form>
           )}
           {activeForm === 'resetPassword' && (
-            <form className={`w-1/2 mt-4 ${darkMode ? 'bg-dark-gray-200' : 'bg-light-darkcyan'} p-6 rounded-lg shadow`}>
+            <form onSubmit={handlePasswordSubmit} className={`w-1/2 mt-4 ${darkMode ? 'bg-dark-gray-200' : 'bg-light-darkcyan'} p-6 rounded-lg shadow`}>
               <div className="mb-4">
                 <label className="block mb-2">Old Password</label>
-                <input type="password" className="w-full p-2 border rounded" />
+                <input 
+                type="password" 
+                placeholder="Current Password" 
+                 name="old_password"
+                 value={passwordData.old_password}
+                 onChange={handlePasswordChange}
+                className="w-full p-2 border rounded" />
               </div>
               <div className="mb-4">
                 <label className="block mb-2">New Password</label>
-                <input type="password" className="w-full p-2 border rounded" />
+                <input 
+                type="password"
+                name="new_password"
+                value={passwordData.new_password}
+                onChange={handlePasswordChange}
+                placeholder="New Password" 
+                className="w-full p-2 border rounded" />
               </div>
               <div className="mb-4">
                 <label className="block mb-2">Confirm New Password</label>
-                <input type="password" className="w-full p-2 border rounded" />
+                <input 
+                type="password" 
+                name="confirm_new_password"
+                value={passwordData.confirm_new_password}
+                onChange={handlePasswordChange}
+                placeholder="Confirm New Password" 
+                className="w-full p-2 border rounded" />
               </div>
               <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
                 Reset Password
@@ -424,7 +457,7 @@ return (
         </div>
       </div>
     </div>
-    {showOTPModal && (
+    {/* {showOTPModal && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
         <div className={`bg-${darkMode ? 'dark-gray-200' : 'white'} p-6 rounded-lg shadow-lg relative`}>
           <button 
@@ -458,7 +491,7 @@ return (
           </button>
         </div>
       </div>
-    )}
+    )} */}
   </div>
 );
 };

@@ -99,7 +99,7 @@ class AllCoursesView(APIView):
         ).filter(
             is_purchased=False
         ).select_related('user').prefetch_related(
-            Prefetch('user__tutorapplication', queryset=TutorApplication.objects.all(), to_attr='tutor_info')
+            Prefetch('user__education', queryset=TutorApplication.objects.all(), to_attr='tutor_info')
         )
 
         for course in courses:
