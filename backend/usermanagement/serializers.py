@@ -27,12 +27,28 @@ class TutorDetailSerializer(serializers.ModelSerializer):
             'is_rejected': obj.user.is_rejected
         }
     
+class TutorUpdateApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TutorApplication
+        fields = ['education_qualification', 'certificate', 'job_experience', 'experience_proof']
+        extra_kwargs = {
+            'certificate': {'required': False},
+            'experience_proof': {'required': False},
+        }
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return TutorApplication.objects.create(user=user, **validated_data)
 
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 class TutorApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = TutorApplication
-        fields = ['education_qualification', 'job_experience']
+        fields ="__all__"
 class CustomUserSerializer(serializers.ModelSerializer):
     tutor_application = serializers.SerializerMethodField()
 

@@ -40,6 +40,7 @@ import  TutorDetailPage  from './components/admin/tutors/TutorDetailPage';
 import { AdminCourseList } from './components/admin/course/AdminCourseList';
 import AdminCourseDetailPage from './components/admin/course/AdminCourseDetailPage';
 import QuizList from './components/tutor/QuizList';
+import EducationDetailsPage from './components/tutor/EducationDetailsPage';
 function App() {
   // const { darkMode } = useContext(ThemeContext);
   return (
@@ -60,6 +61,7 @@ function App() {
            <Route path='/tutor/courses' element={<CourseList/>}/>
            <Route path='/tutor/create-quiz' element={<QuizCreationForm/>}/>
            <Route path='tutor/create-quiz/tutor/quiz_list/' element={<QuizList/>}/>
+           <Route path='/tutor/education_view' element={<EducationDetailsPage/>}/>
          {/* <Route path="/tutor/course-preview" element={<CoursePreview />} /> */}
         </Route>
 

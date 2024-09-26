@@ -14,6 +14,8 @@ export const fetchTutorRequests = createAsyncThunk(
   }
 );
 
+// editEducation,addEducation
+
 export const approveTutor = createAsyncThunk(
   'userManagement/approveTutor',
   async (userId, { rejectWithValue }) => {

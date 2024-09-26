@@ -3,8 +3,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ThemeContext } from '../../../contexts/ThemeContext';
 import { fetchStudentProfile,updateProfilePicture,updateProfile, updatePassword  } from '../../../store/authSlice';
-  // preupdateProfile,profileverifyOTP,profilesendVerificationOTP,
-  
 import ProfileSidebar from './ProfileSidebar';
 import Navbar from './Navbar';
 import { FaRankingStar, FaBookOpen, FaTrophy, FaPlus, FaTrash } from 'react-icons/fa6';
@@ -14,6 +12,7 @@ import { toast } from 'react-toastify';
 import { logoutUser } from '../../../store/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { CircularProgress ,Box} from '@mui/material';
+
 const StudentProfile = () => {
   const { darkMode } = useContext(ThemeContext);
   const dispatch = useDispatch();
@@ -36,18 +35,11 @@ const StudentProfile = () => {
   const handleImageError = () => {
     if (!imgError) {
       setError(true);
-      setImageSrc(getFullImageUrl('path/to/fallback/image.png')); // Make sure this fallback image exists in your S3 bucket
+      setImageSrc(getFullImageUrl('path/to/fallback/image.png')); 
     }
   };
 
-  // if (!imageSrc) {
-  //   return <div>No image available</div>;
-  // }
-  // const [showOTPModal, setShowOTPModal] = useState(false);
-  // const [otp, setOTP] = useState('');
-  // const [newEmail,setNewEmail]=useState('');
-  // const [timer, setTimer] = useState(60);
-  // const [isResendActive, setIsResendActive] = useState(false);
+ 
   const statsData = [
         { icon: <FaRankingStar />, label: 'Rank', value: '10' },
         { icon: <FaBookOpen />, label: 'Courses Purchased', value: '5' },
@@ -128,16 +120,15 @@ const StudentProfile = () => {
       console.log("our password data:",passwordData)
       const resultAction = await dispatch(updatePassword(passwordData));
       if (updatePassword.fulfilled.match(resultAction)) {
-        // Reset password fields and show success message
+        
         toast.success("password updated successfully.login again to continue")
         dispatch(logoutUser())
         navigate('/landing-page')
-        // setPasswordData({ old_password: '', new_password: '', confirm_new_password: '' });
-        // Optionally, show a success message
+       
       } else if (updatePassword.rejected.match(resultAction)) {
         toast.error("Error updating Password.Please try again")
         console.error('Password update failed:', resultAction.error);
-        // Optionally, show an error message
+       
       }
     } catch (err) {
       console.error('Failed to update password:', err);
@@ -153,116 +144,8 @@ const StudentProfile = () => {
     setEditMode(false);
   };
 
-  // useEffect(() => {
-  //   let interval;
-  //   if (showOTPModal && timer > 0) {
-  //     interval = setInterval(() => {
-  //       setTimer((prevTimer) => prevTimer - 1);
-  //     }, 1000);
-  //   } else if (timer === 0) {
-  //     setIsResendActive(true);
-  //   }
-  //   return () => clearInterval(interval);
-  // }, [showOTPModal, timer]);
-
-  // const handleInputChange = (e) => {
-  //   setProfileData({ ...profileData, [e.target.name]: e.target.value });
-  // };
-
-  // const updateLocalStorageKeys = (oldEmail, newEmail) => {
-  //   // Get the current tokens
-  //   const accessToken = localStorage.getItem(`${oldEmail}access_token`);
-  //   const refreshToken = localStorage.getItem(`${oldEmail}refresh_token`);
-
-  //   // Remove old keys
-  //   localStorage.removeItem(`${oldEmail}access_token`);
-  //   localStorage.removeItem(`${oldEmail}refresh_token`);
-
-  //   // Set new keys with updated email
-  //   localStorage.setItem(`${newEmail}access_token`, accessToken);
-  //   localStorage.setItem(`${newEmail}refresh_token`, refreshToken);
-  // };
-
-
-
-
-  // const handleProfileUpdate = async (e) => {
-  //   e.preventDefault();
-  //   if (profileData.email !== user.email) {
-  //     setNewEmail(profileData.email);
-  //     const response = await dispatch(profilesendVerificationOTP(profileData.email));
-  //     if (response.payload && !response.error) {
-  //       setShowOTPModal(true);
-  //       setTimer(60);
-  //       setIsResendActive(false);
-  //     } else {
-  //       toast.error(response.error || 'Failed to send OTP');
-  //     }
-  //   } else {
-  //     updateProfileData();
-  //   }
-  // };
-
-  // const handleVerifyOTP = async () => {
-  //   const response = await dispatch(profileverifyOTP({ email: newEmail, otp }));
-  //   if (response.payload && !response.error) {
-  //     setShowOTPModal(false);
-  //     setProfileData({ ...profileData, email: newEmail });
-      
-  //     updateProfileData();
-  //   } else {
-  //     toast.error('Invalid OTP. Please try again.');
-  //     setIsResendActive(true);
-  //   }
-  // };
-
-  // const updateProfileData = async () => {
-  //   console.log(profileData.email,profileData.phone_number,profileData.username)
-  //   const response = await dispatch(preupdateProfile(profileData));
-  //   if (response.payload && !response.error) {
-  //     toast.success('Profile updated successfully');
-  //     setActiveForm(null);
-  //     dispatch(fetchStudentProfile());
-  //     // updateLocalStorage();
-  //     const currentUser = localStorage.getItem('current_user');
-  //     if (currentUser !== profileData.email) {
-  //       const accessToken = localStorage.getItem(`${currentUser}_access_token`);
-  //       const refreshToken = localStorage.getItem(`${currentUser}_refresh_token`);
-  //       const role = localStorage.getItem(`${currentUser}_role`);
-        
-  //       localStorage.removeItem(`${currentUser}_access_token`);
-  //       localStorage.removeItem(`${currentUser}_refresh_token`);
-  //       localStorage.removeItem(`${currentUser}_role`);
-        
-  //       localStorage.setItem(`${profileData.email}_access_token`, accessToken);
-  //       localStorage.setItem(`${profileData.email}_refresh_token`, refreshToken);
-  //       localStorage.setItem(`${profileData.email}_role`, role);
-  //         localStorage.setItem('current_user', profileData.email);
-  //       }
-  //   } else {
-  //     if (response.error) {
-  //       if (response.error.email) {
-  //         toast.error(`Email error: ${response.error.email[0]}`);
-  //       }
-  //       if (response.error.phone_number) {
-  //         toast.error(`Phone number error: ${response.error.phone_number[0]}`);
-  //       }
-  //     }
-  //   }
-  // };
-
-
-
-  // const handleResendOTP = async () => {
-  //   const response = await dispatch(sendVerificationOTP(profileData.email));
-  //   if (response.payload.success) {
-  //     setTimer(60);
-  //     setIsResendActive(false);
-  //     toast.success('OTP resent successfully');
-  //   } else {
-  //     toast.error(response.payload.error);
-  //   }
-  // };
+  
+  
 
   if (loading) return <div>
   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -277,32 +160,7 @@ return (
       <div className="flex-1 ml-64 p-8 overflow-y-auto"> {/* Add left margin to account for Sidebar width */}
         <div className={`bg-${darkMode ? 'dark-gray-200' : 'light-blueberry'} rounded-lg shadow-md p-6`}>
           <div className={`flex items-center mb-6 ${darkMode ? 'text-dark-white' : 'text-white'}`}>
-            {/* <div className="relative">
-              <img
-                src={getFullImageUrl(user.profile_pic) || 'https://via.placeholder.com/150'}
-                alt={user.username}
-                onError={handleImageError}
-                className="w-24 h-24 rounded-full mr-6"
-              />
-              <label htmlFor="profile-pic-input" className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-1 cursor-pointer">
-                <FaPlus className="text-white" />
-              </label>
-              <input
-                id="profile-pic-input"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                // onChange={handleProfilePictureChange}
-              />
-              {user.profile_pic && (
-                <button
-                  // onClick={handleRemoveProfilePicture}
-                  className="absolute top-0 right-0 bg-red-500 rounded-full p-1"
-                >
-                  <FaTrash className="text-white" />
-                </button>
-              )}
-            </div> */}
+           
               <div className="relative">
   {user.profile_pic ? (
    
@@ -457,41 +315,7 @@ return (
         </div>
       </div>
     </div>
-    {/* {showOTPModal && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-        <div className={`bg-${darkMode ? 'dark-gray-200' : 'white'} p-6 rounded-lg shadow-lg relative`}>
-          <button 
-            onClick={() => setShowOTPModal(false)} 
-            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-          >
-            &times;
-          </button>
-          <h2 className="text-xl font-bold mb-4">Verify Your Email</h2>
-          <p>An OTP has been sent to your new email. Please enter it below:</p>
-          <input
-            type="text"
-            value={otp}
-            onChange={(e) => setOTP(e.target.value)}
-            className="w-full p-2 border rounded mt-2"
-            placeholder="Enter OTP"
-          />
-          <button
-            onClick={handleVerifyOTP}
-            className="bg-blue-500 text-white py-2 px-4 rounded mt-4"
-            disabled={loading}
-          >
-            {loading ? 'Verifying...' : 'Verify OTP'}
-          </button>
-          <button
-            onClick={handleResendOTP}
-            className="bg-gray-300 text-gray-700 py-2 px-4 rounded mt-4 ml-2"
-            disabled={loading}
-          >
-            {loading ? 'Sending...' : 'Resend OTP'}
-          </button>
-        </div>
-      </div>
-    )} */}
+   
   </div>
 );
 };

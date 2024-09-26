@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginUser, setUser } from '../store/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-
+import { CircularProgress,Box } from '@mui/material';
 const Login = (onError) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -18,26 +18,7 @@ const Login = (onError) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const result = await dispatch(loginUser(formData)).unwrap();
-  //     dispatch(setUser(result.user));
-  //     if (result.user.role === 'tutor') {
-      
-  //       navigate('/tutor-home');
-  //     } else if (result.user.role === 'student') {
-  //       navigate('/student-home');
-  //       toast.success('Logged in successfully as student!');
-  //     }
-  //   } 
-    
-    
-  //   catch (err) {
-  //     console.error("Login failed:", err);
-  //     toast.error('Login failed. Please check your credentials and try again.');
-  //   }
-  // };
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -68,7 +49,14 @@ const Login = (onError) => {
   };
 
 
-
+if(loading){
+  return(
+    <div>
+  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+<CircularProgress />
+</Box></div>
+  )
+}
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

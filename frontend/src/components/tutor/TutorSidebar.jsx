@@ -1,71 +1,3 @@
-// import React, { useContext } from 'react';
-// import { Link, useLocation } from 'react-router-dom';
-// import { ThemeContext } from '../../contexts/ThemeContext';
-// import { getFullImageUrl } from '../../utils/auth';
-// const TutorSidebar = ({ user }) => {
-//   const { darkMode } = useContext(ThemeContext);
-//   const location = useLocation();
-
-//   const sidebarItems = [
-//     { name: 'Dashboard', icon: 'fas fa-tachometer-alt', path: '/tutor/dashboard' },
-//     { name: 'My Profile', icon: 'fas fa-user', path: '/tutor/profile' },
-//     { name: 'Students', icon: 'fas fa-users', path: '/tutor/students' },
-//     { name: 'Courses', icon: 'fas fa-book', path: '/tutor/courses' },
-//     { name: 'Schedule', icon: 'fas fa-calendar-alt', path: '/tutor/schedule' },
-//     { name: 'Chat', icon: 'fas fa-comments', path: '/tutor/chat' },
-//     { name: 'Revenue', icon: 'fas fa-chart-line', path: '/tutor/revenue' },
-//   ];
-
-//   const handleLogout = () => {
-   
-//   };
-
-//   return (
-//     <div className={`w-64 ${darkMode ? 'bg-dark-gray-200' : 'bg-light-blueberry'} text-white p-4 flex flex-col h-screen`}>
-//       <div className="text-2xl font-bold mb-8">MXEduLearners</div>
-//       <nav 
-//     //   className="flex-grow"
-//       >
-//         {sidebarItems.map((item, index) => (
-//           <Link
-//             key={index}
-//             to={item.path}
-//             className={`flex items-center mb-4 cursor-pointer ${
-//               darkMode ? 'hover:bg-dark-gray-100' : 'hover:bg-light-apricot'
-//             } p-2 rounded ${
-//               location.pathname === item.path ? (darkMode ? 'bg-dark-gray-100' : 'bg-light-apricot') : ''
-//             }`}
-//           >
-//             <i className={`${item.icon} mr-3`}></i>
-//             <span>{item.name}</span>
-//           </Link>
-//         ))}
-//       </nav>
-//       <div className="mt-auto">
-//         <div className="flex items-center mb-4">
-//           <img
-//            src={getFullImageUrl(user.profile_pic)}
-//             alt="Profile"
-//             className="w-10 h-10 rounded-full mr-3"
-//           />
-//           <span>{user.username}</span>
-//         </div>
-//         <button
-//           onClick={handleLogout}
-//           className={`w-full ${
-//             darkMode ? 'bg-dark-gray-100 hover:bg-dark-gray-200' : 'bg-light-apricot hover:bg-light-citrus'
-//           } p-2 rounded`}
-//         >
-//           Logout
-//         </button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default TutorSidebar;
-
-
 import React, { useContext, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ThemeContext } from '../../contexts/ThemeContext';
@@ -91,8 +23,13 @@ const TutorSidebar = ({ user }) => {
 
 
   const sidebarItems = [
-    { name: 'Dashboard', icon: 'fas fa-tachometer-alt', path: '/tutor-home' },
-    { name: 'My Profile', icon: 'fas fa-user', path: '/tutor-home' },
+    { name: 'My Profile', icon: 'fas fa-tachometer-alt', path: '/tutor-home' },
+    { name: 'Education and Qualification', icon: 'fas fa-user', path: '/tutor-education',
+    subItems:[
+      {name:'View Details',path:'/tutor/education_view'},
+      {name:'Add Education',path:'/tutor/add_education'}
+    ]
+  },
     { name: 'Students', icon: 'fas fa-users', path: '/tutor/students' },
     {
       name: 'Courses',

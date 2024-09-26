@@ -156,6 +156,51 @@ export const updateProfile = createAsyncThunk(
     }
   }
 )
+
+// editEducation,addEducation
+export const editEducation = createAsyncThunk(
+  'auth/editEducation',
+  async (formData, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState().auth;
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      const response = await userInstance.patch(`/admin/usermanagement/update-education/${user.id}/`, formData, {
+        headers: { 
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type':  'multipart/form-data'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+)
+export const addEducation = createAsyncThunk(
+  'auth/addnewEducation',
+  async (formData, { getState, rejectWithValue }) => {
+    try {
+      const { user } = getState().auth;
+      const accessToken = localStorage.getItem(`${user.email}_access_token`);
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      const response = await userInstance.post(`/admin/usermanagement/add-education/${user.id}/`, formData, {
+        headers: { 
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type':  'multipart/form-data'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+)
+
 export const updatePassword = createAsyncThunk(
   'auth/updatePassword',
   async (passwordData, { getState, rejectWithValue }) => {
@@ -342,8 +387,56 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     })
-
-
+    .addCase(editEducation.pending,(state,action)=>{
+      state.loading=true;
+      state.error=null
+    })
+    .addCase(editEducation.fulfilled, (state, action) => {
+      state.loading = false;
+      if (state.user && state.user.tutor_application) {
+        state.user.tutor_application = {
+          ...state.user.tutor_application,
+          ...action.payload
+        };
+      }
+      state.error = null;
+    })
+    // .addCase(editEducation.fulfilled,(state,action)=>{
+    //   state.loading=false;
+    //   state.user.tutor_application=action.payload;
+    //   state.error=null
+    // })
+    .addCase(editEducation.rejected,(state,action)=>{
+      state.loading=false;
+      state.error=action.payload;
+    })
+    .addCase(addEducation.pending,(state,action)=>{
+      state.loading=true;
+      state.error=null
+    })
+    .addCase(addEducation.fulfilled, (state, action) => {
+      state.loading = false;
+      if (state.user && state.user.tutor_application) {
+        // Assuming tutor_application is an array of education entries
+        state.user.tutor_application = [
+          ...state.user.tutor_application,
+          action.payload
+        ];
+      } else if (state.user) {
+        // If tutor_application doesn't exist yet, initialize it
+        state.user.tutor_application = [action.payload];
+      }
+      state.error = null;
+    })
+    // .addCase(addEducation.fulfilled,(state,action)=>{
+    //   state.loading=false;
+    //   state.user.tutor_application=action.payload;
+    //   state.error=null
+    // })
+    .addCase(addEducation.rejected,(state,action)=>{
+      state.loading=false;
+      state.error=action.payload;
+    })
 
 
 
