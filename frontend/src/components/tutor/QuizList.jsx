@@ -3,13 +3,15 @@ import { userInstance as axios } from '../../api/axios';
 import { DataGrid } from '@mui/x-data-grid';
 import { Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import TutorSidebar from './TutorSidebar';
+import { settutorQuizzes } from '../../store/tutorQuizSlice';
+
 const QuizList = () => {
   const [quizzes, setQuizzes] = useState([]);
   const navigate = useNavigate();
   const {user}=useSelector(state=>state.auth)
-
+  const dispatch=useDispatch();
   const calculateExtraFields = (quizzesData) => {
     return quizzesData.map((quiz) => {
       const totalLessons = quiz.questions.length;
@@ -24,13 +26,15 @@ const QuizList = () => {
     });
   };
 
-
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
         const response = await axios.get('/quizmanagement/quiz_list/');
+        console.log("quiz response:",response.data)
+        dispatch(settutorQuizzes(response.data))
         const processedData = calculateExtraFields(response.data);
         setQuizzes(processedData);
+        
       } catch (error) {
         console.error('Error fetching quizzes:', error);
       }
@@ -86,8 +90,13 @@ const QuizList = () => {
   ];
 
   const handleView = (quiz) => {
-    navigate(`/quizzes/${quiz.id}`);
+    const quizDetails = quizzes.find(q => q.id === quiz.id);
+    console.log("quizdetail to be send to detail page",quizDetails)
+    navigate(`/quiz-detail/${quiz.id}`, { state: { quizData: quizDetails } });
   };
+  // const handleView = (quiz) => {
+  //   navigate(`/quizzes/${quiz.id}`);
+  // };
 
   const handleDelete = (quiz) => {
     // Implement delete logic here

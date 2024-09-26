@@ -254,12 +254,12 @@ const TutorHome = () => {
               
               <h3 className={`text-xl font-semibold mb-2 mt-4 ${darkMode ? 'text-dark-white' : 'text-light-blueberry'}`}>Experience</h3>
               <p className={`${darkMode ? 'text-dark-gray-100' : 'text-light-apricot'}`}>{user.tutor_application?.job_experience}</p>
-              <button
+              {/* <button
                 onClick={() => setEditMode(true)}
                 className={`mt-4 ${darkMode ? 'bg-dark-gray-100 text-dark-white hover:bg-dark-gray-200' : 'bg-light-citrus text-white hover:bg-light-apricot'} px-4 py-2 rounded transition-colors`}
               >
                 Edit Education/Experience
-              </button>
+              </button> */}
             
             </div>
           </div>

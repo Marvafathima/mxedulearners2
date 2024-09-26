@@ -130,7 +130,7 @@ const QuizCreationForm = () => {
     try{
       dispatch(addQuiz(quizData)).unwrap();
       toast.success("Quiz created Successfully")
-      navigate('tutor/quiz_list/')
+      navigate('/tutor/quiz_list/')
     }
     catch(error){
      toast.error(`Error in creating Quiz.${error}`)

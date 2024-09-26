@@ -68,12 +68,12 @@ const EducationDetailsPage = () => {
           formData.append(key, editFormData[key]);
         }
       }
-      console.log("tutorapplication id",tutor_application.id)
+      
       await dispatch(editEducation({formData,tutorId:tutor_application.id})).unwrap();
       setSnackbar({ open: true, message: 'Education details updated successfully', severity: 'success' });
       handleEditClose();
     } catch (error) {
-        console.log(error,"error;;;;;;;;;;;;;;;")
+        
       setSnackbar({ open: true, message: 'Failed to update education details', severity: 'error' });
     }
   };
@@ -181,14 +181,14 @@ const EducationDetailsPage = () => {
             >
               Edit Details
             </Button>
-            <Button 
+            {/* <Button 
               variant="contained" 
               color="secondary"
               className="bg-green-600 hover:bg-green-700"
               onClick={handleAddOpen}
             >
               Add New Education
-            </Button>
+            </Button> */}
           </Box>
 
           {/* Edit Modal */}

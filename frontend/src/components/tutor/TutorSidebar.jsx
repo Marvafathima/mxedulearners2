@@ -45,7 +45,7 @@ const TutorSidebar = ({ user }) => {
     { name: 'Quiz', icon: 'fas fa-calendar-alt', path: '/tutor/quiz',
      subItems:[
       {name:'Create Quiz',path:'/tutor/create-quiz'},
-      {name:'View Quizzes',path:'tutor/quiz_list/'}
+      {name:'View Quizzes',path:'/tutor/quiz_list/'}
      ],
   
   },

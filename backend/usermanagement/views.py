@@ -139,17 +139,33 @@ class EditEducationView(APIView):
 class AddEducationView(APIView):
     permission_classes=[IsAuthenticated]
     def post(self, request):
+        user = request.user
+        existing_applications_count = TutorApplication.objects.filter(user=user).count()
+
+        if existing_applications_count >= 4:
+            return Response(
+                {"detail": "You have reached the maximum limit of 4 education details."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         serializer = TutorUpdateApplicationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            # Check if a TutorApplication already exists for this user
-            existing_application = TutorApplication.objects.filter(user=request.user).first()
-            if existing_application:
-                return Response({"detail": "TutorApplication already exists for this user."}, 
-                                status=status.HTTP_400_BAD_REQUEST)
-            
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # def post(self, request):
+    #     serializer = TutorUpdateApplicationSerializer(data=request.data, context={'request': request})
+    #     if serializer.is_valid():
+    #         # Check if a TutorApplication already exists for this user
+    #         existing_application = TutorApplication.objects.filter(user=request.user).first()
+    #         if existing_application:
+    #             return Response({"detail": "TutorApplication already exists for this user."}, 
+    #                             status=status.HTTP_400_BAD_REQUEST)
+            
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SendOTPView(APIView):
