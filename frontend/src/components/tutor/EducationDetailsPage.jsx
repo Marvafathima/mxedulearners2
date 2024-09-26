@@ -68,10 +68,12 @@ const EducationDetailsPage = () => {
           formData.append(key, editFormData[key]);
         }
       }
-      await dispatch(editEducation(formData)).unwrap();
+      console.log("tutorapplication id",tutor_application.id)
+      await dispatch(editEducation({formData,tutorId:tutor_application.id})).unwrap();
       setSnackbar({ open: true, message: 'Education details updated successfully', severity: 'success' });
       handleEditClose();
     } catch (error) {
+        console.log(error,"error;;;;;;;;;;;;;;;")
       setSnackbar({ open: true, message: 'Failed to update education details', severity: 'error' });
     }
   };

@@ -160,14 +160,14 @@ export const updateProfile = createAsyncThunk(
 // editEducation,addEducation
 export const editEducation = createAsyncThunk(
   'auth/editEducation',
-  async (formData, { getState, rejectWithValue }) => {
+  async ({formData,tutorId}, { getState, rejectWithValue }) => {
     try {
       const { user } = getState().auth;
       const accessToken = localStorage.getItem(`${user.email}_access_token`);
       if (!accessToken) {
         throw new Error('No access token found');
       }
-      const response = await userInstance.patch(`/admin/usermanagement/update-education/${user.id}/`, formData, {
+      const response = await userInstance.patch(`/admin/usermanagement/update-education/${user.id}/${tutorId}/`, formData, {
         headers: { 
           Authorization: `Bearer ${accessToken}`,
           'Content-Type':  'multipart/form-data'

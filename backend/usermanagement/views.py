@@ -127,9 +127,9 @@ class UserProfileUpdateView(APIView):
 
 class EditEducationView(APIView):
     permission_classes=[IsAuthenticated]
-    def patch(self, request, user_id):
+    def patch(self, request, user_id,tutor_id):
         user = get_object_or_404(CustomUser, id=user_id)
-        tutor_application, created = TutorApplication.objects.get_or_create(user=user)
+        tutor_application, created = TutorApplication.objects.get_or_create(user=user,id=tutor_id)
         
         serializer = TutorUpdateApplicationSerializer(tutor_application, data=request.data, partial=True)
         if serializer.is_valid():
