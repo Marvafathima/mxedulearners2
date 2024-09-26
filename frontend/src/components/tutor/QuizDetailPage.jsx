@@ -195,10 +195,10 @@ const handleSaveEdit = () => {
     toast.success("Question updated successfully!")
     navigate('/tutor/quiz_list/')
 
-    const updatedQuiz = quizzes.find(q => q.id === quizData.id);
-    if (updatedQuiz) {
-      setQuizData(updatedQuiz); // Update the state with the new quiz data
-    }
+    // const updatedQuiz = quizzes.find(q => q.id === quizData.id);
+    // if (updatedQuiz) {
+    //   setQuizData(updatedQuiz); // Update the state with the new quiz data
+    // }
     setEditModalOpen(false); // Close the modal after saving
     // After success, re-fetch the quiz data from Redux
     
