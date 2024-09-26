@@ -216,8 +216,117 @@ class QuizViewSet(viewsets.ModelViewSet):
    
 
 from rest_framework.viewsets import ModelViewSet
+from django.db import transaction
 
+class EditQuizView(generics.UpdateAPIView):
+    queryset = Quiz.objects.all()
+    serializer_class = QuizSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Check if the user is the creator of the quiz
+        if instance.creator != request.user:
+            return Response({"detail": "You do not have permission to edit this quiz."}, 
+                            status=status.HTTP_403_FORBIDDEN)
 
+        # Update Quiz fields
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # Handle Questions
+        if 'questions' in request.data:
+            existing_question_ids = set(instance.questions.values_list('id', flat=True))
+            updated_question_ids = set()
+
+            for question_data in request.data['questions']:
+                question_id = question_data.get('id')
+                
+                if question_id:
+                    # Update existing question
+                    question = Question.objects.get(id=question_id, quiz=instance)
+                    question_serializer = QuestionSerializer(question, data=question_data, partial=True)
+                else:
+                    # Create new question
+                    question_serializer = QuestionSerializer(data=question_data)
+
+                question_serializer.is_valid(raise_exception=True)
+                question = question_serializer.save(quiz=instance)
+                updated_question_ids.add(question.id)
+
+                # Handle Answers/Options
+                if 'options' in question_data:
+                    existing_answer_ids = set(question.answers.values_list('id', flat=True))
+                    updated_answer_ids = set()
+
+                    for answer_data in question_data['options']:
+                        answer_id = answer_data.get('id')
+                        
+                        if answer_id:
+                            # Update existing answer
+                            answer = Answer.objects.get(id=answer_id, question=question)
+                            answer_serializer = AnswerSerializer(answer, data=answer_data, partial=True)
+                        else:
+                            # Create new answer
+                            answer_serializer = AnswerSerializer(data=answer_data)
+
+                        answer_serializer.is_valid(raise_exception=True)
+                        answer = answer_serializer.save(question=question)
+                        updated_answer_ids.add(answer.id)
+
+                    # Delete answers that weren't updated
+                    Answer.objects.filter(question=question, id__in=existing_answer_ids - updated_answer_ids).delete()
+
+            # Delete questions that weren't updated
+            Question.objects.filter(quiz=instance, id__in=existing_question_ids - updated_question_ids).delete()
+
+        # Re-fetch the updated quiz instance
+        updated_instance = self.get_object()
+        serializer = self.get_serializer(updated_instance)
+        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&",serializer.data)
+        return Response(serializer.data)
+from rest_framework.exceptions import NotFound
+class QuestionUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Question.objects.all()
+    serializer_class = Question2Serializer
+    permission_classes = [IsAuthenticated]
+    def get_object(self):
+        quiz_id = self.kwargs.get('quiz_id')
+        question_id = self.kwargs.get('question_id')
+
+        # Ensure the question exists and belongs to the correct quiz
+        try:
+            question = Question.objects.get(id=question_id, quiz_id=quiz_id)
+        except Question.DoesNotExist:
+            raise NotFound(detail="Question not found or does not belong to this quiz.")
+
+        return question
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&",serializer.data)
+        user = self.request.user
+        courses = Courses.objects.filter(user=user)
+        quizzes = Quiz.objects.filter(course__in=courses)
+
+        # Serialize the list of quizzes
+        quiz_serializer = QuizSerializer(quizzes, many=True)
+
+        # Return the updated list of quizzes
+        return Response(quiz_serializer.data)
+        # return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+    def get_queryset(self):
+        return Question.objects.filter(quiz__creator=self.request.user) 
 class QuestionViewSet(ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer

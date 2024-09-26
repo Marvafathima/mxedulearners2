@@ -41,17 +41,43 @@ export const addQuiz = createAsyncThunk(
   }
 );
 
+// export const updateQuiz = createAsyncThunk(
+//   'quizzes/updateQuiz',
+//   async ({id,quizData,questions }, { rejectWithValue }) => {
+//     try {
+//       const response = await axios.put(`${API_URL}edit-quiz/${id}/`, quizData,questions);
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response.data);
+//     }
+//   }
+// );
+
 export const updateQuiz = createAsyncThunk(
   'quizzes/updateQuiz',
-  async ({ id, quizData }, { rejectWithValue }) => {
+  async ({quizId,questionId, updatedQuestion }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`${API_URL}${id}/`, quizData);
+      const response = await axios.put(`${API_URL}edit-quiz/${quizId}/${questionId}/`, updatedQuestion);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
   }
 );
+
+
+
+// export const updateQuiz = createAsyncThunk(
+//   'quizzes/updateQuiz',
+//   async ({ id, quizData }, { rejectWithValue }) => {
+//     try {
+//       const response = await axios.put(`${API_URL}${id}/`, quizData);
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response.data);
+//     }
+//   }
+// );
 
 export const deleteQuiz = createAsyncThunk(
   'quizzes/deleteQuiz',
@@ -91,10 +117,12 @@ const quizSlice = createSlice({
         state.quizzes.push(action.payload);
       })
       .addCase(updateQuiz.fulfilled, (state, action) => {
-        const index = state.quizzes.findIndex(quiz => quiz.id === action.payload.id);
-        if (index !== -1) {
-          state.quizzes[index] = action.payload;
-        }
+        state.status='succeeded';
+        state.quizzes=action.payload
+        // const index = state.quizzes.findIndex(quiz => quiz.id === action.payload.id);
+        // if (index !== -1) {
+        //   state.quizzes[index] = action.payload;
+        // }
       })
       .addCase(deleteQuiz.fulfilled, (state, action) => {
         state.quizzes = state.quizzes.filter(quiz => quiz.id !== action.payload);
