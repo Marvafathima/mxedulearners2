@@ -101,15 +101,19 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import TutorNavbar from './TutorNavbar';
 import TutorSidebar from './TutorSidebar';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
+import { useEffect } from 'react';
 // import { editQuiz } from '../actions/quizActions'; // Assuming you have this action creator
 import { updateQuiz } from '../../store/quizSlice';
 const QuizDetailPage = () => {
   const location = useLocation();
-  const { quizData } = location.state || {};
-  
+  const { quizData: initialQuizData } = location.state || {};
+ const navigate=useNavigate();
+  const { quizzes } = useSelector((state) => state.tutorquiz); 
+  const [quizData, setQuizData] = useState(initialQuizData || {}); 
+
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
@@ -159,6 +163,14 @@ const QuizDetailPage = () => {
       options: editingQuestion.options.filter(option => option.id !== optionId)
     });
   };
+  useEffect(() => {
+    // Fetch the updated quiz from quizzes array based on the quiz ID
+    const updatedQuiz = quizzes.find(q => q.id === quizData.id);
+    if (updatedQuiz) {
+      setQuizData(updatedQuiz); // Update the local state with the updated quiz
+    }
+  }, [quizzes, quizData.id]); // Re-run when quizzes or quizData.id changes
+
 
 //   const handleSaveEdit = () => {
 //     const updatedQuestions = quizData.questions.map(q => 
@@ -180,12 +192,16 @@ const handleSaveEdit = () => {
     .unwrap() // Unwrap the promise to handle success or failure
   .then(() => {
     // Success toast notification
-    toast.success("Question updated successfully!", {
-      position: toast.POSITION.TOP_RIGHT,
-      autoClose: 3000,
-    });
-    
+    toast.success("Question updated successfully!")
+    navigate('/tutor/quiz_list/')
+
+    const updatedQuiz = quizzes.find(q => q.id === quizData.id);
+    if (updatedQuiz) {
+      setQuizData(updatedQuiz); // Update the state with the new quiz data
+    }
     setEditModalOpen(false); // Close the modal after saving
+    // After success, re-fetch the quiz data from Redux
+    
   })
   .catch((error) => {
     // Error toast notification
