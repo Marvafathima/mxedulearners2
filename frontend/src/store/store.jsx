@@ -14,6 +14,7 @@ import quizReducer from './quizSlice';
 import cartReducer from './cartSlice';
 import quizareaReducer from './quizareaSlice'
 import tutorQuizReducer from './tutorQuizSlice';
+import tutorChatReducer from './tutorChatSlice';
 const encryptor = encryptTransform({
   secretKey: 'your-secret-key',
   onError: function(error) {
@@ -39,7 +40,8 @@ const rootReducer = combineReducers({
   cart: cartReducer,
   userProgress: userProgressReducer,
   quizarea:quizareaReducer,
-  tutorquiz:tutorQuizReducer
+  tutorquiz:tutorQuizReducer,
+  chats:tutorChatReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

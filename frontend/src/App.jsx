@@ -42,6 +42,9 @@ import AdminCourseDetailPage from './components/admin/course/AdminCourseDetailPa
 import QuizList from './components/tutor/QuizList';
 import EducationDetailsPage from './components/tutor/EducationDetailsPage';
 import QuizDetailPage from './components/tutor/QuizDetailPage';
+import ChatComponent from './components/ChatComponent';
+import TutorChatPage from './components/tutor/TutorChatPage';
+import StudentChatPage from './components/students/studentpages/StudentChatPage';
 function App() {
   // const { darkMode } = useContext(ThemeContext);
   return (
@@ -54,7 +57,7 @@ function App() {
             <Route path="/landing-page" element={<LandingPage/>} />
           
             <Route path="/admin/login" element={<AdminLoginPage />} />
-
+            <Route path="/chat" element= {<ChatComponent roomName="general" />}/>
 
             <Route element={<ProtectedUserRoute allowedRoles={['tutor']} />}>
           <Route path="/tutor-home" element={<TutorHome />} />
@@ -64,7 +67,7 @@ function App() {
            <Route path='/tutor/quiz_list/' element={<QuizList/>}/>
            <Route path='/quiz-detail/:quizid' element={<QuizDetailPage/>}/>
            <Route path='/tutor/education_view' element={<EducationDetailsPage/>}/>
-
+           <Route path='/tutor/chat' element={<TutorChatPage/>}/>
          {/* <Route path="/tutor/course-preview" element={<CoursePreview />} /> */}
         </Route>
 
@@ -80,6 +83,7 @@ function App() {
           <Route path='/my_courses'element={<MyCoursesPage />} />
           <Route path='/mycourse/:id'element={<MycourseDetail/>} />
           <Route path='/quiz/:quizId'element={<QuizComponent/>} />
+          <Route path='/student/chat'element={<StudentChatPage/>} />
         </Route>
 
             <Route path="/admin/dashboard"  
