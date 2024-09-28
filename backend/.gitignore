@@ -1,2 +1,2 @@
 .env
-settings.py
+backend/settings.py
