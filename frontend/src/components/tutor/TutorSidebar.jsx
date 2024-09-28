@@ -153,11 +153,14 @@ const TutorSidebar = ({ user }) => {
       </nav>
       <div className="mt-auto">
         <div className="flex items-center mb-4">
+        {user.profile_pic ? ( 
           <img
             src={getFullImageUrl(user.profile_pic)}
             alt="Profile"
             className="w-10 h-10 rounded-full mr-3"
-          />
+          />):(
+            <span>{user.username[0].toUpperCase()}</span>
+          )}
           <span>{user.username}</span>
         </div>
         <button
@@ -168,6 +171,10 @@ const TutorSidebar = ({ user }) => {
         >
           Logout
         </button>
+      
+
+
+
       </div>
     </div>
   );

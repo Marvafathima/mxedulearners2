@@ -27,9 +27,9 @@ const TutorHome = () => {
     }
   };
 
-  if (!imageSrc) {
-    return <div>No image available</div>;
-  }
+  // if (!imageSrc) {
+  //   return <div>No image available</div>;
+  // }
 
   const [showProfileOptions, setShowProfileOptions] = useState(false);
   const [activeForm, setActiveForm] = useState('profile'); // 'profile' or 'password'

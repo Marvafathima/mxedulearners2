@@ -22,10 +22,36 @@ export const fetchMyStudents = createAsyncThunk(
       }
     }
   )
+
+  export const fetchMyTutors = createAsyncThunk(
+    'chat/fetchMyTutors',
+    async (studentId, { getState, rejectWithValue }) => {
+      try {
+        const { user } = getState().auth;
+        const accessToken = localStorage.getItem(`${user.email}_access_token`);
+        if (!accessToken) {
+          throw new Error('No access token found');
+        }
+        const response = await userInstance.get(`chat/student/${studentId}/tutors/`, {
+          headers: { 
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+        return response.data;
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message);
+      }
+    }
+  )
+
+
+
+
   const tutorChatSlice = createSlice({
     name: 'chats',
     initialState: {
       students: [],
+      tutors:[],
       status: 'idle',
       error: null,
     },
@@ -43,6 +69,21 @@ export const fetchMyStudents = createAsyncThunk(
           state.status = 'failed';
           state.error = action.payload;
         })
+
+        .addCase(fetchMyTutors.pending, (state) => {
+            state.status = 'loading';
+          })
+          .addCase(fetchMyTutors.fulfilled, (state, action) => {
+            state.status = 'succeeded';
+            state.tutors = action.payload.tutors;
+          })
+          .addCase(fetchMyTutors.rejected, (state, action) => {
+            state.status = 'failed';
+            state.error = action.payload;
+          })
+  
+
+
     },
     });
 

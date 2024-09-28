@@ -6,10 +6,14 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class ChatMessage(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
     room_name = models.CharField(max_length=255)
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
+    
+    class Meta:
+        ordering = ['timestamp']
 
     def __str__(self):
-        return f'{self.user.username}: {self.message[:20]}...'
+        return f'{self.sender} to {self.receiver}: {self.message[:50]}'
