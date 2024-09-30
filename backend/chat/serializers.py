@@ -6,8 +6,9 @@ from razorpay_backend.models import OrdersItem
 from api.models import CustomUser
 from courses.models import Courses
 from rest_framework import serializers
-
-
+import logging
+from django.contrib.auth import get_user_model
+User = get_user_model()
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Courses
@@ -34,11 +35,21 @@ class TutorSerializer(serializers.ModelSerializer):
         
 from .models import ChatMessage
 
+logger = logging.getLogger(__name__)
 class ChatMessageSerializer(serializers.ModelSerializer):
+    sender_id = serializers.PrimaryKeyRelatedField(source='sender', queryset=User.objects.all())
+    receiver_id = serializers.PrimaryKeyRelatedField(source='receiver', queryset=User.objects.all())
+
     class Meta:
         model = ChatMessage
-        fields = ['id', 'room_name', 'message', 'timestamp', 'sender', 'receiver']
-
+        fields = ['id', 'room_name', 'message', 'timestamp', 'sender_id', 'receiver_id']
+    # def create(self, validated_data):
+    #     sender = validated_data.pop('sender')
+    #     receiver = validated_data.pop('receiver')
+    #     logger.info(f"Creating message with data:{sender}{receiver} {validated_data}")
+    #     return ChatMessage.objects.create(sender=sender, receiver=receiver, **validated_data)
+        # logger.info(f"Creating message with data: {validated_data}")
+        # return super().create(validated_data)
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser

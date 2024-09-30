@@ -9,7 +9,9 @@ from courses.models import Courses
 from .serializers import StudentSerializer,TutorSerializer,ChatMessageSerializer,UserSerializer
 from django.http import JsonResponse
 from .models import ChatMessage
+import logging
 
+logger = logging.getLogger(__name__)
 # def room(request, room_name):
 #     return render(request, 'chat/room.html', {
 #         'room_name': room_name
@@ -83,17 +85,12 @@ class ChatMessageViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['POST'])
     def send_message(self, request):
+        logger.info(f"Received data: {request.data}")
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            # serializer.save()
+            logger.info(f"Message saved: {serializer.data}")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        logger.error(f"Serializer errors: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# def get_chat_history(request, room_name):
-#     messages = ChatMessage.objects.filter(room_name=room_name).order_by('timestamp')
-#     return JsonResponse([{
-#         'sender_id': msg.sender.id,
-#         'receiver_id': msg.receiver.id,
-#         'message': msg.message,
-#         'timestamp': msg.timestamp.isoformat()
-#     } for msg in messages], safe=False)

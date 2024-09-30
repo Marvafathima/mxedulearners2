@@ -30,6 +30,13 @@ const StudentChatPage = () => {
 
       newSocket.onmessage = (event) => {
         const data = JSON.parse(event.data);
+// Ensure the message object includes the sender information
+// const messageWithSender = {
+//   ...data,
+//   sender: data.sender || selectedTutor.id // Assume it's from the student if sender is not specified
+// };
+// dispatch(addMessage({ roomName, message: messageWithSender }));
+
         dispatch(addMessage({ roomName, message: data }));
       };
         
@@ -54,11 +61,13 @@ const StudentChatPage = () => {
     if (message.trim() && selectedTutor) {
       const messageData = {
         message: message,
-        sender: user.id,
-        receiver: selectedTutor.id,
+        sender_id: user.id,
+        receiver_id: selectedTutor.id,
         room_name: `${user.id}_${selectedTutor.id}`
       };
-      dispatch(sendMessage(messageData));
+      console.log("consoling messgge to check its content",messageData)
+     
+      // dispatch(sendMessage(messageData));
       if (socket) {
         socket.send(JSON.stringify(messageData));
       }
@@ -100,8 +109,23 @@ const StudentChatPage = () => {
               <Typography variant="h6" className="p-4">
                 Chat with {selectedTutor.username}
               </Typography>
-            
               <Box className="flex-grow p-4 overflow-auto">
+              {currentChat.map((chat, index) => (
+                <div
+                  key={index}
+                  className={`mb-2 ${
+                    chat.sender_id === user.id ? 'text-left' : 'text-right'
+                  }`}
+                >
+                  <span className={`inline-block rounded px-2 py-1 ${
+                    chat.sender_id === user.id ? 'bg-blue-100' : 'bg-green-100'
+                  }`}>
+                    {chat.message}
+                  </span>
+                </div>
+              ))}
+            </Box>
+              {/* <Box className="flex-grow p-4 overflow-auto">
                   {currentChat.map((chat, index) => (
                     <div
                       key={index}
@@ -116,7 +140,7 @@ const StudentChatPage = () => {
                       </span>
                     </div>
                   ))}
-                </Box>
+                </Box> */}
               <Box className="p-4 flex">
                 <TextField
                   fullWidth

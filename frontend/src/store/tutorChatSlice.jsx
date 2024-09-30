@@ -75,7 +75,7 @@ export const fetchMyStudents = createAsyncThunk(
         if (!accessToken) {
           throw new Error('No access token found');
         }
-        const response = await userInstance.post('chat/messages/send_message/', {
+        const response = await userInstance.post('chat/messages/send_message/', messageData, {
           headers: { 
             Authorization: `Bearer ${accessToken}`
           }
