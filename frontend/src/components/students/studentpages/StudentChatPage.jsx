@@ -3,17 +3,16 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, TextField, Button, List, ListItem, ListItemText, Typography } from '@mui/material';
 import Layout from '../studentcomponent/Layout';
-import { fetchMyTutors } from '../../../store/tutorChatSlice';
+import { fetchMyTutors,addMessage,fetchChatHistory,sendMessage } from '../../../store/tutorChatSlice';
 
 const StudentChatPage = () => {
   const dispatch = useDispatch();
   const [selectedTutor, setSelectedTutor] = useState(null);
   const [message, setMessage] = useState('');
-  const [chats, setChats] = useState({});
   const [socket, setSocket] = useState(null);
   const { user } = useSelector((state) => state.auth);
-  const { tutors, loading, error } = useSelector((state) => state.chats);
-
+  const { tutors,messages, loading, error } = useSelector((state) => state.chats);
+  console.log("this is the user detail",user.username,user.id)
   useEffect(() => {
     dispatch(fetchMyTutors(user.id));
   }, [dispatch, user.id]);
@@ -22,37 +21,18 @@ const StudentChatPage = () => {
     if (selectedTutor) {
       const roomName = `${user.id}_${selectedTutor.id}`;
       console.log("this is the routing url for websocket:",roomName)
+      dispatch(fetchChatHistory(roomName));
       const newSocket = new WebSocket(`ws://localhost:8000/ws/chat/${roomName}/`);
       console.log("this is the routing url for websocket:",newSocket)
       newSocket.onopen = () => {
         console.log('WebSocket connection established');
       };
 
-      // newSocket.onmessage = (event) => {
-      //   const data = JSON.parse(event.data);
-      //   setChats((prevChats) => ({
-      //     ...prevChats,
-      //     [selectedTutor.id]: [
-      //       ...(prevChats[selectedTutor.id] || []),
-      //       { sender: data.sender_id === user.id ? 'student' : 'tutor', message: data.message },
-      //     ],
-      //   }));
-      // };
       newSocket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        setChats((prevChats) => ({
-          ...prevChats,
-          [data.sender_id === user.id ? data.receiver_id : data.sender_id]: [
-            ...(prevChats[data.sender_id === user.id ? data.receiver_id : data.sender_id] || []),
-            { 
-              sender: data.sender_id === user.id ? 'self' : 'other', 
-              message: data.message,
-              sender_id: data.sender_id,
-              receiver_id: data.receiver_id
-            },
-          ],
-        }));
+        dispatch(addMessage({ roomName, message: data }));
       };
+        
       newSocket.onclose = () => {
         console.log('WebSocket connection closed');
       };
@@ -63,23 +43,28 @@ const StudentChatPage = () => {
         newSocket.close();
       };
     }
-  }, [selectedTutor, user.id]);
+  }, [selectedTutor, user.id, dispatch]);
 
   const handleTutorSelect = (tutor) => {
     setSelectedTutor(tutor);
   };
 
+ 
   const handleSendMessage = () => {
-    if (message.trim() && selectedTutor && socket) {
-      socket.send(JSON.stringify({
+    if (message.trim() && selectedTutor) {
+      const messageData = {
         message: message,
-        sender_id: user.id,
-        receiver_id: selectedTutor.id 
-      }));
+        sender: user.id,
+        receiver: selectedTutor.id,
+        room_name: `${user.id}_${selectedTutor.id}`
+      };
+      dispatch(sendMessage(messageData));
+      if (socket) {
+        socket.send(JSON.stringify(messageData));
+      }
       setMessage('');
     }
   };
-
   if (loading) {
     return <Typography>Loading tutors...</Typography>;
   }
@@ -87,6 +72,9 @@ const StudentChatPage = () => {
   if (error) {
     return <Typography color="error">Error: {error}</Typography>;
   }
+  const roomName = selectedTutor ? `${user.id}_${selectedTutor.id}` : null;
+  const currentChat = roomName ? messages[roomName] || [] : [];
+
 
   return (
     <Layout>
@@ -112,20 +100,23 @@ const StudentChatPage = () => {
               <Typography variant="h6" className="p-4">
                 Chat with {selectedTutor.username}
               </Typography>
+            
               <Box className="flex-grow p-4 overflow-auto">
-                {chats[selectedTutor.id]?.map((chat, index) => (
-                  <div
-                    key={index}
-                    className={`mb-2 ${
-                      chat.sender === 'student' ? 'text-right' : 'text-left'
-                    }`}
-                  >
-                    <span className="inline-block bg-green-100 rounded px-2 py-1">
-                      {chat.message}
-                    </span>
-                  </div>
-                ))}
-              </Box>
+                  {currentChat.map((chat, index) => (
+                    <div
+                      key={index}
+                      className={`mb-2 ${
+                        chat.sender === user.id ? 'text-left' : 'text-right'
+                      }`}
+                    >
+                      <span className={`inline-block rounded px-2 py-1 ${
+                        chat.sender === user.id ? 'bg-blue-100' : 'bg-green-100'
+                      }`}>
+                        {chat.message}
+                      </span>
+                    </div>
+                  ))}
+                </Box>
               <Box className="p-4 flex">
                 <TextField
                   fullWidth

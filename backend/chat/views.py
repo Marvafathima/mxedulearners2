@@ -1,13 +1,14 @@
 from django.shortcuts import render
-from rest_framework import generics
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import viewsets,status,generics,serializers
+from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from razorpay_backend.models import OrdersItem
 from api.models import CustomUser
 from courses.models import Courses
-from rest_framework import serializers
-from .serializers import StudentSerializer,TutorSerializer
+from .serializers import StudentSerializer,TutorSerializer,ChatMessageSerializer,UserSerializer
+from django.http import JsonResponse
+from .models import ChatMessage
 
 # def room(request, room_name):
 #     return render(request, 'chat/room.html', {
@@ -65,3 +66,34 @@ class StudentTutorsView(generics.RetrieveAPIView):
             'student_name': student.username,
             'tutors': serializer.data
         }, status=status.HTTP_200_OK)
+
+
+class ChatMessageViewSet(viewsets.ModelViewSet):
+    queryset = ChatMessage.objects.all()
+    serializer_class = ChatMessageSerializer
+
+    @action(detail=False, methods=['GET'])
+    def chat_history(self, request):
+        room_name = request.query_params.get('room_name')
+        if room_name:
+            messages = self.queryset.filter(room_name=room_name).order_by('timestamp')
+            serializer = self.get_serializer(messages, many=True)
+            return Response(serializer.data)
+        return Response({"error": "Room name is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['POST'])
+    def send_message(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# def get_chat_history(request, room_name):
+#     messages = ChatMessage.objects.filter(room_name=room_name).order_by('timestamp')
+#     return JsonResponse([{
+#         'sender_id': msg.sender.id,
+#         'receiver_id': msg.receiver.id,
+#         'message': msg.message,
+#         'timestamp': msg.timestamp.isoformat()
+#     } for msg in messages], safe=False)

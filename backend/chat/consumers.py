@@ -84,8 +84,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-        sender_id = text_data_json['sender_id']
-        receiver_id = text_data_json['receiver_id']  # New field
+        sender_id = text_data_json['sender']
+        receiver_id = text_data_json['receiver']  # New field
 
         # Save message to database
         await self.save_message(sender_id, receiver_id, self.room_name, message)
